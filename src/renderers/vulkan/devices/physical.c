@@ -1,14 +1,14 @@
+#include <common/core.h>
+
 #include <renderers/vulkan/devices/physical.h>
 #include <renderers/vulkan/queues/queue_family_indicies.h>
 
-#include <logging/logger.h>
-
 #include <stdlib.h>
 
-int setup_physical_device(vulkan_renderer_t *vk_renderer) {
+shatter_status_t choose_physical_device(vulkan_renderer_t *vk_renderer) {
 	
 	log_message(stdout, "Checking physical devices.\n");
-	int status = SHATTER_PHYSICAL_DEVICE_SUCCESS;
+	int status = SHATTER_SUCCESS;
 	
 	uint32_t num_devices = 0;
 	vkEnumeratePhysicalDevices(vk_renderer->vulkan_instance, &num_devices, NULL);
@@ -16,7 +16,7 @@ int setup_physical_device(vulkan_renderer_t *vk_renderer) {
 	if (num_devices == 0) {
 		
 		log_message(stderr, "Unable to find any GPUs with Vulkan support.\n");
-		status = SHATTER_PHYSICAL_DEVICE_SETUP_FAILURE;
+		status = SHATTER_VULKAN_PHYSICAL_DEVICE_CHOICE_FAILURE;
 		goto exit;
 	}
 	
@@ -36,7 +36,7 @@ int setup_physical_device(vulkan_renderer_t *vk_renderer) {
 	if (vk_renderer->physical_device == VK_NULL_HANDLE) {
 		
 		log_message(stderr, "Failed to find a suitable GPU.\n");
-		status = SHATTER_PHYSICAL_DEVICE_SETUP_FAILURE;
+		status = SHATTER_VULKAN_PHYSICAL_DEVICE_CHOICE_FAILURE;
 		goto cleanup;
 	}
 	

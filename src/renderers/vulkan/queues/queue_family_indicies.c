@@ -1,16 +1,18 @@
-#include <renderers/vulkan/queues/queue_family_indicies.h>
+#include <common/core.h>
 
-#include <logging/logger.h>
+#include <renderers/vulkan/queues/queue_family_indicies.h>
 
 #include <stdarg.h>
 #include <stdlib.h>
+
+// ---------- Required Families ---------- //
 
 typedef struct {
 	
 	uint32_t family_index;
 	bool (*condition_lambda)(VkQueueFamilyProperties *, ...);
 	const char *debug_string;
-} queue_family;
+} required_queue_family_t;
 
 bool has_graphics(VkQueueFamilyProperties *family, ...) {
 	
@@ -32,11 +34,13 @@ bool can_present(VkQueueFamilyProperties *family, ...) {
 	return present_support == VK_TRUE;
 }
 
-static const queue_family REQUIRED_FAMILY_LIST[MAX_INDICIES] = {
+static const required_queue_family_t REQUIRED_FAMILY_LIST[MAX_INDICIES] = {
 	
 	{ GRAPHICS_FAMILY_INDEX, has_graphics, "Graphics Family" },
 	{ PRESENT_FAMILY_INDEX, can_present, "Present Family" },
 };
+
+// ---------- Helper Functions ---------- //
 
 size_t get_num_required_families(void) {
 	
@@ -49,6 +53,8 @@ size_t get_num_required_families(void) {
 	
 	return required_family_index;
 }
+
+// ---------- Queue Family Functions ---------- //
 
 void get_queue_families(vulkan_renderer_t *vk_renderer, VkPhysicalDevice device, queue_family_indicies *indicies) {
 	

@@ -24,6 +24,9 @@ else
 	PCH_FLAGS := $(foreach PCH, $(PCHS), -include $(PCH))
 endif
 
+# For precompiled headers
+INCS  = $(INC_DIR)/common/core.h
+
 SRCS = $(SRC_DIR)/app/app.c \
 	   \
 	   $(SRC_DIR)/logging/logger.c \
@@ -33,7 +36,7 @@ SRCS = $(SRC_DIR)/app/app.c \
 	   \
 	   $(SRC_DIR)/renderers/vulkan/callbacks.c \
 	   $(SRC_DIR)/renderers/vulkan/renderer.c \
-	   $(SRC_DIR)/renderers/vulkan/vulkan.c \
+	   $(SRC_DIR)/renderers/vulkan/renderer_helper.c \
 	   \
 	   $(SRC_DIR)/renderers/vulkan/devices/logical.c \
 	   $(SRC_DIR)/renderers/vulkan/devices/physical.c \
@@ -42,10 +45,9 @@ SRCS = $(SRC_DIR)/app/app.c \
 	   \
 	   $(SRC_DIR)/renderers/vulkan/surfaces/surface.c \
 
+PCH_FILE_STRUCT = $(dir $(INCS:$(INC_DIR)/%=$(PCH_DIR)/%))
 OBJ_FILE_STRUCT = $(dir $(SRCS:$(SRC_DIR)/%=$(OBJ_DIR)/%))
 DEP_FILE_STRUCT = $(dir $(SRCS:$(SRC_DIR)/%=$(DEP_DIR)/%))
-
-INCS  = 
 
 PCHS  = $(INCS:$(INC_DIR)/%=$(PCH_DIR)/%$(PCH_EXT))
 OBJS  = $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
@@ -63,6 +65,7 @@ run: $(BIN_DIR)/$(BIN_NAME)
 
 dirs:
 	mkdir -p $(PCH_DIR)
+	mkdir -p $(PCH_FILE_STRUCT)
 	mkdir -p $(OBJ_DIR)
 	mkdir -p $(OBJ_FILE_STRUCT)
 	mkdir -p $(DEP_DIR)

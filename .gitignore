@@ -6,5 +6,5 @@ cglm/
 bin/
 deps/
 objs/
-pchs/
+pch/
 tmp/

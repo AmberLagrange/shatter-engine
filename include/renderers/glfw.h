@@ -1,16 +1,10 @@
 #ifndef RENDERERS_GLFW_H
 #define RENDERERS_GLFW_H
 
-enum {
-	
-	SHATTER_GLFW_SUCCESS = 0,
-	SHATTER_GLFW_INIT_FAILURE,
-	SHATTER_GLFW_TERMINATE_FAILURE,
-	SHATTER_GLFW_WINDOW_FAILURE,
-};
+#include <common/core.h>
 
-int init_glfw(void);
-int terminate_glfw(void);
+shatter_status_t init_glfw(void);
+shatter_status_t terminate_glfw(void);
 
 #endif // RENDERER_GLFW_H
 

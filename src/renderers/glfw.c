@@ -1,14 +1,14 @@
+#include <common/core.h>
+
 #include <renderers/glfw.h>
 #include <GLFW/glfw3.h>
-
-#include <logging/logger.h>
 
 #include <stdbool.h>
 
 static bool s_glfw_initialized = false;
 static uint32_t s_glfw_instances = 0;
 
-int init_glfw(void) {
+shatter_status_t init_glfw(void) {
 	
 	if (!s_glfw_initialized) {
 		
@@ -21,10 +21,10 @@ int init_glfw(void) {
 	}
 	++s_glfw_instances;
 	
-	return SHATTER_GLFW_SUCCESS;
+	return SHATTER_SUCCESS;
 }
 
-int terminate_glfw(void) {
+shatter_status_t terminate_glfw(void) {
 	
 	--s_glfw_instances;
 	if (s_glfw_instances == 0) {
@@ -34,6 +34,6 @@ int terminate_glfw(void) {
 		log_message(stdout, "Terminated GLFW.\n");
 	}
 	
-	return SHATTER_GLFW_SUCCESS;
+	return SHATTER_SUCCESS;
 }
 

@@ -1,6 +1,6 @@
-#include <renderers/vulkan/callbacks.h>
+#include <common/core.h>
 
-#include <logging/logger.h>
+#include <renderers/vulkan/callbacks.h>
 
 VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(
 	

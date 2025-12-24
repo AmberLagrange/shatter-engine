@@ -3,8 +3,6 @@
 
 #include <renderers/vulkan/renderer.h>
 
-#include <vulkan/vulkan.h>
-
 #include <stdbool.h>
 #include <stdint.h>
 
