@@ -3,10 +3,14 @@
 #include <renderers/glfw.h>
 #include <renderers/renderer_config.h>
 
+#include <renderers/vulkan/debug_utils.h>
+#include <renderers/vulkan/instance.h>
 #include <renderers/vulkan/renderer.h>
-#include <renderers/vulkan/renderer_helper.h>
+#include <renderers/vulkan/validation_layers.h>
+
 #include <renderers/vulkan/devices/logical.h>
 #include <renderers/vulkan/devices/physical.h>
+
 #include <renderers/vulkan/surfaces/surface.h>
 
 #include <string.h>

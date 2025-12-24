@@ -35,8 +35,11 @@ SRCS = $(SRC_DIR)/app/app.c \
 	   $(SRC_DIR)/renderers/renderer.c \
 	   \
 	   $(SRC_DIR)/renderers/vulkan/callbacks.c \
+	   $(SRC_DIR)/renderers/vulkan/debug_utils.c \
+	   $(SRC_DIR)/renderers/vulkan/extensions.c \
+	   $(SRC_DIR)/renderers/vulkan/instance.c \
 	   $(SRC_DIR)/renderers/vulkan/renderer.c \
-	   $(SRC_DIR)/renderers/vulkan/renderer_helper.c \
+	   $(SRC_DIR)/renderers/vulkan/validation_layers.c \
 	   \
 	   $(SRC_DIR)/renderers/vulkan/devices/logical.c \
 	   $(SRC_DIR)/renderers/vulkan/devices/physical.c \
