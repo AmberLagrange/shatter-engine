@@ -5,7 +5,7 @@
 
 #define MAX_TITLE_LENGTH 256
 
-typedef struct {
+typedef struct renderer_config_s {
 	
 	uint32_t width, height;
 	char title[MAX_TITLE_LENGTH];

@@ -41,10 +41,13 @@ SRCS = $(SRC_DIR)/app/app.c \
 	   $(SRC_DIR)/renderers/vulkan/renderer.c \
 	   $(SRC_DIR)/renderers/vulkan/validation_layers.c \
 	   \
+	   $(SRC_DIR)/renderers/vulkan/devices/extensions.c \
 	   $(SRC_DIR)/renderers/vulkan/devices/logical.c \
+	   \
 	   $(SRC_DIR)/renderers/vulkan/devices/physical.c \
 	   \
 	   $(SRC_DIR)/renderers/vulkan/queues/queue_family_indicies.c \
+	   $(SRC_DIR)/renderers/vulkan/queues/required_queue_families.c \
 	   \
 	   $(SRC_DIR)/renderers/vulkan/surfaces/surface.c \
 

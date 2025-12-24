@@ -31,7 +31,7 @@ shatter_status_t terminate_glfw(void) {
 		
 		glfwTerminate();
 		s_glfw_initialized = false;
-		log_message(stdout, "Terminated GLFW.\n");
+		log_message(stdout, "\nTerminated GLFW.\n");
 	}
 	
 	return SHATTER_SUCCESS;

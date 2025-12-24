@@ -5,7 +5,7 @@
 
 #include <renderers/renderer_config.h>
 
-typedef struct {
+typedef struct renderer_s {
 	
 	void *api_renderer;
 	

@@ -7,7 +7,7 @@
 
 #include <vulkan/vulkan.h>
 
-// ---------- static const values ---------- //
+// ---------- Static Const Values ---------- //
 
 #define MAX_VALIDATION_LAYERS 8
 
@@ -21,7 +21,7 @@ size_t get_num_validation_layers(void) {
 	
 	size_t validation_index = 0;
 	
-	log_message(stdout, "Validation layers:\n");
+	log_message(stdout, "\nValidation layers:\n");
 	while (VALIDATION_LAYERS[validation_index]) {
 		
 		log_message(stdout, "\t%s\n", VALIDATION_LAYERS[validation_index]);

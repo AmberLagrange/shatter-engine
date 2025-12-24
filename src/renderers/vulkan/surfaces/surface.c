@@ -14,7 +14,7 @@ shatter_status_t create_surface(vulkan_renderer_t *vk_renderer) {
 		return SHATTER_SURFACE_INIT_FAILURE;
 	}
 	
-	log_message(stdout, "Rendering surface created.\n");
+	log_message(stdout, "\nRendering surface created.\n");
 	return SHATTER_SUCCESS;
 }
 

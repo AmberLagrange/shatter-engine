@@ -5,13 +5,15 @@
 
 #include <renderers/renderer_config.h>
 
+#include <renderers/vulkan/queues/queue_family_indicies.h>
+
 #include <stdbool.h>
 #include <stddef.h>
 
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
 
-typedef struct {
+typedef struct vulkan_renderer_s {
 	
 	renderer_config_t config;
 	
@@ -22,6 +24,7 @@ typedef struct {
 	
 	VkSurfaceKHR rendering_surface;
 	
+	queue_family_indicies_t queue_family_indicies;
 	VkPhysicalDevice physical_device;
 	VkDevice logical_device;
 	
