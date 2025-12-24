@@ -19,14 +19,14 @@ int main(int argc, char **argv) {
 	
 	if (renderer_init(&renderer, &config)) {
 		
-		log_message(stderr, "Failed to initialize Vulkan Renderer.\n");
+		log_message(stderr, "\nFailed to initialize Renderer.\n");
 		status = EXIT_FAILURE;
 		goto exit;
 	}
 	
 	if (renderer_loop(&renderer)) {
 		
-		log_message(stderr, "Error occurred in the rendering loop.\n");
+		log_message(stderr, "\nError occurred in the rendering loop.\n");
 		status = EXIT_FAILURE;
 		goto cleanup;
 	}
@@ -35,7 +35,7 @@ cleanup:
 	
 	if (renderer_cleanup(&renderer)) {
 		
-		log_message(stderr, "Failed to cleanup Vulkan Renderer.\n");
+		log_message(stderr, "\nFailed to cleanup Vulkan Renderer.\n");
 		status = EXIT_FAILURE;
 		goto exit;
 	}

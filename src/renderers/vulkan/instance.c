@@ -27,12 +27,11 @@ shatter_status_t create_vulkan_instance(vulkan_renderer_t *vk_renderer) {
 	
 	uint32_t num_extensions = 0;
 	char **extension_names = get_required_extensions(vk_renderer, &num_extensions);
-	log_message(stdout, "\nNumber of extensions: %d\n", num_extensions);
 	
 	VkExtensionProperties *extension_properties_list = malloc(sizeof(VkExtensionProperties) * num_extensions);
 	vkEnumerateInstanceExtensionProperties(NULL, &num_extensions, extension_properties_list);
 	
-	log_message(stdout, "Available extensions:\n");
+	log_message(stdout, "\nEnabled extensions:\n");
 	for (size_t extension_index = 0; extension_index < num_extensions; ++extension_index) {
 		
 		log_message(stdout, "\t%s\n", extension_properties_list[extension_index].extensionName);

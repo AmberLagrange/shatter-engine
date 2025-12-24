@@ -4,6 +4,9 @@
 #include <renderers/vulkan/devices/physical.h>
 
 #include <renderers/vulkan/queues/queue_family_indicies.h>
+#include <renderers/vulkan/queues/required_queue_families.h>
+
+#include <renderers/vulkan/swap_chain/swap_chain_support_details.h>
 
 #include <stdlib.h>
 
@@ -61,19 +64,43 @@ bool is_physical_device_suitable(vulkan_renderer_t *vk_renderer, VkPhysicalDevic
 	VkPhysicalDeviceFeatures device_features;
 	vkGetPhysicalDeviceFeatures(device, &device_features);
 	
-	queue_family_indicies_t indicies;
-	get_queue_families(vk_renderer, device, &indicies);
+	queue_family_indicies_t family_indicies;
+	get_queue_families(vk_renderer, device, &family_indicies);
 	
-	if (device_properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU
-		&& device_features.geometryShader
-		&& is_complete(&indicies)
-		&& check_device_extension_support(device)
-	) {
+	if (device_properties.deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
 		
-		vk_renderer->queue_family_indicies = indicies;
-		return true;
+		log_message(stderr, "Device is not a discrete gpu.\n");
+		return false;
 	}
 	
-	return false;
+	if (!device_features.geometryShader) {
+		
+		log_message(stderr, "Device does not have a geometry shader feature.\n");
+		return false;
+	}
+	
+	if (!has_required_queue_families(&family_indicies)) {
+		
+		log_message(stderr, "Device does not have all required queue families.\n");
+		return false;
+	}
+	
+	if (!check_device_extension_support(device)) {
+		
+		log_message(stderr, "Device does not support required extensions.\n");
+		return false;
+	}
+	
+	swap_chain_support_details_t support_details = query_swap_chain_support(vk_renderer, device);
+	
+	if ((support_details.num_surface_formats == 0) || (support_details.num_present_modes == 0)) {
+		
+		log_message(stderr, "Device does not have adequate swapc hain support.\n");
+		return false;
+	}
+	
+	vk_renderer->queue_family_indicies = family_indicies;
+	
+	return true;
 }
 

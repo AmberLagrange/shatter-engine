@@ -1,5 +1,6 @@
 #include <common/core.h>
 
+#include <renderers/vulkan/devices/extensions.h>
 #include <renderers/vulkan/devices/logical.h>
 #include <renderers/vulkan/devices/logical_helper.h>
 #include <renderers/vulkan/queues/queue_family_indicies.h>
@@ -48,7 +49,9 @@ shatter_status_t create_logical_device(vulkan_renderer_t *vk_renderer) {
 		.pQueueCreateInfos = queue_create_info_list,
 		
 		.pEnabledFeatures = &device_features,
-		.enabledExtensionCount = 0,
+		
+		.enabledExtensionCount = get_num_required_extensions(),
+		.ppEnabledExtensionNames = REQUIRED_EXTENSIONS,
 		
 		.enabledLayerCount = vk_renderer->num_validation_layers,
 		.ppEnabledLayerNames = (const char * const *)vk_renderer->validation_layers,

@@ -6,7 +6,7 @@
 #include <stdarg.h>
 #include <stddef.h>
 
-// ---------- Const Values ---------- //
+// ---------- Static Const Values ---------- //
 
 const required_queue_family_t REQUIRED_FAMILY_LIST[MAX_INDICIES] = {
 	
@@ -26,6 +26,23 @@ size_t get_num_required_families(void) {
 	}
 	
 	return required_family_index;
+}
+
+bool has_required_queue_families(queue_family_indicies_t *indicies) {
+	
+	size_t num_required_families = get_num_required_families();
+	
+	for (size_t required_index = 0; required_index < num_required_families; ++required_index) {
+		
+		if (!indicies->index_list[REQUIRED_FAMILY_LIST[required_index].family_index].has_value) {
+			
+			return false;
+		}
+	}
+	
+	log_message(stdout, "Has all the required families.\n");
+	
+	return true;
 }
 
 // ---------- Conditional Lambdas ---------- //

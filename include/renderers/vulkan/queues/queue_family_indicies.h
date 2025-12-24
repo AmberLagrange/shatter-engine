@@ -33,7 +33,5 @@ typedef struct vulkan_renderer_s vulkan_renderer_t;
 
 void get_queue_families(vulkan_renderer_t *vk_renderer, VkPhysicalDevice device, queue_family_indicies_t *indicies);
 
-bool is_complete(queue_family_indicies_t *indicies);
-
 #endif // RENDERERS_VULKAN_QUEUES_QUEUE_FAMILY_INDICIES_H
 

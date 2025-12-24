@@ -46,6 +46,8 @@ SRCS = $(SRC_DIR)/app/app.c \
 	   \
 	   $(SRC_DIR)/renderers/vulkan/devices/physical.c \
 	   \
+	   $(SRC_DIR)/renderers/vulkan/swap_chain/swap_chain_support_details.c \
+	   \
 	   $(SRC_DIR)/renderers/vulkan/queues/queue_family_indicies.c \
 	   $(SRC_DIR)/renderers/vulkan/queues/required_queue_families.c \
 	   \
