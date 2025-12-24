@@ -1,0 +1,10 @@
+
+# Ignore the cglm library
+cglm/
+
+# Ignore build artifact directories
+bin/
+deps/
+objs/
+pchs/
+tmp/

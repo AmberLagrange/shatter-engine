@@ -1,0 +1,16 @@
+#ifndef RENDERERS_GLFW_H
+#define RENDERERS_GLFW_H
+
+enum {
+	
+	SHATTER_GLFW_SUCCESS = 0,
+	SHATTER_GLFW_INIT_FAILURE,
+	SHATTER_GLFW_TERMINATE_FAILURE,
+	SHATTER_GLFW_WINDOW_FAILURE,
+};
+
+int init_glfw(void);
+int terminate_glfw(void);
+
+#endif // RENDERER_GLFW_H
+
