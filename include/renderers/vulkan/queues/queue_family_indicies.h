@@ -20,7 +20,7 @@ typedef struct opetional_uint32_s {
 	uint32_t value;
 } optional_uint32_t;
 
-typedef struct queue_family_indicies_S {
+typedef struct queue_family_indicies_s {
 	
 	optional_uint32_t index_list[MAX_INDICIES];
 	size_t num_indicies;
@@ -32,6 +32,10 @@ struct vulkan_renderer_s;
 typedef struct vulkan_renderer_s vulkan_renderer_t;
 
 void get_queue_families(vulkan_renderer_t *vk_renderer, VkPhysicalDevice device, queue_family_indicies_t *indicies);
+
+bool is_exclusive_graphics(queue_family_indicies_t *indicies);
+
+uint32_t *unwrap_indicies(queue_family_indicies_t *indicies, size_t *num_indicies);
 
 #endif // RENDERERS_VULKAN_QUEUES_QUEUE_FAMILY_INDICIES_H
 

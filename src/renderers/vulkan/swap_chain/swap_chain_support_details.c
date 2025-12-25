@@ -2,31 +2,48 @@
 
 #include <renderers/vulkan/swap_chain/swap_chain_support_details.h>
 
-swap_chain_support_details_t query_swap_chain_support(vulkan_renderer_t *vk_renderer, VkPhysicalDevice device) {
+#include <stdlib.h>
+#include <string.h>
+
+shatter_status_t query_swap_chain_support(swap_chain_support_details_t *support_details,
+										  vulkan_renderer_t *vk_renderer,
+										  VkPhysicalDevice device) {
 	
-	swap_chain_support_details_t support_details = { 0 };
+	memset(support_details, 0, sizeof(swap_chain_support_details_t));
 	
-	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, vk_renderer->rendering_surface, &support_details.surface_capabilities);
+	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, vk_renderer->rendering_surface,
+											  &(support_details->surface_capabilities));
 	
 	vkGetPhysicalDeviceSurfaceFormatsKHR(device, vk_renderer->rendering_surface,
-										 &support_details.num_surface_formats, NULL);
-	if (support_details.num_surface_formats != 0) {
+										 &(support_details->num_surface_formats), NULL);
+	
+	if (support_details->num_surface_formats != 0) {
 		
+		support_details->surface_format_list = malloc(sizeof(VkSurfaceFormatKHR) * support_details->num_surface_formats);
 		vkGetPhysicalDeviceSurfaceFormatsKHR(device, vk_renderer->rendering_surface,
-											 &support_details.num_surface_formats,
-											 support_details.surface_format_list);
+											 &(support_details->num_surface_formats),
+											 support_details->surface_format_list);
 	}
 	
 	vkGetPhysicalDeviceSurfacePresentModesKHR(device, vk_renderer->rendering_surface,
-											  &support_details.num_present_modes, NULL);
+											  &(support_details->num_present_modes), NULL);
 	
-	if (support_details.num_present_modes != 0) {
+	if (support_details->num_present_modes != 0) {
 		
+		support_details->present_mode_list = malloc(sizeof(VkPresentModeKHR) * support_details->num_present_modes);
 		vkGetPhysicalDeviceSurfacePresentModesKHR(device, vk_renderer->rendering_surface,
-												  &support_details.num_present_modes,
-												  support_details.present_mode_list);
+												  &(support_details->num_present_modes),
+												  support_details->present_mode_list);
 	}
 	
-	return support_details;
+	return SHATTER_SUCCESS;
+}
+
+shatter_status_t cleanup_swap_chain_support_details(swap_chain_support_details_t *support_details) {
+	
+	free(support_details->surface_format_list);
+	free(support_details->present_mode_list);
+	
+	return SHATTER_SUCCESS;
 }
 

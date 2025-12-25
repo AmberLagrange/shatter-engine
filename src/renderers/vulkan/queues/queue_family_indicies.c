@@ -5,6 +5,7 @@
 #include <renderers/vulkan/queues/queue_family_indicies.h>
 #include <renderers/vulkan/queues/required_queue_families.h>
 
+#include <assert.h>
 #include <stdarg.h>
 #include <stdlib.h>
 
@@ -48,20 +49,27 @@ void get_queue_families(vulkan_renderer_t *vk_renderer, VkPhysicalDevice device,
 	free(family_list);
 }
 
-bool is_complete(queue_family_indicies_t *indicies) {
+bool is_exclusive_graphics(queue_family_indicies_t *indicies) {
 	
-	size_t num_required_families = get_num_required_families();
+	return (indicies->index_list[GRAPHICS_FAMILY_INDEX].value == indicies->index_list[PRESENT_FAMILY_INDEX].value);
+}
+
+uint32_t *unwrap_indicies(queue_family_indicies_t *indicies, size_t *num_indicies) {
 	
-	for (size_t required_index = 0; required_index < num_required_families; ++required_index) {
+	*num_indicies = indicies->num_indicies;
+	uint32_t *unwrapped_indicies = malloc(sizeof(uint32_t) * (*num_indicies));
+	
+	size_t found_index = 0;
+	for (size_t index = 0; index < *num_indicies; ++index) {
 		
-		if (!indicies->index_list[REQUIRED_FAMILY_LIST[required_index].family_index].has_value) {
+		if (indicies->index_list[index].has_value) {
 			
-			return false;
+			unwrapped_indicies[found_index] = indicies->index_list[index].value;
+			++found_index;
 		}
 	}
 	
-	log_message(stdout, "Has all the required families.\n");
-	
-	return true;
+	assert(*num_indicies == found_index);	
+	return unwrapped_indicies;
 }
 

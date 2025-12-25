@@ -1,6 +1,8 @@
 #ifndef RENDERERS_VULKAN_SWAP_CHAIN_SWAP_CHAIN_SUPPORT_DETAILS_H
 #define RENDERERS_VULKAN_SWAP_CHAIN_SWAP_CHAIN_SUPPORT_DETAILS_H
 
+#include <common/core.h>
+
 #include <renderers/vulkan/renderer.h>
 
 #include <stdint.h>
@@ -18,7 +20,11 @@ typedef struct swap_chain_support_details_s {
 	uint32_t num_present_modes;
 } swap_chain_support_details_t;
 
-swap_chain_support_details_t query_swap_chain_support(vulkan_renderer_t * vk_renderer, VkPhysicalDevice device);
+shatter_status_t query_swap_chain_support(swap_chain_support_details_t *support_details,
+										  vulkan_renderer_t * vk_renderer,
+										  VkPhysicalDevice device);
+
+shatter_status_t cleanup_swap_chain_support_details(swap_chain_support_details_t *support_details);
 
 #endif // RENDERERS_VULKAN_SWAP_CHAIN_SWAP_CHAIN_SUPPORT_DETAILS_H
 

@@ -13,7 +13,21 @@
 
 #include <renderers/vulkan/surfaces/surface.h>
 
+#include <renderers/vulkan/swap_chain/swap_chain.h>
+
+#include <stdlib.h>
 #include <string.h>
+
+// Temp
+#include <signal.h>
+#include <stdbool.h>
+static volatile bool running = true;
+
+void interrupt_handler(int _) {
+	
+	(void)(_);
+	running = false;
+}
 
 shatter_status_t vulkan_renderer_init(vulkan_renderer_t *vk_renderer, renderer_config_t *config) {
 	
@@ -49,7 +63,7 @@ shatter_status_t vulkan_renderer_init(vulkan_renderer_t *vk_renderer, renderer_c
 	if (setup_vulkan_debug_messenger(vk_renderer)) {
 		
 		log_message(stderr, "\nFailed to set up the debug messenger.\n");
-		return SHATTER_VULKAN_DEBUT_SETUP_FAILURE;
+		return SHATTER_VULKAN_DEBUG_SETUP_FAILURE;
 	}
 	
 	vk_renderer->physical_device = VK_NULL_HANDLE;
@@ -64,6 +78,12 @@ shatter_status_t vulkan_renderer_init(vulkan_renderer_t *vk_renderer, renderer_c
 		log_message(stderr, "\nFailed to create a logical device.\n");
 		return SHATTER_VULKAN_LOGICAL_DEVICE_INIT_FAILURE;
 	}
+
+	if (create_swap_chain(vk_renderer)) {
+		
+		log_message(stderr, "\nFailed to create the swap chain.\n");
+		return SHATTER_VULKAN_SWAP_CHAIN_INIT_FAILURE;
+	}
 	
 	log_message(stdout, "\nRenderer Initialization Complete.\n");
 	return SHATTER_SUCCESS;
@@ -73,10 +93,18 @@ shatter_status_t vulkan_renderer_loop(vulkan_renderer_t *vk_renderer) {
 	
 	(void)vk_renderer;
 	log_message(stdout, "\nRunning Renderer Loop.\n");
+	
+	signal(SIGINT, &interrupt_handler);
+	while (running) { }
+	
 	return SHATTER_SUCCESS;
 }
 
 shatter_status_t vulkan_renderer_cleanup(vulkan_renderer_t *vk_renderer) {
+	
+	free(vk_renderer->swap_chain_image_list);
+	
+	vkDestroySwapchainKHR(vk_renderer->logical_device, vk_renderer->swap_chain, NULL);
 	
 	vkDestroyDevice(vk_renderer->logical_device, NULL);
 	

@@ -91,7 +91,8 @@ bool is_physical_device_suitable(vulkan_renderer_t *vk_renderer, VkPhysicalDevic
 		return false;
 	}
 	
-	swap_chain_support_details_t support_details = query_swap_chain_support(vk_renderer, device);
+	swap_chain_support_details_t support_details;
+	query_swap_chain_support(&support_details, vk_renderer, device);
 	
 	if ((support_details.num_surface_formats == 0) || (support_details.num_present_modes == 0)) {
 		

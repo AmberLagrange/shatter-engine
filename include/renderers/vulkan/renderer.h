@@ -25,11 +25,18 @@ typedef struct vulkan_renderer_s {
 	VkSurfaceKHR rendering_surface;
 	
 	queue_family_indicies_t queue_family_indicies;
+	
 	VkPhysicalDevice physical_device;
 	VkDevice logical_device;
 	
 	VkQueue graphics_queue;
 	VkQueue present_queue;
+	
+	VkSwapchainKHR swap_chain;
+	VkImage *swap_chain_image_list;
+	size_t num_swap_chain_images;
+	VkFormat swap_chain_image_format;
+	VkExtent2D swap_chain_extent;
 	
 	char **validation_layers;
 	size_t num_validation_layers;
