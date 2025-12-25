@@ -8,6 +8,8 @@
 #include <renderers/vulkan/renderer.h>
 #include <renderers/vulkan/validation_layers.h>
 
+#include <renderers/vulkan/command_pool/command_pool.h>
+
 #include <renderers/vulkan/devices/logical.h>
 #include <renderers/vulkan/devices/physical.h>
 
@@ -104,6 +106,13 @@ shatter_status_t vulkan_renderer_init(vulkan_renderer_t *vk_renderer, renderer_c
 		return SHATTER_VULKAN_FRAME_BUFFER_INIT_FAILURE;
 	}
 	
+	if (create_command_pool(vk_renderer)) {
+		
+		log_error("Failed to create command pool.\n");
+		return SHATTER_VULKAN_COMMAND_POOL_INIT_FAILURE;
+	}
+	
+	log_info("\n");
 	log_info("Renderer Initialization Complete.\n");
 	return SHATTER_SUCCESS;
 }

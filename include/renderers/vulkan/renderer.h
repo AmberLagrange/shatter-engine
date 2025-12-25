@@ -48,6 +48,8 @@ typedef struct vulkan_renderer_s {
 	VkFramebuffer *swap_chain_frame_buffer_list;
 	size_t num_swap_chain_frame_buffers;
 	
+	VkCommandPool command_pool;
+	
 	char **validation_layers;
 	size_t num_validation_layers;
 	bool validation_layers_enabled;

@@ -52,6 +52,8 @@ SRCS = $(SRC_DIR)/app/app.c \
 	   $(SRC_DIR)/renderers/vulkan/renderer.c \
 	   $(SRC_DIR)/renderers/vulkan/validation_layers.c \
 	   \
+	   $(SRC_DIR)/renderers/vulkan/command_pool/command_pool.c \
+	   \
 	   $(SRC_DIR)/renderers/vulkan/devices/extensions.c \
 	   $(SRC_DIR)/renderers/vulkan/devices/logical.c \
 	   \
