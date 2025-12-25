@@ -11,6 +11,7 @@ void parse_args(int argc, char **argv) {
 		
 		if (strcmp(argv[arg_index], "--verbose") == 0) {
 			
+			init_logging();
 			enable_logging();
 		}
 		
@@ -22,6 +23,13 @@ void parse_args(int argc, char **argv) {
 		if (strcmp(argv[arg_index], "--enable-color") == 0) {
 			
 			enable_log_colors();
+			enable_log_prefix_colors();
+			enable_log_message_colors();
+		}
+		
+		if (strcmp(argv[arg_index], "--test-logging") == 0) {
+			
+			test_logging();
 		}
 	}
 }

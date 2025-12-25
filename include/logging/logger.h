@@ -12,10 +12,9 @@ typedef enum log_level_e {
 	LOG_LEVEL_WARNING,
 	LOG_LEVEL_ERROR,
 	LOG_LEVEL_CRITICAL,
+	NUM_LOG_LEVELS		// Has to be last, will assign this value to the number of log levels
 	
 } log_level_t;
-
-#define NUM_LOG_LEVELS 6
 
 typedef enum log_color_e {
 	
@@ -26,10 +25,11 @@ typedef enum log_color_e {
 	LOG_COLOR_RED,
 	LOG_COLOR_INTENSE_RED,
 	LOG_COLOR_RESET,
+	NUM_LOG_COLORS		// Same as above
 	
 } log_color_t;
 
-#define NUM_LOG_COLORS 7
+void init_logging(void);
 
 void enable_logging(void);
 void disable_logging(void);
@@ -39,6 +39,12 @@ void disable_log_prefixes(void);
 
 void enable_log_colors(void);
 void disable_log_colors(void);
+
+void enable_log_prefix_colors(void);
+void disable_log_prefix_colors(void);
+
+void enable_log_message_colors(void);
+void disable_log_message_colors(void);
 
 void v_log_message(FILE *file, log_level_t log_level, log_color_t log_color, const char *format, va_list args);
 void log_message(FILE *file, log_level_t log_level, log_color_t log_color, const char *format, ...);
