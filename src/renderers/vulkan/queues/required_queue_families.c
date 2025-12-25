@@ -36,11 +36,12 @@ bool has_required_queue_families(queue_family_indicies_t *indicies) {
 		
 		if (!indicies->index_list[REQUIRED_FAMILY_LIST[required_index].family_index].has_value) {
 			
+			log_error("Missing the required family %s.\n", REQUIRED_FAMILY_LIST[required_index].debug_string);
 			return false;
 		}
 	}
 	
-	log_message(stdout, "Has all the required families.\n");
+	log_info("Has all the required families.\n");
 	
 	return true;
 }

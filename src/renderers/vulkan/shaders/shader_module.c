@@ -14,7 +14,7 @@ shatter_status_t create_shader_module(VkShaderModule *shader_module, vulkan_rend
 	
 	if (vkCreateShaderModule(vk_renderer->logical_device, &create_info, NULL, shader_module)) {
 		
-		log_message(stderr, "Failed to create shader module.\n");
+		log_error("Failed to create shader module.\n");
 		return SHATTER_VULKAN_SHADER_MODULE_INIT_FAILURE;
 	}
 	

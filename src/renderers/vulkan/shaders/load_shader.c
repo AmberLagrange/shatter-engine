@@ -14,7 +14,7 @@ char *get_shader_bytecode(const char *file_path, size_t *code_size) {
 	
 	if (!file_ptr) {
 		
-		log_message(stderr, "Could not open %s.\n", file_path);
+		log_error("Could not open %s.\n", file_path);
 		return NULL;
 	}
 	

@@ -35,7 +35,7 @@ bool check_device_extension_support(VkPhysicalDevice device) {
 	
 	uint32_t num_required_extensions = get_num_required_extensions();
 	
-	log_message(stdout, "Required extensions:\n");
+	log_trace("Required extensions:\n");
 	
 	bool has_all_extensions = true;
 	for (size_t required_index = 0; required_index < num_required_extensions; ++required_index) {
@@ -43,7 +43,7 @@ bool check_device_extension_support(VkPhysicalDevice device) {
 		bool has_extension = false;
 		
 		const char *required_name = REQUIRED_EXTENSIONS[required_index];
-		log_message(stdout, "\t%s\n", required_name);
+		log_trace("\t%s\n", required_name);
 		
 		for (size_t extension_index = 0; extension_index < num_extensions; ++extension_index) {
 			
@@ -56,6 +56,7 @@ bool check_device_extension_support(VkPhysicalDevice device) {
 		
 		if (!has_extension) {
 			
+			log_error("Could not find extension %s.\n", required_name);
 			has_all_extensions = false;
 		}
 	}
@@ -64,7 +65,7 @@ bool check_device_extension_support(VkPhysicalDevice device) {
 	
 	if (has_all_extensions) {
 		
-		log_message(stdout, "Has all the required extensions.\n");
+		log_info("Has all the required extensions.\n");
 	}
 	return has_all_extensions;
 }

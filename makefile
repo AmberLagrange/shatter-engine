@@ -59,13 +59,13 @@ SRCS = $(SRC_DIR)/app/app.c \
 	   \
 	   $(SRC_DIR)/renderers/vulkan/graphics_pipeline/graphics_pipeline.c \
 	   \
-	   $(SRC_DIR)/renderers/vulkan/image_view/image_view.c \
-	   \
 	   $(SRC_DIR)/renderers/vulkan/render_pass/render_pass.c \
 	   \
 	   $(SRC_DIR)/renderers/vulkan/shaders/load_shader.c \
 	   $(SRC_DIR)/renderers/vulkan/shaders/shader_module.c \
 	   \
+	   $(SRC_DIR)/renderers/vulkan/swap_chain/frame_buffer.c \
+	   $(SRC_DIR)/renderers/vulkan/swap_chain/image_view.c \
 	   $(SRC_DIR)/renderers/vulkan/swap_chain/present_mode.c \
 	   $(SRC_DIR)/renderers/vulkan/swap_chain/surface_format.c \
 	   $(SRC_DIR)/renderers/vulkan/swap_chain/swap_chain.c \
@@ -167,7 +167,7 @@ remake:
 bin: dirs pchs $(BIN_DIR)/$(BIN_NAME)
 
 run: $(BIN_DIR)/$(BIN_NAME)
-	$(BIN_DIR)/$(BIN_NAME) --verbose
+	$(BIN_DIR)/$(BIN_NAME) --verbose --enable-prefix --enable-color
 
 pchs: $(PCHS)
 

@@ -5,28 +5,46 @@
 #include <stdlib.h> // EXIT_SUCCESS
 #include <string.h>
 
+void parse_args(int argc, char **argv) {
+	
+	for (size_t arg_index = 1; arg_index < (size_t)argc; ++arg_index) {
+		
+		if (strcmp(argv[arg_index], "--verbose") == 0) {
+			
+			enable_logging();
+		}
+		
+		if (strcmp(argv[arg_index], "--enable-prefix") == 0) {
+			
+			enable_log_prefixes();
+		}
+		
+		if (strcmp(argv[arg_index], "--enable-color") == 0) {
+			
+			enable_log_colors();
+		}
+	}
+}
+
 int main(int argc, char **argv) {
+	
+	parse_args(argc, argv);
 	
 	int status = EXIT_SUCCESS;
 	
 	renderer_t renderer;
 	renderer_config_t config = { 800, 600, "Vulkan Renderer" };
 	
-	if (argc >= 2 && strcmp(argv[1], "--verbose") == 0) {
-		
-		enable_logging();
-	}
-	
 	if (renderer_init(&renderer, &config)) {
 		
-		log_message(stderr, "\nFailed to initialize Renderer.\n");
+		log_error("Failed to initialize Renderer.\n");
 		status = EXIT_FAILURE;
 		goto exit;
 	}
 	
 	if (renderer_loop(&renderer)) {
 		
-		log_message(stderr, "\nError occurred in the rendering loop.\n");
+		log_error("Error occurred in the rendering loop.\n");
 		status = EXIT_FAILURE;
 		goto cleanup;
 	}
@@ -35,7 +53,7 @@ cleanup:
 	
 	if (renderer_cleanup(&renderer)) {
 		
-		log_message(stderr, "\nFailed to cleanup Vulkan Renderer.\n");
+		log_error("Failed to cleanup Vulkan Renderer.\n");
 		status = EXIT_FAILURE;
 		goto exit;
 	}

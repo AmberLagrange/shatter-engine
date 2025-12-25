@@ -12,6 +12,8 @@
 
 shatter_status_t choose_physical_device(vulkan_renderer_t *vk_renderer) {
 	
+	log_trace("\n");
+	
 	int status = SHATTER_SUCCESS;
 	
 	uint32_t num_devices = 0;
@@ -19,7 +21,7 @@ shatter_status_t choose_physical_device(vulkan_renderer_t *vk_renderer) {
 	
 	if (num_devices == 0) {
 		
-		log_message(stderr, "\nUnable to find any GPUs with Vulkan support.\n");
+		log_error("Unable to find any GPUs with Vulkan support.\n");
 		status = SHATTER_VULKAN_PHYSICAL_DEVICE_CHOICE_FAILURE;
 		goto exit;
 	}
@@ -33,7 +35,8 @@ shatter_status_t choose_physical_device(vulkan_renderer_t *vk_renderer) {
 		VkPhysicalDevice device = device_list[device_index];
 		vkGetPhysicalDeviceProperties(device, &device_properties);
 		
-		log_message(stdout, "\nChecking physical device:\n\t%s\n", device_properties.deviceName);
+		log_trace("Checking physical device:\n");
+		log_trace("\t%s\n", device_properties.deviceName);
 		if (is_physical_device_suitable(vk_renderer, device)) {
 			
 			vk_renderer->physical_device = device;
@@ -43,12 +46,13 @@ shatter_status_t choose_physical_device(vulkan_renderer_t *vk_renderer) {
 	
 	if (vk_renderer->physical_device == VK_NULL_HANDLE) {
 		
-		log_message(stderr, "\nFailed to find a suitable GPU.\n");
+		log_error("Failed to find a suitable GPU.\n");
 		status = SHATTER_VULKAN_PHYSICAL_DEVICE_CHOICE_FAILURE;
 		goto cleanup;
 	}
 	
-	log_message(stdout, "\nPhysical device selected:\n\t%s\n", device_properties.deviceName);
+	log_info("Physical device selected:\n");
+	log_info("\t%s\n", device_properties.deviceName);
 	
 cleanup:
 	free(device_list);
@@ -69,25 +73,25 @@ bool is_physical_device_suitable(vulkan_renderer_t *vk_renderer, VkPhysicalDevic
 	
 	if (device_properties.deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
 		
-		log_message(stderr, "Device is not a discrete gpu.\n");
+		log_error("Device is not a discrete gpu.\n");
 		return false;
 	}
 	
 	if (!device_features.geometryShader) {
 		
-		log_message(stderr, "Device does not have a geometry shader feature.\n");
+		log_error("Device does not have a geometry shader feature.\n");
 		return false;
 	}
 	
 	if (!has_required_queue_families(&family_indicies)) {
 		
-		log_message(stderr, "Device does not have all required queue families.\n");
+		log_error("Device does not have all required queue families.\n");
 		return false;
 	}
 	
 	if (!check_device_extension_support(device)) {
 		
-		log_message(stderr, "Device does not support required extensions.\n");
+		log_error("Device does not support required extensions.\n");
 		return false;
 	}
 	
@@ -96,7 +100,7 @@ bool is_physical_device_suitable(vulkan_renderer_t *vk_renderer, VkPhysicalDevic
 	
 	if ((support_details.num_surface_formats == 0) || (support_details.num_present_modes == 0)) {
 		
-		log_message(stderr, "Device does not have adequate swapc hain support.\n");
+		log_error("Device does not have adequate swap chain support.\n");
 		return false;
 	}
 	

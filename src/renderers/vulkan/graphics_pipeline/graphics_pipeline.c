@@ -9,7 +9,8 @@
 
 shatter_status_t create_graphics_pipeline(vulkan_renderer_t *vk_renderer) {
 	
-	log_message(stdout, "\nCreating graphics pipeline.\n");
+	log_trace("\n");
+	log_trace("Creating graphics pipeline.\n");
 	shatter_status_t status = SHATTER_SUCCESS;
 	
 	// ---------- Vertex Shader ---------- //
@@ -20,7 +21,7 @@ shatter_status_t create_graphics_pipeline(vulkan_renderer_t *vk_renderer) {
 	VkShaderModule vertex_module = { 0 };
 	if (create_shader_module(&vertex_module, vk_renderer, vertex_bytecode, vertex_len)) {
 		
-		log_message(stderr, "Failed to create the vertex shader module.\n");
+		log_error("Failed to create the vertex shader module.\n");
 		status = SHATTER_VULKAN_SHADER_MODULE_INIT_FAILURE;
 		goto cleanup_vertex_bytecode;
 	}
@@ -43,7 +44,7 @@ shatter_status_t create_graphics_pipeline(vulkan_renderer_t *vk_renderer) {
 	VkShaderModule fragment_module = { 0 };
 	if (create_shader_module(&fragment_module, vk_renderer, fragment_bytecode, fragment_len)) {
 		
-		log_message(stderr, "Failed to create the fragment shader module.\n");
+		log_error("Failed to create the fragment shader module.\n");
 		status = SHATTER_VULKAN_SHADER_MODULE_INIT_FAILURE;
 		goto cleanup_vertex_module;
 	}
@@ -228,7 +229,7 @@ shatter_status_t create_graphics_pipeline(vulkan_renderer_t *vk_renderer) {
 	if (vkCreatePipelineLayout(vk_renderer->logical_device, &pipeline_layout_info,
 							   NULL, &(vk_renderer->pipeline_layout)) != VK_SUCCESS) {
 		
-		log_message(stderr, "Failed to create the pipeline layout.\n");
+		log_error("Failed to create the pipeline layout.\n");
 		status = SHATTER_VULKAN_PIPELINE_LAYOUT_INIT_FAILURE;
 		goto cleanup;
 	}
@@ -263,14 +264,14 @@ shatter_status_t create_graphics_pipeline(vulkan_renderer_t *vk_renderer) {
 	if (vkCreateGraphicsPipelines(vk_renderer->logical_device, VK_NULL_HANDLE, 1, &pipeline_info,
 								  NULL, &(vk_renderer->graphics_pipeline)) != VK_SUCCESS) {
 		
-		log_message(stderr, "Failed to create the graphics pipeline.\n");
+		log_error("Failed to create the graphics pipeline.\n");
 		status = SHATTER_VULKAN_GRAPHICS_PIPELINE_INIT_FAILURE;
 		goto cleanup;
 	}
 	
 	// ---------- Success ---------- //
 	
-	log_message(stdout, "Graphics pipeline created.\n");
+	log_info("Created graphics pipeline.\n");
 	
 	// ---------- Cleanup ---------- //
 	

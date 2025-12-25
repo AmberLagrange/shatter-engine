@@ -1,15 +1,18 @@
 #include <common/core.h>
 
-#include <renderers/vulkan/image_view/image_view.h>
+#include <renderers/vulkan/swap_chain/image_view.h>
 
 #include <stdlib.h>
 
 shatter_status_t create_image_views(vulkan_renderer_t *vk_renderer) {
 	
-	vk_renderer->num_image_views = vk_renderer->num_swap_chain_images;
-	vk_renderer->image_view_list = malloc(sizeof(VkImageView) * vk_renderer->num_image_views);
+	log_trace("\n");
+	log_trace("Creating image views.\n");
 	
-	for (size_t image_view_index = 0; image_view_index < vk_renderer->num_image_views; ++image_view_index) {
+	vk_renderer->num_swap_chain_image_views = vk_renderer->num_swap_chain_images;
+	vk_renderer->swap_chain_image_view_list = malloc(sizeof(VkImageView) * vk_renderer->num_swap_chain_image_views);
+	
+	for (size_t image_view_index = 0; image_view_index < vk_renderer->num_swap_chain_image_views; ++image_view_index) {
 		
 		VkImageViewCreateInfo create_info = {
 			
@@ -31,26 +34,26 @@ shatter_status_t create_image_views(vulkan_renderer_t *vk_renderer) {
 		};
 		
 		if (vkCreateImageView(vk_renderer->logical_device, &create_info, NULL,
-							  &(vk_renderer->image_view_list[image_view_index])) != VK_SUCCESS) {
+							  &(vk_renderer->swap_chain_image_view_list[image_view_index])) != VK_SUCCESS) {
 				
-				log_message(stderr, "\nFailed to create image views.\n");
-				free(vk_renderer->image_view_list);
+				log_error("Failed to create image views.\n");
+				free(vk_renderer->swap_chain_image_view_list);
 				return SHATTER_VULKAN_IMAGE_VIEW_INIT_FAILURE;
 		}
 	}
 	
-	log_message(stdout, "\nCreated image views.\n");
+	log_info("Created image views.\n");
 	return SHATTER_SUCCESS;
 }
 
 shatter_status_t cleanup_image_views(vulkan_renderer_t *vk_renderer) {
 	
-	for (size_t image_view_index = 0; image_view_index < vk_renderer->num_image_views; ++image_view_index) {
+	for (size_t image_view_index = 0; image_view_index < vk_renderer->num_swap_chain_image_views; ++image_view_index) {
 		
-		vkDestroyImageView(vk_renderer->logical_device, vk_renderer->image_view_list[image_view_index], NULL);
+		vkDestroyImageView(vk_renderer->logical_device, vk_renderer->swap_chain_image_view_list[image_view_index], NULL);
 	}
 	
-	free(vk_renderer->image_view_list);
+	free(vk_renderer->swap_chain_image_view_list);
 	
 	return SHATTER_SUCCESS;
 }

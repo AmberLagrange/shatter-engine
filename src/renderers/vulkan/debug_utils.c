@@ -19,6 +19,7 @@ VkResult create_debug_utils_messenger_ext(
 	
 	if (function_callback == NULL) {
 		
+		log_error("Extension not present.\n");
 		return VK_ERROR_EXTENSION_NOT_PRESENT;
 	}
 		
@@ -71,7 +72,7 @@ shatter_status_t setup_vulkan_debug_messenger(vulkan_renderer_t *vk_renderer) {
 	if (create_debug_utils_messenger_ext(&(vk_renderer->vulkan_instance), &create_info, NULL, &(vk_renderer->debug_messenger))
 		!= VK_SUCCESS) {
 		
-		log_message(stderr, "Could not create the debug messenger.\n");
+		log_error("Could not create the debug messenger.\n");
 		return SHATTER_RENDERER_INIT_FAILURE;
 	}
 	

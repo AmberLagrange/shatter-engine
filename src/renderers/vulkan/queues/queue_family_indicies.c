@@ -25,12 +25,12 @@ void get_queue_families(vulkan_renderer_t *vk_renderer, VkPhysicalDevice device,
 	size_t num_required_families = get_num_required_families();
 	size_t num_found_families = 0;
 	
-	log_message(stdout, "Required families:\n");
+	log_trace("Required families:\n");
 	
 	for (size_t required_index = 0; required_index < num_required_families; ++required_index) {
 		
 		required_queue_family_t required_family = REQUIRED_FAMILY_LIST[required_index];
-		log_message(stdout, "\t%s\n", required_family.debug_string);
+		log_trace("\t%s\n", required_family.debug_string);
 		
 		for (size_t family_index = 0; family_index < num_families; ++family_index) {
 			

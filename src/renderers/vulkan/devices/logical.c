@@ -12,6 +12,9 @@
 
 shatter_status_t create_logical_device(vulkan_renderer_t *vk_renderer) {
 	
+	log_trace("\n");
+	log_trace("Creating logical device.\n");
+	
 	queue_family_indicies_t families = vk_renderer->queue_family_indicies;
 	
 	VkDeviceQueueCreateInfo *queue_create_info_list = malloc(sizeof(VkDeviceQueueCreateInfo) * families.num_indicies);
@@ -59,7 +62,7 @@ shatter_status_t create_logical_device(vulkan_renderer_t *vk_renderer) {
 	
 	if (vkCreateDevice(vk_renderer->physical_device, &create_info, NULL, &(vk_renderer->logical_device)) != VK_SUCCESS) {
 		
-		log_message(stderr, "\nFailed to create a logical device.\n");
+		log_error("Failed to create a logical device.\n");
 		return SHATTER_VULKAN_LOGICAL_DEVICE_INIT_FAILURE;
 	}
 	
@@ -69,7 +72,7 @@ shatter_status_t create_logical_device(vulkan_renderer_t *vk_renderer) {
 	vkGetDeviceQueue(vk_renderer->logical_device, families.index_list[PRESENT_FAMILY_INDEX].value,
 					 0, &(vk_renderer->present_queue));
 	
-	log_message(stdout, "\nCreated logical device.\n");
+	log_info("Created logical device.\n");
 	free(queue_create_info_list);
 	return SHATTER_SUCCESS;
 }

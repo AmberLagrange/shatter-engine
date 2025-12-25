@@ -21,10 +21,11 @@ size_t get_num_validation_layers(void) {
 	
 	size_t validation_index = 0;
 	
-	log_message(stdout, "\nValidation layers:\n");
+	log_trace("\n");
+	log_trace("Validation layers:\n");
 	while (VALIDATION_LAYERS[validation_index]) {
 		
-		log_message(stdout, "\t%s\n", VALIDATION_LAYERS[validation_index]);
+		log_trace("\t%s\n", VALIDATION_LAYERS[validation_index]);
 		++validation_index;
 	}
 	
@@ -102,12 +103,12 @@ bool check_validation_layer_support(vulkan_renderer_t *vk_renderer) {
 		
 		if (!layer_found) { // If any of the layers are missing, return false
 			
-			log_message(stderr, "Validation layer %s not found.\n", renderer_layer);
+			log_error("Validation layer %s not found.\n", renderer_layer);
 			return false;
 		}
 	}
 	
-	log_message(stdout, "All validation layers found.\n");
+	log_info("All validation layers found.\n");
 	free(available_layers);
 	return true; // All layers are available
 }

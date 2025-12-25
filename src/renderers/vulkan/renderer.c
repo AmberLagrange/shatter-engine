@@ -13,33 +13,22 @@
 
 #include <renderers/vulkan/graphics_pipeline/graphics_pipeline.h>
 
-#include <renderers/vulkan/image_view/image_view.h>
-
 #include <renderers/vulkan/render_pass/render_pass.h>
 
 #include <renderers/vulkan/surfaces/surface.h>
 
+#include <renderers/vulkan/swap_chain/frame_buffer.h>
+#include <renderers/vulkan/swap_chain/image_view.h>
 #include <renderers/vulkan/swap_chain/swap_chain.h>
 
 #include <stdlib.h>
 #include <string.h>
 
-// Temp
-#include <signal.h>
-#include <stdbool.h>
-static volatile bool running = true;
-
-void interrupt_handler(int _) {
-	
-	(void)(_);
-	running = false;
-}
-
 shatter_status_t vulkan_renderer_init(vulkan_renderer_t *vk_renderer, renderer_config_t *config) {
 	
 	if (init_glfw()) {
 		
-		log_message(stderr, "\nFailed to initialize GLFW.\n");
+		log_error("Failed to initialize GLFW.\n");
 		return SHATTER_GLFW_INIT_FAILURE;
 	}
 	
@@ -49,7 +38,7 @@ shatter_status_t vulkan_renderer_init(vulkan_renderer_t *vk_renderer, renderer_c
 	
 	if (!vk_renderer->rendering_window) {
 		
-		log_message(stderr, "\nFailed to create GLFW Window.\n");
+		log_error("Failed to create GLFW Window.\n");
 		return SHATTER_GLFW_WINDOW_FAILURE;
 	}
 	
@@ -68,105 +57,112 @@ shatter_status_t vulkan_renderer_init(vulkan_renderer_t *vk_renderer, renderer_c
 	
 	if (setup_vulkan_debug_messenger(vk_renderer)) {
 		
-		log_message(stderr, "\nFailed to set up the debug messenger.\n");
+		log_error("Failed to set up the debug messenger.\n");
 		return SHATTER_VULKAN_DEBUG_SETUP_FAILURE;
 	}
 	
 	vk_renderer->physical_device = VK_NULL_HANDLE;
 	if (choose_physical_device(vk_renderer)) {
 		
-		log_message(stderr, "\nFailed to set up a physical device.\n");
+		log_error("Failed to set up a physical device.\n");
 		return SHATTER_VULKAN_PHYSICAL_DEVICE_CHOICE_FAILURE;
 	}
 	
 	if (create_logical_device(vk_renderer)) {
 		
-		log_message(stderr, "\nFailed to create a logical device.\n");
+		log_error("Failed to create a logical device.\n");
 		return SHATTER_VULKAN_LOGICAL_DEVICE_INIT_FAILURE;
 	}
 
 	if (create_swap_chain(vk_renderer)) {
 		
-		log_message(stderr, "\nFailed to create the swap chain.\n");
+		log_error("Failed to create the swap chain.\n");
 		return SHATTER_VULKAN_SWAP_CHAIN_INIT_FAILURE;
 	}
 	
 	if (create_image_views(vk_renderer)) {
 		
-		log_message(stderr, "Failed to create the image views.\n");
+		log_error("Failed to create the image views.\n");
 		return SHATTER_VULKAN_IMAGE_VIEW_INIT_FAILURE;
 	}
 	
 	if (create_render_pass(vk_renderer)) {
 		
-		log_message(stderr, "Failed to create the render pass.\n");
+		log_error("Failed to create the render pass.\n");
 		return SHATTER_VULKAN_RENDER_PASS_INIT_FAILURE;
 	}
 	
 	if (create_graphics_pipeline(vk_renderer)) {
 		
-		log_message(stderr, "Failed to create the graphics pipeline.\n");
+		log_error("Failed to create the graphics pipeline.\n");
 		return SHATTER_VULKAN_GRAPHICS_PIPELINE_INIT_FAILURE;
 	}
 	
-	log_message(stdout, "\nRenderer Initialization Complete.\n");
+	if (create_frame_buffers(vk_renderer)) {
+		
+		log_error("Failed to create frame buffers.\n");
+		return SHATTER_VULKAN_FRAME_BUFFER_INIT_FAILURE;
+	}
+	
+	log_info("Renderer Initialization Complete.\n");
 	return SHATTER_SUCCESS;
 }
 
 shatter_status_t vulkan_renderer_loop(vulkan_renderer_t *vk_renderer) {
 	
 	(void)vk_renderer;
-	log_message(stdout, "\nRunning Renderer Loop.\n");
-	
-	signal(SIGINT, &interrupt_handler);
-	while (running) { }
+	log_trace("\n");
+	log_trace("Running Renderer Loop.\n");
 	
 	return SHATTER_SUCCESS;
 }
 
 shatter_status_t vulkan_renderer_cleanup(vulkan_renderer_t *vk_renderer) {
 	
-	log_message(stdout, "\n");
+	log_trace("\n");
+	
+	cleanup_frame_buffers(vk_renderer);
+	log_trace("Destroyed frame buffers.\n");
 	
 	vkDestroyPipeline(vk_renderer->logical_device, vk_renderer->graphics_pipeline, NULL);
-	log_message(stdout, "Destroyed graphics pipeline.\n");
+	log_trace("Destroyed graphics pipeline.\n");
 	
 	vkDestroyPipelineLayout(vk_renderer->logical_device, vk_renderer->pipeline_layout, NULL);
-	log_message(stdout, "Destroyed pipeline layout.\n");
+	log_trace("Destroyed pipeline layout.\n");
 	
 	vkDestroyRenderPass(vk_renderer->logical_device, vk_renderer->render_pass, NULL);
-	log_message(stdout, "Destroyed render pass.\n");
+	log_trace("Destroyed render pass.\n");
 	
 	cleanup_image_views(vk_renderer);
-	log_message(stdout, "Destroyed image views.\n");
+	log_trace("Destroyed image views.\n");
 	
 	free(vk_renderer->swap_chain_image_list);
 	
 	vkDestroySwapchainKHR(vk_renderer->logical_device, vk_renderer->swap_chain, NULL);
-	log_message(stdout, "Destroyed swapchain.\n");
+	log_trace("Destroyed swapchain.\n");
 	
 	vkDestroyDevice(vk_renderer->logical_device, NULL);
-	log_message(stdout, "Destroyed logical device.\n");
+	log_trace("Destroyed logical device.\n");
 	
 	cleanup_vulkan_debug_messenger(vk_renderer);
-	log_message(stdout, "Destroyed Vulkan debug messenger.\n");
+	log_trace("Destroyed Vulkan debug messenger.\n");
 	
 	vkDestroySurfaceKHR(vk_renderer->vulkan_instance, vk_renderer->rendering_surface, NULL);
-	log_message(stdout, "Destroyed surface.\n");
+	log_trace("Destroyed surface.\n");
 	
 	vkDestroyInstance(vk_renderer->vulkan_instance, NULL);
-	log_message(stdout, "Destroyed Vulkan instance.\n");
+	log_trace("Destroyed Vulkan instance.\n");
 	
 	glfwDestroyWindow(vk_renderer->rendering_window);
-	log_message(stdout, "Destroyed GLFW window.\n");
+	log_trace("Destroyed GLFW window.\n");
 	
 	if (terminate_glfw()) {
 		
-		log_message(stderr, "Failed to terminate GLFW.\n");
+		log_error("Failed to terminate GLFW.\n");
 		return SHATTER_RENDERER_CLEANUP_FAILURE;
 	}
 	
-	log_message(stdout, "Renderer Cleanup Complete.\n");
+	log_info("Renderer Cleanup Complete.\n");
 	return SHATTER_SUCCESS;
 }
 

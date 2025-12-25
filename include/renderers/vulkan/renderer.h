@@ -38,12 +38,15 @@ typedef struct vulkan_renderer_s {
 	VkFormat swap_chain_image_format;
 	VkExtent2D swap_chain_extent;
 	
-	VkImageView *image_view_list;
-	size_t num_image_views;
+	VkImageView *swap_chain_image_view_list;
+	size_t num_swap_chain_image_views;
 	
 	VkRenderPass render_pass;
 	VkPipelineLayout pipeline_layout;
 	VkPipeline graphics_pipeline;
+	
+	VkFramebuffer *swap_chain_frame_buffer_list;
+	size_t num_swap_chain_frame_buffers;
 	
 	char **validation_layers;
 	size_t num_validation_layers;

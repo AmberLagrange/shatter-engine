@@ -12,6 +12,9 @@
 
 shatter_status_t create_vulkan_instance(vulkan_renderer_t *vk_renderer) {
 	
+	log_trace("\n");
+	log_trace("Creating Vulkan instance.\n");
+	
 	int status = SHATTER_SUCCESS;
 	
 	VkApplicationInfo application_info = {
@@ -31,10 +34,10 @@ shatter_status_t create_vulkan_instance(vulkan_renderer_t *vk_renderer) {
 	VkExtensionProperties *extension_properties_list = malloc(sizeof(VkExtensionProperties) * num_extensions);
 	vkEnumerateInstanceExtensionProperties(NULL, &num_extensions, extension_properties_list);
 	
-	log_message(stdout, "\nEnabled extensions:\n");
+	log_trace("Enabled extensions:\n");
 	for (size_t extension_index = 0; extension_index < num_extensions; ++extension_index) {
 		
-		log_message(stdout, "\t%s\n", extension_properties_list[extension_index].extensionName);
+		log_trace("\t%s\n", extension_properties_list[extension_index].extensionName);
 	}
 	
 	VkInstanceCreateInfo create_info = {
@@ -63,12 +66,12 @@ shatter_status_t create_vulkan_instance(vulkan_renderer_t *vk_renderer) {
 	
 	if (vkCreateInstance(&create_info, NULL, &(vk_renderer->vulkan_instance)) != VK_SUCCESS) {
 		
-		log_message(stderr, "\nFailed to create Vulkan instance.\n");
+		log_error("Failed to create Vulkan instance.\n");
 		status = SHATTER_VULKAN_INSTANCE_FAILURE;
 		goto cleanup;
 	}
 	
-	log_message(stdout, "\nVulkan Instance Created.\n");	
+	log_info("Vulkan Instance Created.\n");	
 cleanup:
 	
 	free(extension_properties_list);

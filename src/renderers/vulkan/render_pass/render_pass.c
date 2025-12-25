@@ -6,7 +6,8 @@
 
 shatter_status_t create_render_pass(vulkan_renderer_t *vk_renderer) {
 	
-	log_message(stdout, "\nCreating render pass.\n");
+	log_trace("\n");
+	log_trace("Creating render pass.\n");
 	
 	// ---------- Color Attachments ---------- //
 	
@@ -55,10 +56,11 @@ shatter_status_t create_render_pass(vulkan_renderer_t *vk_renderer) {
 	
 	if (vkCreateRenderPass(vk_renderer->logical_device, &render_pass_info, NULL, &(vk_renderer->render_pass)) != VK_SUCCESS) {
 		
-		log_message(stderr, "Failed to create the render pass.\n");
+		log_error("Failed to create the render pass.\n");
 		return SHATTER_VULKAN_RENDER_PASS_INIT_FAILURE;
 	}
 	
+	log_info("Created render pass.\n");
 	return SHATTER_SUCCESS;
 }
 
