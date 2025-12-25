@@ -46,6 +46,8 @@ SRCS = $(SRC_DIR)/app/app.c \
 	   \
 	   $(SRC_DIR)/renderers/vulkan/devices/physical.c \
 	   \
+	   $(SRC_DIR)/renderers/vulkan/image_view/image_view.c \
+	   \
 	   $(SRC_DIR)/renderers/vulkan/swap_chain/present_mode.c \
 	   $(SRC_DIR)/renderers/vulkan/swap_chain/surface_format.c \
 	   $(SRC_DIR)/renderers/vulkan/swap_chain/swap_chain.c \

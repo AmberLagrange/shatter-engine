@@ -96,7 +96,7 @@ shatter_status_t create_swap_chain(vulkan_renderer_t *vk_renderer) {
 	
 	vkGetSwapchainImagesKHR(vk_renderer->logical_device, vk_renderer->swap_chain,
 							(uint32_t *)&(vk_renderer->num_swap_chain_images), vk_renderer->swap_chain_image_list);
-
+	
 	vk_renderer->swap_chain_image_format = surface_format.format;
 	vk_renderer->swap_chain_extent = extent;
 	log_message(stdout, "Created swap chain.\n");

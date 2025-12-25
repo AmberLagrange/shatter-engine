@@ -38,6 +38,9 @@ typedef struct vulkan_renderer_s {
 	VkFormat swap_chain_image_format;
 	VkExtent2D swap_chain_extent;
 	
+	VkImageView *image_view_list;
+	size_t num_image_views;
+	
 	char **validation_layers;
 	size_t num_validation_layers;
 	bool validation_layers_enabled;

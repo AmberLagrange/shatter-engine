@@ -11,6 +11,8 @@
 #include <renderers/vulkan/devices/logical.h>
 #include <renderers/vulkan/devices/physical.h>
 
+#include <renderers/vulkan/image_view/image_view.h>
+
 #include <renderers/vulkan/surfaces/surface.h>
 
 #include <renderers/vulkan/swap_chain/swap_chain.h>
@@ -85,6 +87,12 @@ shatter_status_t vulkan_renderer_init(vulkan_renderer_t *vk_renderer, renderer_c
 		return SHATTER_VULKAN_SWAP_CHAIN_INIT_FAILURE;
 	}
 	
+	if (create_image_views(vk_renderer)) {
+		
+		log_message(stderr, "Failed to create the image views.\n");
+		return SHATTER_VULKAN_IMAGE_VIEW_INIT_FAILURE;
+	}
+	
 	log_message(stdout, "\nRenderer Initialization Complete.\n");
 	return SHATTER_SUCCESS;
 }
@@ -102,27 +110,38 @@ shatter_status_t vulkan_renderer_loop(vulkan_renderer_t *vk_renderer) {
 
 shatter_status_t vulkan_renderer_cleanup(vulkan_renderer_t *vk_renderer) {
 	
+	log_message(stdout, "\n");
+	
+	cleanup_image_views(vk_renderer);
+	log_message(stdout, "Destroyed image views.\n");
+	
 	free(vk_renderer->swap_chain_image_list);
 	
 	vkDestroySwapchainKHR(vk_renderer->logical_device, vk_renderer->swap_chain, NULL);
+	log_message(stdout, "Destroyed swapchain.\n");
 	
 	vkDestroyDevice(vk_renderer->logical_device, NULL);
+	log_message(stdout, "Destroyed logical device.\n");
 	
 	cleanup_vulkan_debug_messenger(vk_renderer);
+	log_message(stdout, "Destroyed Vulkan debug messenger.\n");
 	
 	vkDestroySurfaceKHR(vk_renderer->vulkan_instance, vk_renderer->rendering_surface, NULL);
+	log_message(stdout, "Destroyed surface.\n");
 	
 	vkDestroyInstance(vk_renderer->vulkan_instance, NULL);
+	log_message(stdout, "Destroyed Vulkan instance.\n");
 	
 	glfwDestroyWindow(vk_renderer->rendering_window);
+	log_message(stdout, "Destroyed GLFW window.\n");
 	
 	if (terminate_glfw()) {
 		
-		log_message(stderr, "\nFailed to terminate GLFW.\n");
+		log_message(stderr, "Failed to terminate GLFW.\n");
 		return SHATTER_RENDERER_CLEANUP_FAILURE;
 	}
 	
-	log_message(stdout, "\nRenderer Cleanup Complete.\n");
+	log_message(stdout, "Renderer Cleanup Complete.\n");
 	return SHATTER_SUCCESS;
 }
 
