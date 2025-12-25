@@ -61,6 +61,8 @@ SRCS = $(SRC_DIR)/app/app.c \
 	   \
 	   $(SRC_DIR)/renderers/vulkan/image_view/image_view.c \
 	   \
+	   $(SRC_DIR)/renderers/vulkan/render_pass/render_pass.c \
+	   \
 	   $(SRC_DIR)/renderers/vulkan/shaders/load_shader.c \
 	   $(SRC_DIR)/renderers/vulkan/shaders/shader_module.c \
 	   \

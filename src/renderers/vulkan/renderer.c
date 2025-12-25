@@ -15,6 +15,8 @@
 
 #include <renderers/vulkan/image_view/image_view.h>
 
+#include <renderers/vulkan/render_pass/render_pass.h>
+
 #include <renderers/vulkan/surfaces/surface.h>
 
 #include <renderers/vulkan/swap_chain/swap_chain.h>
@@ -95,6 +97,12 @@ shatter_status_t vulkan_renderer_init(vulkan_renderer_t *vk_renderer, renderer_c
 		return SHATTER_VULKAN_IMAGE_VIEW_INIT_FAILURE;
 	}
 	
+	if (create_render_pass(vk_renderer)) {
+		
+		log_message(stderr, "Failed to create the render pass.\n");
+		return SHATTER_VULKAN_RENDER_PASS_INIT_FAILURE;
+	}
+	
 	if (create_graphics_pipeline(vk_renderer)) {
 		
 		log_message(stderr, "Failed to create the graphics pipeline.\n");
@@ -119,6 +127,12 @@ shatter_status_t vulkan_renderer_loop(vulkan_renderer_t *vk_renderer) {
 shatter_status_t vulkan_renderer_cleanup(vulkan_renderer_t *vk_renderer) {
 	
 	log_message(stdout, "\n");
+	
+	vkDestroyPipelineLayout(vk_renderer->logical_device, vk_renderer->pipeline_layout, NULL);
+	log_message(stdout, "Destroyed pipeline layout.\n");
+	
+	vkDestroyRenderPass(vk_renderer->logical_device, vk_renderer->render_pass, NULL);
+	log_message(stdout, "Destroyed render pass.\n");
 	
 	cleanup_image_views(vk_renderer);
 	log_message(stdout, "Destroyed image views.\n");

@@ -41,6 +41,9 @@ typedef struct vulkan_renderer_s {
 	VkImageView *image_view_list;
 	size_t num_image_views;
 	
+	VkRenderPass render_pass;
+	VkPipelineLayout pipeline_layout;
+	
 	char **validation_layers;
 	size_t num_validation_layers;
 	bool validation_layers_enabled;
