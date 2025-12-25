@@ -7,4 +7,5 @@ bin/
 deps/
 objs/
 pch/
+spv/
 tmp/

@@ -11,6 +11,8 @@
 #include <renderers/vulkan/devices/logical.h>
 #include <renderers/vulkan/devices/physical.h>
 
+#include <renderers/vulkan/graphics_pipeline/graphics_pipeline.h>
+
 #include <renderers/vulkan/image_view/image_view.h>
 
 #include <renderers/vulkan/surfaces/surface.h>
@@ -91,6 +93,12 @@ shatter_status_t vulkan_renderer_init(vulkan_renderer_t *vk_renderer, renderer_c
 		
 		log_message(stderr, "Failed to create the image views.\n");
 		return SHATTER_VULKAN_IMAGE_VIEW_INIT_FAILURE;
+	}
+	
+	if (create_graphics_pipeline(vk_renderer)) {
+		
+		log_message(stderr, "Failed to create the graphics pipeline.\n");
+		return SHATTER_VULKAN_GRAPHICS_PIPELINE_INIT_FAILURE;
 	}
 	
 	log_message(stdout, "\nRenderer Initialization Complete.\n");
