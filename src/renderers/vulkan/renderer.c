@@ -128,6 +128,9 @@ shatter_status_t vulkan_renderer_cleanup(vulkan_renderer_t *vk_renderer) {
 	
 	log_message(stdout, "\n");
 	
+	vkDestroyPipeline(vk_renderer->logical_device, vk_renderer->graphics_pipeline, NULL);
+	log_message(stdout, "Destroyed graphics pipeline.\n");
+	
 	vkDestroyPipelineLayout(vk_renderer->logical_device, vk_renderer->pipeline_layout, NULL);
 	log_message(stdout, "Destroyed pipeline layout.\n");
 	

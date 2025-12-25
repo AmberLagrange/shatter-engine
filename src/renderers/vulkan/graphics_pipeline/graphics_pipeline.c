@@ -66,6 +66,22 @@ shatter_status_t create_graphics_pipeline(vulkan_renderer_t *vk_renderer) {
 		fragment_shader_stage_info,
 	};
 	
+	// ---------- Dynamic State ---------- //
+	
+	VkDynamicState dynamic_state_list[2] = {
+		
+		VK_DYNAMIC_STATE_VIEWPORT,
+		VK_DYNAMIC_STATE_SCISSOR,
+	};
+	
+	VkPipelineDynamicStateCreateInfo dynamic_state_info = {
+		
+		.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
+		
+		.dynamicStateCount = 2,
+		.pDynamicStates = dynamic_state_list,
+	};
+	
 	// ---------- Vertex Input ---------- //
 	
 	VkPipelineVertexInputStateCreateInfo vertex_input_info = {
@@ -121,7 +137,7 @@ shatter_status_t create_graphics_pipeline(vulkan_renderer_t *vk_renderer) {
 	
 	// ---------- Rasterizer ---------- //
 	
-	VkPipelineRasterizationStateCreateInfo rasterizer = {
+	VkPipelineRasterizationStateCreateInfo rasterizer_info = {
 		
 		.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
 		
@@ -144,7 +160,7 @@ shatter_status_t create_graphics_pipeline(vulkan_renderer_t *vk_renderer) {
 	
 	// ---------- Multisampling ---------- //
 	
-	VkPipelineMultisampleStateCreateInfo multisampling = {
+	VkPipelineMultisampleStateCreateInfo multisampling_info = {
 		
 		.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
 		
@@ -180,7 +196,7 @@ shatter_status_t create_graphics_pipeline(vulkan_renderer_t *vk_renderer) {
 		.alphaBlendOp = VK_BLEND_OP_ADD,
 	};
 	
-	VkPipelineColorBlendStateCreateInfo color_blending = {
+	VkPipelineColorBlendStateCreateInfo color_blending_info = {
 		
 		.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
 		
@@ -212,18 +228,45 @@ shatter_status_t create_graphics_pipeline(vulkan_renderer_t *vk_renderer) {
 	if (vkCreatePipelineLayout(vk_renderer->logical_device, &pipeline_layout_info,
 							   NULL, &(vk_renderer->pipeline_layout)) != VK_SUCCESS) {
 		
+		log_message(stderr, "Failed to create the pipeline layout.\n");
 		status = SHATTER_VULKAN_PIPELINE_LAYOUT_INIT_FAILURE;
 		goto cleanup;
 	}
 	
-	UNUSED(shader_stage_info_list);
-	UNUSED(vertex_input_info);
-	UNUSED(input_assembly_info);
-	UNUSED(viewport_info);
-	UNUSED(rasterizer);
-	UNUSED(multisampling);
-	UNUSED(depth_stencil);
-	UNUSED(color_blending);
+	// ---------- Pipeline ---------- //
+	
+	VkGraphicsPipelineCreateInfo pipeline_info = {
+		
+		.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
+		
+		.stageCount = 2,
+		.pStages = shader_stage_info_list,
+		
+		.pDynamicState       = &dynamic_state_info,
+		.pVertexInputState   = &vertex_input_info,
+		.pInputAssemblyState = &input_assembly_info,
+		.pViewportState      = &viewport_info,
+		.pRasterizationState = &rasterizer_info,
+		.pMultisampleState   = &multisampling_info,
+		.pDepthStencilState  = NULL, // Ignoring for now
+		.pColorBlendState    = &color_blending_info,
+		
+		.layout = vk_renderer->pipeline_layout,
+		.renderPass = vk_renderer->render_pass,
+		.subpass = 0,
+		
+		.basePipelineHandle = VK_NULL_HANDLE,
+		.basePipelineIndex = -1,
+	};
+	UNUSED(depth_stencil); // Unused for now, as we're passing in NULL
+	
+	if (vkCreateGraphicsPipelines(vk_renderer->logical_device, VK_NULL_HANDLE, 1, &pipeline_info,
+								  NULL, &(vk_renderer->graphics_pipeline)) != VK_SUCCESS) {
+		
+		log_message(stderr, "Failed to create the graphics pipeline.\n");
+		status = SHATTER_VULKAN_GRAPHICS_PIPELINE_INIT_FAILURE;
+		goto cleanup;
+	}
 	
 	// ---------- Success ---------- //
 	

@@ -43,6 +43,7 @@ typedef struct vulkan_renderer_s {
 	
 	VkRenderPass render_pass;
 	VkPipelineLayout pipeline_layout;
+	VkPipeline graphics_pipeline;
 	
 	char **validation_layers;
 	size_t num_validation_layers;
