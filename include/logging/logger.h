@@ -46,6 +46,8 @@ void disable_log_prefix_colors(void);
 void enable_log_message_colors(void);
 void disable_log_message_colors(void);
 
+void set_log_level(log_level_t log_level);
+
 void v_log_message(FILE *file, log_level_t log_level, log_color_t log_color, const char *format, va_list args);
 void log_message(FILE *file, log_level_t log_level, log_color_t log_color, const char *format, ...);
 

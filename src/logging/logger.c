@@ -36,6 +36,8 @@ static const char *LOG_LEVEL_COLOR_CODES[NUM_LOG_COLORS] = {
 	"\033[0m",     // Reset
 };
 
+static log_level_t s_curr_log_level;
+
 void init_logging(void) {
 	
 	for (size_t prefix_index = 0; prefix_index < NUM_LOG_LEVELS; ++prefix_index) {
@@ -43,6 +45,8 @@ void init_logging(void) {
 		size_t prefix_len = strlen(LOG_LEVEL_PREFIXES[prefix_index]);
 		max_prefix_len = (prefix_len > max_prefix_len) ? prefix_len : max_prefix_len;
 	}
+	
+	s_curr_log_level = LOG_LEVEL_TRACE;
 }
 
 void enable_logging(void)  { s_logging_enabled = true;  }
@@ -59,6 +63,11 @@ void disable_log_prefix_colors(void) { s_log_prefix_colors_enabled = false; }
 
 void enable_log_message_colors(void)  { s_log_message_colors_enabled = true;  }
 void disable_log_message_colors(void) { s_log_message_colors_enabled = false; }
+
+void set_log_level(log_level_t log_level) {
+	
+	s_curr_log_level = log_level;
+}
 
 static void swap_prefix_color(FILE *file, log_color_t log_color) {
 	
@@ -108,7 +117,7 @@ static void print_message(FILE *file, log_color_t log_color, const char *format,
 
 void v_log_message(FILE *file, log_level_t log_level, log_color_t log_color, const char *format, va_list args) {
 	
-	if (!s_logging_enabled) {
+	if (!s_logging_enabled || log_level < s_curr_log_level) {
 		
 		return;
 	}

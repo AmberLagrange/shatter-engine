@@ -169,7 +169,7 @@ remake:
 bin: dirs pchs $(BIN_DIR)/$(BIN_NAME)
 
 run: $(BIN_DIR)/$(BIN_NAME)
-	$(BIN_DIR)/$(BIN_NAME) --verbose --enable-prefix --enable-color
+	$(BIN_DIR)/$(BIN_NAME) --log-level=info --enable-prefix --enable-color
 
 pchs: $(PCHS)
 
