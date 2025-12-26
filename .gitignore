@@ -3,6 +3,7 @@
 cglm/
 
 # Ignore build artifact directories
+api_libraries/
 bin/
 deps/
 objs/
