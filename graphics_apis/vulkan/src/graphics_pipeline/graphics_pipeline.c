@@ -5,7 +5,12 @@
 #include <shaders/load_shader.h>
 #include <shaders/shader_module.h>
 
+#include <libgen.h> // dirname
+
 #include <stdlib.h>
+#include <string.h>
+
+#define MAX_FILE_PATH_LEN 256
 
 shatter_status_t create_graphics_pipeline(vulkan_renderer_t *vk_renderer) {
 	
@@ -13,13 +18,29 @@ shatter_status_t create_graphics_pipeline(vulkan_renderer_t *vk_renderer) {
 	log_trace("Creating graphics pipeline.\n");
 	shatter_status_t status = SHATTER_SUCCESS;
 	
+	char binary_path[MAX_FILE_PATH_LEN + 1];
+	strncpy(binary_path, vk_renderer->renderer_config.binary_path, MAX_FILE_PATH_LEN);
+	
+	char *directory_path = dirname(binary_path);
+	size_t directory_path_len = strlen(directory_path);
+	
 	// ---------- Vertex Shader ---------- //
 	
-	size_t vertex_len;
-	char *vertex_bytecode = get_shader_bytecode("spv/vertex/basic_vertex.spv", &vertex_len);
+	char vertex_spv_path[MAX_FILE_PATH_LEN + 1];
+	strncpy(vertex_spv_path, directory_path, MAX_FILE_PATH_LEN);
+	strncat(vertex_spv_path, "/spv/vertex/basic_vertex.spv", MAX_FILE_PATH_LEN - directory_path_len);
+	
+	size_t vertex_bytecode_len;
+	char *vertex_bytecode = get_shader_bytecode(vertex_spv_path, &vertex_bytecode_len);
+	if (vertex_bytecode == NULL) {
+		
+		log_error("Failed to read the vertex shader bytecode.\n");
+		status = SHATTER_VULKAN_SHADER_READ_FAILURE;
+		goto exit;
+	}
 	
 	VkShaderModule vertex_module = { 0 };
-	if (create_shader_module(&vertex_module, vk_renderer, vertex_bytecode, vertex_len)) {
+	if (create_shader_module(&vertex_module, vk_renderer, vertex_bytecode, vertex_bytecode_len)) {
 		
 		log_error("Failed to create the vertex shader module.\n");
 		status = SHATTER_VULKAN_SHADER_MODULE_INIT_FAILURE;
@@ -38,15 +59,25 @@ shatter_status_t create_graphics_pipeline(vulkan_renderer_t *vk_renderer) {
 	
 	// ---------- Fragment Shader ---------- //
 	
-	size_t fragment_len;
-	char *fragment_bytecode = get_shader_bytecode("spv/fragment/basic_fragment.spv", &fragment_len);
+	char fragment_spv_path[MAX_FILE_PATH_LEN + 1];
+	strncpy(fragment_spv_path, directory_path, MAX_FILE_PATH_LEN);
+	strncat(fragment_spv_path, "/spv/fragment/basic_fragment.spv", MAX_FILE_PATH_LEN - directory_path_len);
+	
+	size_t fragment_bytecode_len;
+	char *fragment_bytecode = get_shader_bytecode(fragment_spv_path, &fragment_bytecode_len);
+	if (fragment_bytecode == NULL) {
+		
+		log_error("Failed to read the fragment shader bytecode.\n");
+		status = SHATTER_VULKAN_SHADER_READ_FAILURE;
+		goto cleanup_vertex_module;
+	}
 	
 	VkShaderModule fragment_module = { 0 };
-	if (create_shader_module(&fragment_module, vk_renderer, fragment_bytecode, fragment_len)) {
+	if (create_shader_module(&fragment_module, vk_renderer, fragment_bytecode, fragment_bytecode_len)) {
 		
 		log_error("Failed to create the fragment shader module.\n");
 		status = SHATTER_VULKAN_SHADER_MODULE_INIT_FAILURE;
-		goto cleanup_vertex_module;
+		goto cleanup_fragment_bytecode;
 	}
 	
 	VkPipelineShaderStageCreateInfo fragment_shader_stage_info = {
@@ -231,7 +262,7 @@ shatter_status_t create_graphics_pipeline(vulkan_renderer_t *vk_renderer) {
 		
 		log_error("Failed to create the pipeline layout.\n");
 		status = SHATTER_VULKAN_PIPELINE_LAYOUT_INIT_FAILURE;
-		goto cleanup;
+		goto cleanup_fragment_module;
 	}
 	
 	// ---------- Pipeline ---------- //
@@ -266,7 +297,7 @@ shatter_status_t create_graphics_pipeline(vulkan_renderer_t *vk_renderer) {
 		
 		log_error("Failed to create the graphics pipeline.\n");
 		status = SHATTER_VULKAN_GRAPHICS_PIPELINE_INIT_FAILURE;
-		goto cleanup;
+		goto cleanup_fragment_module;
 	}
 	
 	// ---------- Success ---------- //
@@ -275,15 +306,19 @@ shatter_status_t create_graphics_pipeline(vulkan_renderer_t *vk_renderer) {
 	
 	// ---------- Cleanup ---------- //
 	
-cleanup:
+cleanup_fragment_module:
 	vkDestroyShaderModule(vk_renderer->logical_device, fragment_module, NULL);
+	
+cleanup_fragment_bytecode:
+	free(fragment_bytecode);
+	
 cleanup_vertex_module:
 	vkDestroyShaderModule(vk_renderer->logical_device, vertex_module, NULL);
-
-	free(fragment_bytecode);
+	
 cleanup_vertex_bytecode:
 	free(vertex_bytecode);
 	
+exit:
 	return status;
 }
 

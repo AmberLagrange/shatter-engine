@@ -82,6 +82,7 @@ API_LIBS = $(API_LIB_DIR)/vulkan_api.so
 
 all:
 	$(MAKE) dirs
+	$(MAKE) $(API_LIBS)
 	$(MAKE) bin
 	$(MAKE) shaders
 

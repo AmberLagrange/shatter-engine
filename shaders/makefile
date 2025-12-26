@@ -8,10 +8,14 @@ else
 	OUTPUT_REDIRECT =
 endif
 
+# -------- Binary Directory -------- #
+
+BIN_DIR = $(CURDIR)/../bin
+
 # -------- Shader Directories -------- #
 
 SHADER_DIR := $(CURDIR)
-SPV_DIR    := $(CURDIR)/../spv
+SPV_DIR    := $(BIN_DIR)/spv
 
 # -------- Shader Input Files -------- #
 

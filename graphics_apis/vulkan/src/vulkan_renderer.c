@@ -36,11 +36,11 @@ shatter_status_t init_api_renderer(void **api_renderer, renderer_config_t *confi
 	*vk_renderer_ptr = malloc(sizeof(vulkan_renderer_t));
 	log_trace("Initializing Vulkan Renderer.\n");
 	
-	memcpy(&((*vk_renderer_ptr)->config), config, sizeof(renderer_config_t));
+	memcpy(&((*vk_renderer_ptr)->renderer_config), config, sizeof(renderer_config_t));
 	
 	(*vk_renderer_ptr)->rendering_window =
-		glfwCreateWindow((*vk_renderer_ptr)->config.width, (*vk_renderer_ptr)->config.height,
-						 (*vk_renderer_ptr)->config.title, NULL, NULL);
+		glfwCreateWindow((*vk_renderer_ptr)->renderer_config.width, (*vk_renderer_ptr)->renderer_config.height,
+						 (*vk_renderer_ptr)->renderer_config.title, NULL, NULL);
 	
 	if (!(*vk_renderer_ptr)->rendering_window) {
 		

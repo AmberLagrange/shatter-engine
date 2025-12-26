@@ -15,7 +15,7 @@
 
 typedef struct vulkan_renderer_s {
 	
-	renderer_config_t config;
+	renderer_config_t renderer_config;
 	
 	GLFWwindow *rendering_window;
 	

@@ -58,11 +58,13 @@ void parse_args(int argc, char **argv) {
 int main(int argc, char **argv) {
 	
 	parse_args(argc, argv);
-	
+		
 	int status = EXIT_SUCCESS;
 	
+	char *binary_path = realpath(argv[0], NULL);
+	
 	renderer_t renderer;
-	renderer_config_t config = { 800, 600, "Vulkan Renderer" };
+	renderer_config_t config = { 800, 600, "Vulkan Renderer", binary_path };
 	
 	if (init_renderer(&renderer, &config)) {
 		
@@ -86,6 +88,8 @@ cleanup:
 		status = EXIT_FAILURE;
 		goto exit;
 	}
+	
+	free(binary_path);
 	
 exit:
 	return status;
