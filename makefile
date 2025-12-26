@@ -52,7 +52,8 @@ SRCS = $(SRC_DIR)/app/app.c \
 	   $(SRC_DIR)/renderers/vulkan/renderer.c \
 	   $(SRC_DIR)/renderers/vulkan/validation_layers.c \
 	   \
-	   $(SRC_DIR)/renderers/vulkan/command_pool/command_pool.c \
+	   $(SRC_DIR)/renderers/vulkan/commands/command_buffer.c \
+	   $(SRC_DIR)/renderers/vulkan/commands/command_pool.c \
 	   \
 	   $(SRC_DIR)/renderers/vulkan/devices/extensions.c \
 	   $(SRC_DIR)/renderers/vulkan/devices/logical.c \
@@ -73,6 +74,8 @@ SRCS = $(SRC_DIR)/app/app.c \
 	   $(SRC_DIR)/renderers/vulkan/swap_chain/swap_chain.c \
 	   $(SRC_DIR)/renderers/vulkan/swap_chain/swap_chain_support_details.c \
 	   $(SRC_DIR)/renderers/vulkan/swap_chain/swap_extent.c \
+	   \
+	   $(SRC_DIR)/renderers/vulkan/sync/sync_objects.c \
 	   \
 	   $(SRC_DIR)/renderers/vulkan/queues/queue_family_indicies.c \
 	   $(SRC_DIR)/renderers/vulkan/queues/required_queue_families.c \

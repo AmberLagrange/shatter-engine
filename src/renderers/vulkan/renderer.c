@@ -8,7 +8,8 @@
 #include <renderers/vulkan/renderer.h>
 #include <renderers/vulkan/validation_layers.h>
 
-#include <renderers/vulkan/command_pool/command_pool.h>
+#include <renderers/vulkan/commands/command_buffer.h>
+#include <renderers/vulkan/commands/command_pool.h>
 
 #include <renderers/vulkan/devices/logical.h>
 #include <renderers/vulkan/devices/physical.h>
@@ -23,6 +24,8 @@
 #include <renderers/vulkan/swap_chain/image_view.h>
 #include <renderers/vulkan/swap_chain/swap_chain.h>
 
+#include <renderers/vulkan/sync/sync_objects.h>
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -35,6 +38,8 @@ shatter_status_t vulkan_renderer_init(vulkan_renderer_t *vk_renderer, renderer_c
 	}
 	
 	memcpy(&(vk_renderer->config), config, sizeof(renderer_config_t));
+	
+	glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
 	vk_renderer->rendering_window =
 		glfwCreateWindow(vk_renderer->config.width, vk_renderer->config.height, vk_renderer->config.title, NULL, NULL);
 	
@@ -43,6 +48,7 @@ shatter_status_t vulkan_renderer_init(vulkan_renderer_t *vk_renderer, renderer_c
 		log_error("Failed to create GLFW Window.\n");
 		return SHATTER_GLFW_WINDOW_FAILURE;
 	}
+	glfwSetWindowAttrib(vk_renderer->rendering_window, GLFW_DECORATED, GLFW_TRUE);
 	
 	vk_renderer->num_validation_layers = 0;
 	init_validation_layers(vk_renderer);
@@ -112,16 +118,54 @@ shatter_status_t vulkan_renderer_init(vulkan_renderer_t *vk_renderer, renderer_c
 		return SHATTER_VULKAN_COMMAND_POOL_INIT_FAILURE;
 	}
 	
+	if (create_command_buffer(vk_renderer)) {
+		
+		log_error("Failed to create command buffer.\n");
+		return SHATTER_VULKAN_COMMAND_BUFFER_INIT_FAILURE;
+	}
+	
+	if (create_sync_objects(vk_renderer)) {
+		
+		log_error("Failed to create sync objects.\n");
+		return SHATTER_VULKAN_SYNC_OBJECT_INIT_FAILURE;
+	}
+	
 	log_info("\n");
 	log_info("Renderer Initialization Complete.\n");
 	return SHATTER_SUCCESS;
 }
 
+// Temp
+void escape_callback(GLFWwindow *rendering_window, int key, int scancode, int action, int mods) {
+	
+	UNUSED(scancode);
+	UNUSED(mods);
+	
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+		
+		glfwSetWindowShouldClose(rendering_window, GLFW_TRUE);
+	}
+}
+
 shatter_status_t vulkan_renderer_loop(vulkan_renderer_t *vk_renderer) {
 	
-	(void)vk_renderer;
 	log_trace("\n");
 	log_trace("Running Renderer Loop.\n");
+	
+	glfwSetKeyCallback(vk_renderer->rendering_window, escape_callback);
+	
+	while (!glfwWindowShouldClose(vk_renderer->rendering_window)) {
+		
+		glfwPollEvents();
+		
+		if (draw_frame(vk_renderer)) {
+			
+			log_critical("Failed to draw frame.\n");
+			return SHATTER_VULKAN_DRAW_FRAME_FAILURE;
+		}
+		
+		vkDeviceWaitIdle(vk_renderer->logical_device);
+	}
 	
 	return SHATTER_SUCCESS;
 }
@@ -129,6 +173,18 @@ shatter_status_t vulkan_renderer_loop(vulkan_renderer_t *vk_renderer) {
 shatter_status_t vulkan_renderer_cleanup(vulkan_renderer_t *vk_renderer) {
 	
 	log_trace("\n");
+	
+	vkDestroyFence(vk_renderer->logical_device, vk_renderer->in_flight_fence, NULL);
+	log_trace("Destroyed in flight fence.\n");
+	
+	vkDestroySemaphore(vk_renderer->logical_device, vk_renderer->render_finished_semaphore, NULL);
+	log_trace("Destroyed render finished semaphore.\n");
+	
+	vkDestroySemaphore(vk_renderer->logical_device, vk_renderer->image_available_semaphore, NULL);
+	log_trace("Destroyed image available semaphore.\n");
+	
+	vkDestroyCommandPool(vk_renderer->logical_device, vk_renderer->command_pool, NULL);
+	log_trace("Destroyed command pool.\n");
 	
 	cleanup_frame_buffers(vk_renderer);
 	log_trace("Destroyed frame buffers.\n");
@@ -172,6 +228,64 @@ shatter_status_t vulkan_renderer_cleanup(vulkan_renderer_t *vk_renderer) {
 	}
 	
 	log_info("Renderer Cleanup Complete.\n");
+	return SHATTER_SUCCESS;
+}
+
+shatter_status_t draw_frame(vulkan_renderer_t *vk_renderer) {
+	
+	vkWaitForFences(vk_renderer->logical_device, 1, &(vk_renderer->in_flight_fence), VK_TRUE, UINT64_MAX);
+	vkResetFences(vk_renderer->logical_device, 1, &(vk_renderer->in_flight_fence));
+	
+	uint32_t image_index;
+	vkAcquireNextImageKHR(vk_renderer->logical_device, vk_renderer->swap_chain, UINT64_MAX,
+						  vk_renderer->image_available_semaphore, VK_NULL_HANDLE, &image_index);
+	
+	vkResetCommandBuffer(vk_renderer->command_buffer, 0);
+	record_command_buffer(vk_renderer, vk_renderer->command_buffer, image_index);
+	
+	VkSemaphore wait_semaphore_list[1] = { vk_renderer->image_available_semaphore };
+	VkPipelineStageFlags wait_stage_list[1] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+	
+	VkSemaphore signal_semaphore_list[1] = { vk_renderer->render_finished_semaphore };
+	
+	VkSubmitInfo submit_info = {
+		
+		.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+		
+		.waitSemaphoreCount = 1,
+		.pWaitSemaphores = wait_semaphore_list,
+		.pWaitDstStageMask = wait_stage_list,
+		
+		.commandBufferCount = 1,
+		.pCommandBuffers = &(vk_renderer->command_buffer),
+		
+		.signalSemaphoreCount = 1,
+		.pSignalSemaphores = signal_semaphore_list,
+	};
+	
+	if (vkQueueSubmit(vk_renderer->graphics_queue, 1, &submit_info, vk_renderer->in_flight_fence) != VK_SUCCESS) {
+		
+		log_error("Failed to submit draw command buffer.\n");
+		return SHATTER_VULKAN_DRAW_FRAME_FAILURE;
+	}
+	
+	VkSwapchainKHR swap_chain_list[1] = { vk_renderer->swap_chain };
+	VkPresentInfoKHR present_info = {
+		
+		.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+		
+		.waitSemaphoreCount = 1,
+		.pWaitSemaphores = signal_semaphore_list,
+		
+		.swapchainCount = 1,
+		.pSwapchains = swap_chain_list,
+		.pImageIndices = &image_index,
+		
+		.pResults = NULL,
+	};
+	
+	vkQueuePresentKHR(vk_renderer->present_queue, &present_info);
+	
 	return SHATTER_SUCCESS;
 }
 

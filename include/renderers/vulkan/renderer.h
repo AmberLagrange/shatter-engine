@@ -49,6 +49,11 @@ typedef struct vulkan_renderer_s {
 	size_t num_swap_chain_frame_buffers;
 	
 	VkCommandPool command_pool;
+	VkCommandBuffer command_buffer;
+	
+	VkSemaphore image_available_semaphore;
+	VkSemaphore render_finished_semaphore;
+	VkFence in_flight_fence;
 	
 	char **validation_layers;
 	size_t num_validation_layers;
@@ -58,6 +63,8 @@ typedef struct vulkan_renderer_s {
 shatter_status_t vulkan_renderer_init(vulkan_renderer_t *vk_renderer, renderer_config_t *config);
 shatter_status_t vulkan_renderer_loop(vulkan_renderer_t *vk_renderer);
 shatter_status_t vulkan_renderer_cleanup(vulkan_renderer_t *vk_renderer);
+
+shatter_status_t draw_frame(vulkan_renderer_t *vk_renderer);
 
 #endif // RENDERERS_VULKAN_RENDERER_H
 

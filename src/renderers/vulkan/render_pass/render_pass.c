@@ -41,6 +41,20 @@ shatter_status_t create_render_pass(vulkan_renderer_t *vk_renderer) {
 		.pColorAttachments = &color_attachment_reference,
 	};
 	
+	// ---------- Subpass Dependencies ---------- //
+	
+	VkSubpassDependency subpass_dependency = {
+		
+		.srcSubpass = VK_SUBPASS_EXTERNAL,
+		.dstSubpass = 0,
+		
+		.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+		.srcAccessMask = 0,
+		
+		.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+		.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+	};
+	
 	// ---------- Render Pass ---------- //
 	
 	VkRenderPassCreateInfo render_pass_info = {
@@ -52,6 +66,9 @@ shatter_status_t create_render_pass(vulkan_renderer_t *vk_renderer) {
 		
 		.subpassCount = 1,
 		.pSubpasses = &subpass,
+		
+		.dependencyCount = 1,
+		.pDependencies = &subpass_dependency,
 	};
 	
 	if (vkCreateRenderPass(vk_renderer->logical_device, &render_pass_info, NULL, &(vk_renderer->render_pass)) != VK_SUCCESS) {
