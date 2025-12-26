@@ -42,46 +42,48 @@ SRCS = $(SRC_DIR)/app/app.c \
 	   \
 	   $(SRC_DIR)/logging/logger.c \
 	   \
-	   $(SRC_DIR)/renderers/glfw.c \
-	   $(SRC_DIR)/renderers/input.c \
-	   $(SRC_DIR)/renderers/renderer.c \
+	   $(SRC_DIR)/renderer/renderer.c \
 	   \
-	   $(SRC_DIR)/renderers/vulkan/callbacks.c \
-	   $(SRC_DIR)/renderers/vulkan/debug_utils.c \
-	   $(SRC_DIR)/renderers/vulkan/extensions.c \
-	   $(SRC_DIR)/renderers/vulkan/instance.c \
-	   $(SRC_DIR)/renderers/vulkan/renderer.c \
-	   $(SRC_DIR)/renderers/vulkan/validation_layers.c \
+	   $(SRC_DIR)/rendering_apis/vulkan/renderer.c \
 	   \
-	   $(SRC_DIR)/renderers/vulkan/commands/command_buffer.c \
-	   $(SRC_DIR)/renderers/vulkan/commands/command_pool.c \
+	   $(SRC_DIR)/rendering_apis/vulkan/commands/command_buffer.c \
+	   $(SRC_DIR)/rendering_apis/vulkan/commands/command_pool.c \
 	   \
-	   $(SRC_DIR)/renderers/vulkan/devices/extensions.c \
-	   $(SRC_DIR)/renderers/vulkan/devices/logical.c \
+	   $(SRC_DIR)/rendering_apis/vulkan/debug/callbacks.c \
+	   $(SRC_DIR)/rendering_apis/vulkan/debug/debug_utils.c \
+	   $(SRC_DIR)/rendering_apis/vulkan/debug/validation_layers.c \
 	   \
-	   $(SRC_DIR)/renderers/vulkan/devices/physical.c \
+	   $(SRC_DIR)/rendering_apis/vulkan/devices/extensions.c \
+	   $(SRC_DIR)/rendering_apis/vulkan/devices/logical.c \
+	   $(SRC_DIR)/rendering_apis/vulkan/devices/physical.c \
 	   \
-	   $(SRC_DIR)/renderers/vulkan/graphics_pipeline/graphics_pipeline.c \
+	   $(SRC_DIR)/rendering_apis/vulkan/graphics_pipeline/graphics_pipeline.c \
 	   \
-	   $(SRC_DIR)/renderers/vulkan/render_pass/render_pass.c \
+	   $(SRC_DIR)/rendering_apis/vulkan/instance/extensions.c \
+	   $(SRC_DIR)/rendering_apis/vulkan/instance/instance.c \
 	   \
-	   $(SRC_DIR)/renderers/vulkan/shaders/load_shader.c \
-	   $(SRC_DIR)/renderers/vulkan/shaders/shader_module.c \
+	   $(SRC_DIR)/rendering_apis/vulkan/render_pass/render_pass.c \
 	   \
-	   $(SRC_DIR)/renderers/vulkan/swap_chain/frame_buffer.c \
-	   $(SRC_DIR)/renderers/vulkan/swap_chain/image_view.c \
-	   $(SRC_DIR)/renderers/vulkan/swap_chain/present_mode.c \
-	   $(SRC_DIR)/renderers/vulkan/swap_chain/surface_format.c \
-	   $(SRC_DIR)/renderers/vulkan/swap_chain/swap_chain.c \
-	   $(SRC_DIR)/renderers/vulkan/swap_chain/swap_chain_support_details.c \
-	   $(SRC_DIR)/renderers/vulkan/swap_chain/swap_extent.c \
+	   $(SRC_DIR)/rendering_apis/vulkan/shaders/load_shader.c \
+	   $(SRC_DIR)/rendering_apis/vulkan/shaders/shader_module.c \
 	   \
-	   $(SRC_DIR)/renderers/vulkan/sync/sync_objects.c \
+	   $(SRC_DIR)/rendering_apis/vulkan/swap_chain/frame_buffer.c \
+	   $(SRC_DIR)/rendering_apis/vulkan/swap_chain/image_view.c \
+	   $(SRC_DIR)/rendering_apis/vulkan/swap_chain/present_mode.c \
+	   $(SRC_DIR)/rendering_apis/vulkan/swap_chain/surface_format.c \
+	   $(SRC_DIR)/rendering_apis/vulkan/swap_chain/swap_chain.c \
+	   $(SRC_DIR)/rendering_apis/vulkan/swap_chain/swap_chain_support_details.c \
+	   $(SRC_DIR)/rendering_apis/vulkan/swap_chain/swap_extent.c \
 	   \
-	   $(SRC_DIR)/renderers/vulkan/queues/queue_family_indicies.c \
-	   $(SRC_DIR)/renderers/vulkan/queues/required_queue_families.c \
+	   $(SRC_DIR)/rendering_apis/vulkan/sync/sync_objects.c \
 	   \
-	   $(SRC_DIR)/renderers/vulkan/surfaces/surface.c \
+	   $(SRC_DIR)/rendering_apis/vulkan/queues/queue_family_indicies.c \
+	   $(SRC_DIR)/rendering_apis/vulkan/queues/required_queue_families.c \
+	   \
+	   $(SRC_DIR)/rendering_apis/vulkan/surfaces/surface.c \
+	   \
+	   $(SRC_DIR)/window/glfw.c \
+	   $(SRC_DIR)/window/input.c \
 
 # -------- Program File Structs -------- #
 

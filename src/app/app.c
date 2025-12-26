@@ -1,6 +1,6 @@
 #include <common/core.h>
 
-#include <renderers/renderer.h>
+#include <renderer/renderer.h>
 
 #include <stdlib.h> // EXIT_SUCCESS
 #include <string.h>
