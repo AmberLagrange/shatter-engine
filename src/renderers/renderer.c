@@ -1,3 +1,4 @@
+#include <renderers/input.h>
 #include <renderers/renderer.h>
 
 #include <stdlib.h>
@@ -20,6 +21,7 @@ shatter_status_t renderer_init(renderer_t *renderer, renderer_config_t *config) 
 
 shatter_status_t renderer_loop(renderer_t *renderer) {
 	
+	glfwSetKeyCallback(((vulkan_renderer_t *)(renderer->api_renderer))->rendering_window, &escape_callback);
 	return renderer->renderer_loop_callback(renderer->api_renderer);
 }
 

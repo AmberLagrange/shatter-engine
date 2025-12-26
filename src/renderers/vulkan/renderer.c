@@ -135,24 +135,10 @@ shatter_status_t vulkan_renderer_init(vulkan_renderer_t *vk_renderer, renderer_c
 	return SHATTER_SUCCESS;
 }
 
-// Temp
-void escape_callback(GLFWwindow *rendering_window, int key, int scancode, int action, int mods) {
-	
-	UNUSED(scancode);
-	UNUSED(mods);
-	
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-		
-		glfwSetWindowShouldClose(rendering_window, GLFW_TRUE);
-	}
-}
-
 shatter_status_t vulkan_renderer_loop(vulkan_renderer_t *vk_renderer) {
 	
 	log_trace("\n");
-	log_trace("Running Renderer Loop.\n");
-	
-	glfwSetKeyCallback(vk_renderer->rendering_window, escape_callback);
+	log_info("Running Renderer Loop.\n");
 	
 	while (!glfwWindowShouldClose(vk_renderer->rendering_window)) {
 		

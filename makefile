@@ -43,6 +43,7 @@ SRCS = $(SRC_DIR)/app/app.c \
 	   $(SRC_DIR)/logging/logger.c \
 	   \
 	   $(SRC_DIR)/renderers/glfw.c \
+	   $(SRC_DIR)/renderers/input.c \
 	   $(SRC_DIR)/renderers/renderer.c \
 	   \
 	   $(SRC_DIR)/renderers/vulkan/callbacks.c \
