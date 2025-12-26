@@ -32,98 +32,99 @@
 
 shatter_status_t init_api_renderer(void **api_renderer, renderer_config_t *config, GLFWwindow **rendering_window_ptr) {
 	
-	vulkan_renderer_t **vk_renderer_ptr = (vulkan_renderer_t **)(api_renderer);
-	*vk_renderer_ptr = malloc(sizeof(vulkan_renderer_t));
 	log_trace("Initializing Vulkan Renderer.\n");
 	
-	memcpy(&((*vk_renderer_ptr)->renderer_config), config, sizeof(renderer_config_t));
+	*((vulkan_renderer_t **)(api_renderer)) = malloc(sizeof(vulkan_renderer_t));
+	vulkan_renderer_t *vk_renderer = *((vulkan_renderer_t **)(api_renderer));
 	
-	(*vk_renderer_ptr)->rendering_window =
-		glfwCreateWindow((*vk_renderer_ptr)->renderer_config.width, (*vk_renderer_ptr)->renderer_config.height,
-						 (*vk_renderer_ptr)->renderer_config.title, NULL, NULL);
+	memcpy(&(vk_renderer->renderer_config), config, sizeof(renderer_config_t));
 	
-	if (!(*vk_renderer_ptr)->rendering_window) {
+	vk_renderer->rendering_window =
+		glfwCreateWindow(vk_renderer->renderer_config.width, vk_renderer->renderer_config.height,
+						 vk_renderer->renderer_config.title, NULL, NULL);
+	
+	if (!vk_renderer->rendering_window) {
 		
 		log_error("Failed to create GLFW Window.\n");
 		return SHATTER_GLFW_WINDOW_FAILURE;
 	}
-	*rendering_window_ptr = (*vk_renderer_ptr)->rendering_window;
+	*rendering_window_ptr = vk_renderer->rendering_window;
 	
-	(*vk_renderer_ptr)->num_validation_layers = 0;
-	init_validation_layers(*vk_renderer_ptr);
+	vk_renderer->num_validation_layers = 0;
+	init_validation_layers(vk_renderer);
 	
-	if (create_vulkan_instance(*vk_renderer_ptr)) {
+	if (create_vulkan_instance(vk_renderer)) {
 		
 		return SHATTER_VULKAN_INSTANCE_FAILURE;
 	}
 	
-	if (create_surface(*vk_renderer_ptr)) {
+	if (create_surface(vk_renderer)) {
 		
 		return SHATTER_SURFACE_INIT_FAILURE;
 	}
 	
-	if (setup_vulkan_debug_messenger(*vk_renderer_ptr)) {
+	if (setup_vulkan_debug_messenger(vk_renderer)) {
 		
 		log_error("Failed to set up the debug messenger.\n");
 		return SHATTER_VULKAN_DEBUG_SETUP_FAILURE;
 	}
 	
-	(*vk_renderer_ptr)->physical_device = VK_NULL_HANDLE;
-	if (choose_physical_device(*vk_renderer_ptr)) {
+	vk_renderer->physical_device = VK_NULL_HANDLE;
+	if (choose_physical_device(vk_renderer)) {
 		
 		log_error("Failed to set up a physical device.\n");
 		return SHATTER_VULKAN_PHYSICAL_DEVICE_CHOICE_FAILURE;
 	}
 	
-	if (create_logical_device(*vk_renderer_ptr)) {
+	if (create_logical_device(vk_renderer)) {
 		
 		log_error("Failed to create a logical device.\n");
 		return SHATTER_VULKAN_LOGICAL_DEVICE_INIT_FAILURE;
 	}
 
-	if (create_swap_chain(*vk_renderer_ptr)) {
+	if (create_swap_chain(vk_renderer)) {
 		
 		log_error("Failed to create the swap chain.\n");
 		return SHATTER_VULKAN_SWAP_CHAIN_INIT_FAILURE;
 	}
 	
-	if (create_image_views(*vk_renderer_ptr)) {
+	if (create_image_views(vk_renderer)) {
 		
 		log_error("Failed to create the image views.\n");
 		return SHATTER_VULKAN_IMAGE_VIEW_INIT_FAILURE;
 	}
 	
-	if (create_render_pass(*vk_renderer_ptr)) {
+	if (create_render_pass(vk_renderer)) {
 		
 		log_error("Failed to create the render pass.\n");
 		return SHATTER_VULKAN_RENDER_PASS_INIT_FAILURE;
 	}
 	
-	if (create_graphics_pipeline(*vk_renderer_ptr)) {
+	if (create_graphics_pipeline(vk_renderer)) {
 		
 		log_error("Failed to create the graphics pipeline.\n");
 		return SHATTER_VULKAN_GRAPHICS_PIPELINE_INIT_FAILURE;
 	}
 	
-	if (create_frame_buffers(*vk_renderer_ptr)) {
+	if (create_frame_buffers(vk_renderer)) {
 		
 		log_error("Failed to create frame buffers.\n");
 		return SHATTER_VULKAN_FRAME_BUFFER_INIT_FAILURE;
 	}
 	
-	if (create_command_pool(*vk_renderer_ptr)) {
+	if (create_command_pool(vk_renderer)) {
 		
 		log_error("Failed to create command pool.\n");
 		return SHATTER_VULKAN_COMMAND_POOL_INIT_FAILURE;
 	}
 	
-	if (create_command_buffer(*vk_renderer_ptr)) {
+	if (create_command_buffer(vk_renderer)) {
 		
 		log_error("Failed to create command buffer.\n");
 		return SHATTER_VULKAN_COMMAND_BUFFER_INIT_FAILURE;
 	}
 	
-	if (create_sync_objects(*vk_renderer_ptr)) {
+	if (create_sync_objects(vk_renderer)) {
 		
 		log_error("Failed to create sync objects.\n");
 		return SHATTER_VULKAN_SYNC_OBJECT_INIT_FAILURE;
@@ -136,9 +137,10 @@ shatter_status_t init_api_renderer(void **api_renderer, renderer_config_t *confi
 
 shatter_status_t loop_api_renderer(void *api_renderer) {
 	
-	vulkan_renderer_t *vk_renderer = (vulkan_renderer_t *)(api_renderer);
 	log_trace("\n");
 	log_info("Running Renderer Loop.\n");
+	
+	vulkan_renderer_t *vk_renderer = (vulkan_renderer_t *)(api_renderer);
 	
 	while (!glfwWindowShouldClose(vk_renderer->rendering_window)) {
 		
@@ -158,8 +160,10 @@ shatter_status_t loop_api_renderer(void *api_renderer) {
 
 shatter_status_t cleanup_api_renderer(void *api_renderer) {
 	
-	vulkan_renderer_t *vk_renderer = (vulkan_renderer_t *)(api_renderer);
 	log_trace("\n");
+	log_trace("Cleaning up Vulkan renderer.\n");
+	
+	vulkan_renderer_t *vk_renderer = (vulkan_renderer_t *)(api_renderer);
 	
 	vkDestroyFence(vk_renderer->logical_device, vk_renderer->in_flight_fence, NULL);
 	log_trace("Destroyed in flight fence.\n");
