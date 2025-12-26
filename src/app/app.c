@@ -64,14 +64,14 @@ int main(int argc, char **argv) {
 	renderer_t renderer;
 	renderer_config_t config = { 800, 600, "Vulkan Renderer" };
 	
-	if (renderer_init(&renderer, &config)) {
+	if (init_renderer(&renderer, &config)) {
 		
 		log_error("Failed to initialize Renderer.\n");
 		status = EXIT_FAILURE;
 		goto exit;
 	}
 	
-	if (renderer_loop(&renderer)) {
+	if (loop_renderer(&renderer)) {
 		
 		log_error("Error occurred in the rendering loop.\n");
 		status = EXIT_FAILURE;
@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
 
 cleanup:
 	
-	if (renderer_cleanup(&renderer)) {
+	if (cleanup_renderer(&renderer)) {
 		
 		log_error("Failed to cleanup Vulkan Renderer.\n");
 		status = EXIT_FAILURE;

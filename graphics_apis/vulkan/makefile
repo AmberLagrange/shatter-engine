@@ -1,0 +1,141 @@
+# -------- Printing Utils -------- #
+
+SILENT_FLAG := $(findstring s, $(word 1, $(MAKEFLAGS)))
+
+ifeq ($(SILENT_FLAG), s)
+	OUTPUT_REDIRECT = >/dev/null
+else
+	OUTPUT_REDIRECT =
+endif
+
+# -------- Directories -------- #
+
+SRC_DIR := $(CURDIR)/src
+INC_DIR := $(CURDIR)/include
+OBJ_DIR := $(CURDIR)/objs
+DEP_DIR := $(CURDIR)/deps
+TMP_DIR := $(CURDIR)/tmp
+API_DIR := $(CURDIR)/../api_libraries
+
+ENGINE_INC := $(CURDIR)/../../include
+
+# -------- API Name -------- #
+
+API_NAME := vulkan_api.so
+
+# -------- Input Files -------- #
+
+SRCS = \
+	\
+	$(SRC_DIR)/vulkan_renderer.c \
+	\
+	$(SRC_DIR)/commands/command_buffer.c \
+	$(SRC_DIR)/commands/command_pool.c \
+	\
+	$(SRC_DIR)/debug/callbacks.c \
+	$(SRC_DIR)/debug/debug_utils.c \
+	$(SRC_DIR)/debug/validation_layers.c \
+	\
+	$(SRC_DIR)/devices/extensions.c \
+	$(SRC_DIR)/devices/logical.c \
+	$(SRC_DIR)/devices/physical.c \
+	\
+	$(SRC_DIR)/graphics_pipeline/graphics_pipeline.c \
+	\
+	$(SRC_DIR)/instance/extensions.c \
+	$(SRC_DIR)/instance/instance.c \
+	\
+	$(SRC_DIR)/render_pass/render_pass.c \
+	\
+	$(SRC_DIR)/shaders/load_shader.c \
+	$(SRC_DIR)/shaders/shader_module.c \
+	\
+	$(SRC_DIR)/swap_chain/frame_buffer.c \
+	$(SRC_DIR)/swap_chain/image_view.c \
+	$(SRC_DIR)/swap_chain/present_mode.c \
+	$(SRC_DIR)/swap_chain/surface_format.c \
+	$(SRC_DIR)/swap_chain/swap_chain.c \
+	$(SRC_DIR)/swap_chain/swap_chain_support_details.c \
+	$(SRC_DIR)/swap_chain/swap_extent.c \
+	\
+	$(SRC_DIR)/sync/sync_objects.c \
+	\
+	$(SRC_DIR)/queues/queue_family_indicies.c \
+	$(SRC_DIR)/queues/required_queue_families.c \
+	\
+	$(SRC_DIR)/surfaces/surface.c \
+
+# -------- File Structs -------- #
+
+OBJ_FILE_STRUCT = $(dir $(SRCS:$(SRC_DIR)/%=$(OBJ_DIR)/%))
+DEP_FILE_STRUCT = $(dir $(SRCS:$(SRC_DIR)/%=$(DEP_DIR)/%))
+
+# -------- Output Files -------- #
+
+OBJS = $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
+
+# -------- Dependency Files -------- #
+
+DEPS  = $(SRCS:$(SRC_DIR)/%.c=$(DEP_DIR)/%.d)
+DEPS += $(DEP_DIR)/$(API_NAME).d
+
+# -------- Compiler and Linker flags -------- #
+
+CFLAGS  += -I$(INC_DIR) -I$(ENGINE_INC)
+LDLIBS  += -lvulkan
+
+# -------- Util Targets -------- #
+
+all: dirs pchs $(API_DIR)/$(API_NAME)
+
+dirs:
+	mkdir -p $(OBJ_DIR)
+	mkdir -p $(OBJ_FILE_STRUCT)
+	
+	mkdir -p $(DEP_DIR)
+	mkdir -p $(DEP_FILE_STRUCT)
+	
+	mkdir -p $(TMP_DIR)
+	mkdir -p $(API_DIR)
+
+clean:
+	$(RM) -r $(OBJS)
+	$(RM) -r $(DEPS)
+	$(RM) -r $(API_DIR)/$(API_NAME)
+
+clean_all:
+	$(RM) -r $(OBJ_DIR)
+	$(RM) -r $(DEP_DIR)
+	$(RM) -r $(TMP_DIR)
+	$(RM) -r $(API_DIR)
+
+remake:
+	$(MAKE) clean
+	$(MAKE) all
+
+remake_all:
+	$(MAKE) clean_all
+	$(MAKE) all
+
+.PHONY: all dirs pchs clean clean_all remake remake_all
+
+# -------- API Targets -------- #
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	set -e; \
+	$(RM) $(DEP_DIR)/$(*F).d; \
+	$(CC) $(CFLAGS) -fPIC -MD -MP -MT $@ -MF - $(PCH_FLAGS) -c $< -o $@ > $(TMP_DIR)/$(*F).$$$$; \
+	sed -e 's#$@:#$@ $(DEP_DIR)/$(*F).d:#' < $(TMP_DIR)/$(*F).$$$$ > $(@:$(OBJ_DIR)/%.o=$(DEP_DIR)/%.d); \
+	$(RM) $(TMP_DIR)/$(*F).$$$$
+	@printf '$(*F).o created.\n' $(OUTPUT_REDIRECT)
+
+$(API_DIR)/$(API_NAME): $(OBJS)
+	set -e; \
+	$(RM) $(DEP_DIR)/$(API_NAME).d; \
+	$(CC) $(CFLAGS) $(LDFLAGS) $(LDLIBS) -shared -MD -MP -MT $@ -MF - $^ -o $@ > $(TMP_DIR)/$(*F).$$$$; \
+	sed 's#$@:#$@ $(DEP_DIR)/$(NAME).d:#' < $(TMP_DIR)/$(*F).$$$$ > $(DEP_DIR)/$(BIN_NAME).d; \
+	$(RM) $(TMP_DIR)/$(*F).$$$$
+	@printf '$@ created.\n' $(OUTPUT_REDIRECT)
+
+-include $(DEPS)
+

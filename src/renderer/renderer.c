@@ -7,12 +7,11 @@
 
 #include <stdlib.h>
 
-// Temporarily just include the vulkan renderer
-// and use it directly in the init function
-// TODO: Abstract this more with shared libraries
-#include <rendering_apis/vulkan/renderer.h>
+extern shatter_status_t init_api_renderer(void **api_renderer, renderer_config_t *config, GLFWwindow **rendering_window_ptr);
+extern shatter_status_t loop_api_renderer(void *api_renderer);
+extern shatter_status_t cleanup_api_renderer(void *api_renderer);
 
-shatter_status_t renderer_init(renderer_t *renderer, renderer_config_t *config) {
+shatter_status_t init_renderer(renderer_t *renderer, renderer_config_t *config) {
 	
 	if (init_glfw()) {
 		
@@ -20,25 +19,18 @@ shatter_status_t renderer_init(renderer_t *renderer, renderer_config_t *config) 
 		return SHATTER_GLFW_INIT_FAILURE;
 	}
 	
-	renderer->api_renderer = malloc(sizeof(vulkan_renderer_t));
-	
-	renderer->renderer_init_callback    = (shatter_status_t (*)(void *, renderer_config_t *))(&vulkan_renderer_init);
-	renderer->renderer_loop_callback    = (shatter_status_t (*)(void *)                    )(&vulkan_renderer_loop);
-	renderer->renderer_cleanup_callback = (shatter_status_t (*)(void *)                    )(&vulkan_renderer_cleanup);
-	
-	return renderer->renderer_init_callback(renderer->api_renderer, config);
+	return init_api_renderer(&(renderer->api_renderer), config, &(renderer->rendering_window));
 }
 
-shatter_status_t renderer_loop(renderer_t *renderer) {
+shatter_status_t loop_renderer(renderer_t *renderer) {
 	
-	glfwSetKeyCallback(((vulkan_renderer_t *)(renderer->api_renderer))->rendering_window, &escape_callback);
-	return renderer->renderer_loop_callback(renderer->api_renderer);
+	glfwSetKeyCallback(renderer->rendering_window, escape_callback);
+	return loop_api_renderer(renderer->api_renderer);
 }
 
-shatter_status_t renderer_cleanup(renderer_t *renderer) {
+shatter_status_t cleanup_renderer(renderer_t *renderer) {
 	
-	int status = renderer->renderer_cleanup_callback(renderer->api_renderer);
-	free(renderer->api_renderer);
+	int status = cleanup_api_renderer(renderer->api_renderer);
 	
 	if (terminate_glfw()) {
 		
