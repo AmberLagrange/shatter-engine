@@ -18,7 +18,7 @@ else
 	PCH_FLAGS := $(foreach PCH, $(PCHS), -include $(PCH))
 endif
 
-# -------- Binary Directories -------- #
+# -------- Directories -------- #
 
 SRC_DIR := $(CURDIR)/src
 INC_DIR := $(CURDIR)/include
@@ -42,7 +42,7 @@ INCS = $(INC_DIR)/common/core.h
 
 SRCS = $(SRC_DIR)/app/app.c \
 	   \
-	   $(SRC_DIR)/logging/logger.c \
+	   $(SRC_DIR)/dynamic_loader/dynamic_loader.c \
 	   \
 	   $(SRC_DIR)/renderer/renderer.c \
 	   \
@@ -65,25 +65,34 @@ OBJS = $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 DEPS  = $(SRCS:$(SRC_DIR)/%.c=$(DEP_DIR)/%.d)
 DEPS += $(DEP_DIR)/$(BIN_NAME).d
 
-# -------- Compiler and Linker flags -------- #
-
-CFLAGS  += -I$(INC_DIR)
-LDLIBS  += -lglfw
-
 # -------- API Info -------- #
 
 API_DIR = $(CURDIR)/graphics_apis
-APIS    = $(API_DIR)/vulkan
+APIS    = $(API_DIR)/vulkan $(API_DIR)/opengl
 
-API_LIB_DIR = $(API_DIR)/api_libraries
-API_LIBS = $(API_LIB_DIR)/vulkan_api.so
+API_LIB_DIR = $(BIN_DIR)/api_libraries
+
+# -------- Logger Info -------- #
+
+LOGGER_DIR := $(CURDIR)/logger
+LOGGER_LIB := $(LOGGER_DIR)/lib/logger.so
+
+# -------- Compiler and Linker flags -------- #
+
+CFLAGS  += -I$(INC_DIR) -I$(LOGGER_DIR)/include
+LDLIBS  += -lglfw
 
 # -------- Util Targets -------- #
 
 all:
 	$(MAKE) dirs
-	$(MAKE) $(API_LIBS)
+	
+	$(MAKE) -C $(LOGGER_DIR)
+	
 	$(MAKE) bin
+	
+	$(MAKE) apis
+	
 	$(MAKE) shaders
 
 dirs:
@@ -99,30 +108,34 @@ dirs:
 	mkdir -p $(TMP_DIR)
 	mkdir -p $(BIN_DIR)
 	
-	$(MAKE) -C $(APIS) dirs
+	$(MAKE) -C $(LOGGER_DIR) dirs
+	
+	printf '$(APIS)' | xargs -d' ' -I{} make API_LIB_DIR=$(API_LIB_DIR) -C {} dirs
 	
 	$(MAKE) -C $(SHADER_DIR) dirs
 
 clean:
-	# Program
-	$(RM) -r $(PCHS)
-	$(RM) -r $(OBJS)
-	$(RM) -r $(DEPS)
+	$(RM) $(PCHS)
+	$(RM) $(OBJS)
+	$(RM) $(DEPS)
 	$(RM) $(BIN_DIR)/$(BIN_NAME)
 	
-	$(MAKE) -C $(APIS) clean
+	$(MAKE) -C $(LOGGER_DIR) clean
+	
+	printf '$(APIS)' | xargs -d' ' -I{} make API_LIB_DIR=$(API_LIB_DIR) -C {} clean
 	
 	$(MAKE) -C $(SHADER_DIR) clean
 
 clean_all:
-	# Program
 	$(RM) -r $(PCH_DIR)
 	$(RM) -r $(OBJ_DIR)
 	$(RM) -r $(DEP_DIR)
 	$(RM) -r $(TMP_DIR)
 	$(RM) -r $(BIN_DIR)
 	
-	$(MAKE) -C $(APIS) clean_all
+	$(MAKE) -C $(LOGGER_DIR) clean_all
+	
+	printf '$(APIS)' | xargs -d' ' -I{} make API_LIB_DIR=$(API_LIB_DIR) -C {} clean_all
 	
 	$(MAKE) -C $(SHADER_DIR) clean_all
 
@@ -134,7 +147,7 @@ remake_all:
 	$(MAKE) clean_all
 	$(MAKE) all
 
-.PHONY: all dirs clean clean_all remake remake_all bin pchs shaders run
+.PHONY: all dirs clean clean_all remake remake_all bin pchs apis shaders run
 
 # -------- Program Targets -------- #
 
@@ -158,7 +171,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	$(RM) $(TMP_DIR)/$(*F).$$$$
 	@printf '$(*F).o created.\n' $(OUTPUT_REDIRECT)
 
-$(BIN_DIR)/$(BIN_NAME): $(OBJS) $(API_LIBS)
+$(BIN_DIR)/$(BIN_NAME): $(LOGGER_LIB) $(OBJS)
 	set -e; \
 	$(RM) $(DEP_DIR)/$(BIN_NAME).d; \
 	$(CC) $(CFLAGS) $(LDFLAGS) $(LDLIBS) -MD -MP -MT $@ -MF - $^ -o $@ > $(TMP_DIR)/$(*F).$$$$; \
@@ -170,16 +183,24 @@ $(BIN_DIR)/$(BIN_NAME): $(OBJS) $(API_LIBS)
 
 # -------- API Targets -------- #
 
-$(API_LIBS):
-	$(MAKE) -C $(APIS) # TODO: Do this properly
+apis:
+	printf '$(APIS)' | xargs -d' ' -I{} make API_LIB_DIR=$(API_LIB_DIR) \
+											 ENGINE_INC=$(INC_DIR) \
+											 LOGGER_INC=$(LOGGER_DIR)/include \
+											 -C {}
+
+# -------- Logger Targets -------- #
+
+$(LOGGER_LIB):
+	$(MAKE) -C $(LOGGER_DIR)
 
 # -------- Shader Targets -------- #
 
 shaders:
-	$(MAKE) -C $(SHADER_DIR)
+	$(MAKE) BIN_DIR=$(BIN_DIR) API_DIR=$(BIN_DIR)/api_libraries -C $(SHADER_DIR)
 
 # -------- Run -------- #
 
-run: $(BIN_DIR)/$(BIN_NAME) shaders
-	$(BIN_DIR)/$(BIN_NAME) --log-level=info --enable-prefix --enable-color
+run: $(BIN_DIR)/$(BIN_NAME) apis shaders
+	$(BIN_DIR)/$(BIN_NAME) --log-level=info --enable-log-prefix-colors --enable-log-message-colors
 

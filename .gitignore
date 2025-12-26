@@ -1,8 +1,4 @@
-
-# Ignore the cglm library
-cglm/
-
-# Ignore build artifact directories
+# Ignore build artaefact directories
 api_libraries/
 bin/
 deps/
@@ -10,3 +6,12 @@ objs/
 pch/
 spv/
 tmp/
+
+# Ignore any build artaefacts that might slip through
+*.pch
+*.gch
+*.o
+*.d
+*.so
+*.spv
+

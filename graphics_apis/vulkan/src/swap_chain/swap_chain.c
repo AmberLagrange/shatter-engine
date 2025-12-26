@@ -90,6 +90,7 @@ shatter_status_t create_swap_chain(vulkan_renderer_t *vk_renderer) {
 		goto cleanup;
 	};
 	
+	vk_renderer->num_swap_chain_images = 0;
 	vkGetSwapchainImagesKHR(vk_renderer->logical_device, vk_renderer->swap_chain,
 							(uint32_t *)&(vk_renderer->num_swap_chain_images), NULL);
 	

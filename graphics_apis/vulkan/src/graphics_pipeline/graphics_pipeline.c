@@ -5,12 +5,9 @@
 #include <shaders/load_shader.h>
 #include <shaders/shader_module.h>
 
-#include <libgen.h> // dirname
-
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_FILE_PATH_LEN 256
 
 shatter_status_t create_graphics_pipeline(vulkan_renderer_t *vk_renderer) {
 	
@@ -18,20 +15,17 @@ shatter_status_t create_graphics_pipeline(vulkan_renderer_t *vk_renderer) {
 	log_trace("Creating graphics pipeline.\n");
 	shatter_status_t status = SHATTER_SUCCESS;
 	
-	char binary_path[MAX_FILE_PATH_LEN + 1];
-	strncpy(binary_path, vk_renderer->renderer_config.binary_path, MAX_FILE_PATH_LEN);
-	
-	char *directory_path = dirname(binary_path);
-	size_t directory_path_len = strlen(directory_path);
+	const char *directory_filepath = vk_renderer->renderer_config.directory_filepath;
+	size_t directory_filepath_len = strlen(directory_filepath);
 	
 	// ---------- Vertex Shader ---------- //
 	
-	char vertex_spv_path[MAX_FILE_PATH_LEN + 1];
-	strncpy(vertex_spv_path, directory_path, MAX_FILE_PATH_LEN);
-	strncat(vertex_spv_path, "/spv/vertex/basic_vertex.spv", MAX_FILE_PATH_LEN - directory_path_len);
+	char vertex_spv_filepath[MAX_FILEPATH_LEN + 1];
+	strncpy(vertex_spv_filepath, directory_filepath, MAX_FILEPATH_LEN);
+	strncat(vertex_spv_filepath, "/shaders/spv/vertex/basic_vertex.spv", MAX_FILEPATH_LEN - directory_filepath_len);
 	
 	size_t vertex_bytecode_len;
-	char *vertex_bytecode = get_shader_bytecode(vertex_spv_path, &vertex_bytecode_len);
+	char *vertex_bytecode = get_shader_bytecode(vertex_spv_filepath, &vertex_bytecode_len);
 	if (vertex_bytecode == NULL) {
 		
 		log_error("Failed to read the vertex shader bytecode.\n");
@@ -59,12 +53,12 @@ shatter_status_t create_graphics_pipeline(vulkan_renderer_t *vk_renderer) {
 	
 	// ---------- Fragment Shader ---------- //
 	
-	char fragment_spv_path[MAX_FILE_PATH_LEN + 1];
-	strncpy(fragment_spv_path, directory_path, MAX_FILE_PATH_LEN);
-	strncat(fragment_spv_path, "/spv/fragment/basic_fragment.spv", MAX_FILE_PATH_LEN - directory_path_len);
+	char fragment_spv_filepath[MAX_FILEPATH_LEN + 1];
+	strncpy(fragment_spv_filepath, directory_filepath, MAX_FILEPATH_LEN);
+	strncat(fragment_spv_filepath, "/shaders/spv/fragment/basic_fragment.spv", MAX_FILEPATH_LEN - directory_filepath_len);
 	
 	size_t fragment_bytecode_len;
-	char *fragment_bytecode = get_shader_bytecode(fragment_spv_path, &fragment_bytecode_len);
+	char *fragment_bytecode = get_shader_bytecode(fragment_spv_filepath, &fragment_bytecode_len);
 	if (fragment_bytecode == NULL) {
 		
 		log_error("Failed to read the fragment shader bytecode.\n");

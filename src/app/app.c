@@ -2,6 +2,8 @@
 
 #include <renderer/renderer.h>
 
+#include <libgen.h> // dirname
+
 #include <stdlib.h> // EXIT_SUCCESS
 #include <string.h>
 
@@ -40,13 +42,20 @@ void parse_args(int argc, char **argv) {
 			enable_logging();
 			init_logging();
 			set_log_level(LOG_LEVEL_CRITICAL);
-		} else if (strcmp(argv[arg_index], "--enable-prefix") == 0) {
+		} else if (strcmp(argv[arg_index], "--enable-log-prefixes") == 0) {
 			
 			enable_log_prefixes();
-		} else if (strcmp(argv[arg_index], "--enable-color") == 0) {
+		} else if (strcmp(argv[arg_index], "--enable-log-colors") == 0) {
 			
 			enable_log_colors();
+		} else if (strcmp(argv[arg_index], "--enable-log-prefix-colors") == 0) {
+			
+			enable_log_colors();
+			enable_log_prefixes();
 			enable_log_prefix_colors();
+		} else if (strcmp(argv[arg_index], "--enable-log-message-colors") == 0) {
+			
+			enable_log_colors();
 			enable_log_message_colors();
 		} else if (strcmp(argv[arg_index], "--test-logging") == 0) {
 			
@@ -58,40 +67,32 @@ void parse_args(int argc, char **argv) {
 int main(int argc, char **argv) {
 	
 	parse_args(argc, argv);
-		
-	int status = EXIT_SUCCESS;
 	
-	char *binary_path = realpath(argv[0], NULL);
+	char binary_filepath[MAX_FILEPATH_LEN + 1];
+	realpath(argv[0], binary_filepath);
+	
+	char directory_filepath[MAX_FILEPATH_LEN + 1];
+	strncpy(directory_filepath, binary_filepath, MAX_FILEPATH_LEN);
+	dirname(directory_filepath);
+	size_t directory_filepath_len = strlen(directory_filepath);
+	
+	char api_filepath[MAX_FILEPATH_LEN + 1];
+	strncpy(api_filepath, directory_filepath, MAX_FILEPATH_LEN);
+	strncat(api_filepath, "/api_libraries/vulkan_api.so", MAX_FILEPATH_LEN - directory_filepath_len);
 	
 	renderer_t renderer;
-	renderer_config_t config = { 800, 600, "Vulkan Renderer", binary_path };
-	
-	if (init_renderer(&renderer, &config)) {
+	renderer_config_t renderer_config = {
 		
-		log_error("Failed to initialize Renderer.\n");
-		status = EXIT_FAILURE;
-		goto exit;
-	}
-	
-	if (loop_renderer(&renderer)) {
+		.width  = 800,
+		.height = 600,
+		.title   = "Vulkan Renderer",
 		
-		log_error("Error occurred in the rendering loop.\n");
-		status = EXIT_FAILURE;
-		goto cleanup;
-	}
-
-cleanup:
+		.directory_filepath = directory_filepath,
+		.api_filepath = api_filepath,
+	};
 	
-	if (cleanup_renderer(&renderer)) {
-		
-		log_error("Failed to cleanup Vulkan Renderer.\n");
-		status = EXIT_FAILURE;
-		goto exit;
-	}
+	int status = renderer_run(&renderer, &renderer_config);
 	
-	free(binary_path);
-	
-exit:
 	return status;
 }
 

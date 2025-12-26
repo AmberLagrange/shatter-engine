@@ -17,54 +17,17 @@ DEP_DIR := $(CURDIR)/deps
 TMP_DIR := $(CURDIR)/tmp
 
 API_LIB_DIR ?= $(CURDIR)/../../bin/api_libraries
-ENGINE_INC  ?= $(CURDIR)/../../include
-LOGGER_INC  ?= $(CURDIR)/../../logger/include
+
+ENGINE_INC ?= $(CURDIR)/../../include
+LOGGER_INC ?= $(CURDIR)/../../logger/include
 
 # -------- API Name -------- #
 
-API_NAME := vulkan_api.so
+API_NAME := opengl_api.so
 
 # -------- Input Files -------- #
 
-SRCS = \
-	\
-	$(SRC_DIR)/vulkan_renderer.c \
-	\
-	$(SRC_DIR)/commands/command_buffer.c \
-	$(SRC_DIR)/commands/command_pool.c \
-	\
-	$(SRC_DIR)/debug/callbacks.c \
-	$(SRC_DIR)/debug/debug_utils.c \
-	$(SRC_DIR)/debug/validation_layers.c \
-	\
-	$(SRC_DIR)/devices/extensions.c \
-	$(SRC_DIR)/devices/logical.c \
-	$(SRC_DIR)/devices/physical.c \
-	\
-	$(SRC_DIR)/graphics_pipeline/graphics_pipeline.c \
-	\
-	$(SRC_DIR)/instance/extensions.c \
-	$(SRC_DIR)/instance/instance.c \
-	\
-	$(SRC_DIR)/render_pass/render_pass.c \
-	\
-	$(SRC_DIR)/shaders/load_shader.c \
-	$(SRC_DIR)/shaders/shader_module.c \
-	\
-	$(SRC_DIR)/swap_chain/frame_buffer.c \
-	$(SRC_DIR)/swap_chain/image_view.c \
-	$(SRC_DIR)/swap_chain/present_mode.c \
-	$(SRC_DIR)/swap_chain/surface_format.c \
-	$(SRC_DIR)/swap_chain/swap_chain.c \
-	$(SRC_DIR)/swap_chain/swap_chain_support_details.c \
-	$(SRC_DIR)/swap_chain/swap_extent.c \
-	\
-	$(SRC_DIR)/sync/sync_objects.c \
-	\
-	$(SRC_DIR)/queues/queue_family_indicies.c \
-	$(SRC_DIR)/queues/required_queue_families.c \
-	\
-	$(SRC_DIR)/surfaces/surface.c \
+SRCS = $(SRC_DIR)/opengl_renderer.c
 
 # -------- File Structs -------- #
 
@@ -83,7 +46,7 @@ DEPS += $(DEP_DIR)/$(API_NAME).d
 # -------- Compiler and Linker flags -------- #
 
 CFLAGS  += -I$(INC_DIR) -I$(ENGINE_INC) -I$(LOGGER_INC)
-LDLIBS  += -lvulkan
+LDLIBS  += 
 
 # -------- Util Targets -------- #
 

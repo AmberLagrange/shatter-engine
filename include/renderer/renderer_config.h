@@ -3,13 +3,17 @@
 
 #include <stdint.h>
 
-#define MAX_TITLE_LENGTH 256
+typedef struct GLFWwindow GLFWwindow;
 
 typedef struct renderer_config_s {
 	
 	uint32_t width, height;
-	char title[MAX_TITLE_LENGTH];
-	const char *binary_path;
+	
+	char title[MAX_TITLE_LENGTH + 1];
+	
+	const char *directory_filepath;
+	
+	const char *api_filepath;
 } renderer_config_t;
 
 #endif // RENDERER_RENDERER_CONFIG_H

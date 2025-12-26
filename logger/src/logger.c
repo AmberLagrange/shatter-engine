@@ -1,4 +1,4 @@
-#include <logging/logger.h>
+#include <logger.h>
 
 #include <stdarg.h>
 #include <stdbool.h>

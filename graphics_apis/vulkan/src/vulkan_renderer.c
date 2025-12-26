@@ -30,14 +30,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-shatter_status_t init_api_renderer(void **api_renderer, renderer_config_t *config, GLFWwindow **rendering_window_ptr) {
+shatter_status_t init_api_renderer(void **api_renderer, renderer_config_t *renderer_config, GLFWwindow **rendering_window_ptr) {
 	
 	log_trace("Initializing Vulkan Renderer.\n");
 	
 	*((vulkan_renderer_t **)(api_renderer)) = malloc(sizeof(vulkan_renderer_t));
 	vulkan_renderer_t *vk_renderer = *((vulkan_renderer_t **)(api_renderer));
 	
-	memcpy(&(vk_renderer->renderer_config), config, sizeof(renderer_config_t));
+	memcpy(&(vk_renderer->renderer_config), renderer_config, sizeof(renderer_config_t));
 	
 	vk_renderer->rendering_window =
 		glfwCreateWindow(vk_renderer->renderer_config.width, vk_renderer->renderer_config.height,
@@ -48,6 +48,7 @@ shatter_status_t init_api_renderer(void **api_renderer, renderer_config_t *confi
 		log_error("Failed to create GLFW Window.\n");
 		return SHATTER_GLFW_WINDOW_FAILURE;
 	}
+	
 	*rendering_window_ptr = vk_renderer->rendering_window;
 	
 	vk_renderer->num_validation_layers = 0;
@@ -137,24 +138,15 @@ shatter_status_t init_api_renderer(void **api_renderer, renderer_config_t *confi
 
 shatter_status_t loop_api_renderer(void *api_renderer) {
 	
-	log_trace("\n");
-	log_info("Running Renderer Loop.\n");
-	
 	vulkan_renderer_t *vk_renderer = (vulkan_renderer_t *)(api_renderer);
 	
-	while (!glfwWindowShouldClose(vk_renderer->rendering_window)) {
+	if (draw_frame(vk_renderer)) {
 		
-		glfwPollEvents();
-		
-		if (draw_frame(vk_renderer)) {
-			
-			log_critical("Failed to draw frame.\n");
-			return SHATTER_VULKAN_DRAW_FRAME_FAILURE;
-		}
-		
-		vkDeviceWaitIdle(vk_renderer->logical_device);
+		log_critical("Failed to draw frame.\n");
+		return SHATTER_VULKAN_DRAW_FRAME_FAILURE;
 	}
 	
+	vkDeviceWaitIdle(vk_renderer->logical_device);
 	return SHATTER_SUCCESS;
 }
 
