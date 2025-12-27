@@ -60,9 +60,12 @@ typedef struct vulkan_renderer_s {
 	bool validation_layers_enabled;
 } vulkan_renderer_t;
 
-shatter_status_t init_api_renderer(void **api_renderer, renderer_config_t *renderer_config, GLFWwindow **rendering_window_ptr);
-shatter_status_t loop_api_renderer(void *api_renderer);
-shatter_status_t cleanup_api_renderer(void *api_renderer);
+shatter_status_t init_vulkan_renderer(vulkan_renderer_t **vk_renderer_ptr,
+									  renderer_config_t *renderer_config,
+									  GLFWwindow **rendering_window_ptr);
+
+shatter_status_t loop_vulkan_renderer(vulkan_renderer_t *vk_renderer);
+shatter_status_t cleanup_vulkan_renderer(vulkan_renderer_t *vk_renderer);
 
 shatter_status_t draw_frame(vulkan_renderer_t *vk_renderer);
 

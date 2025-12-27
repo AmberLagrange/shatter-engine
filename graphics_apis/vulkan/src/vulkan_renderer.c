@@ -30,12 +30,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-shatter_status_t init_api_renderer(void **api_renderer, renderer_config_t *renderer_config, GLFWwindow **rendering_window_ptr) {
+shatter_status_t init_vulkan_renderer(vulkan_renderer_t **vk_renderer_ptr,
+									  renderer_config_t *renderer_config,
+									  GLFWwindow **rendering_window_ptr) {
 	
 	log_trace("Initializing Vulkan Renderer.\n");
 	
-	*((vulkan_renderer_t **)(api_renderer)) = malloc(sizeof(vulkan_renderer_t));
-	vulkan_renderer_t *vk_renderer = *((vulkan_renderer_t **)(api_renderer));
+	vulkan_renderer_t *vk_renderer = malloc(sizeof(vulkan_renderer_t));
+	*vk_renderer_ptr = vk_renderer;
 	
 	memcpy(&(vk_renderer->renderer_config), renderer_config, sizeof(renderer_config_t));
 	
@@ -136,9 +138,7 @@ shatter_status_t init_api_renderer(void **api_renderer, renderer_config_t *rende
 	return SHATTER_SUCCESS;
 }
 
-shatter_status_t loop_api_renderer(void *api_renderer) {
-	
-	vulkan_renderer_t *vk_renderer = (vulkan_renderer_t *)(api_renderer);
+shatter_status_t loop_vulkan_renderer(vulkan_renderer_t *vk_renderer) {
 	
 	if (draw_frame(vk_renderer)) {
 		
@@ -150,12 +150,10 @@ shatter_status_t loop_api_renderer(void *api_renderer) {
 	return SHATTER_SUCCESS;
 }
 
-shatter_status_t cleanup_api_renderer(void *api_renderer) {
+shatter_status_t cleanup_vulkan_renderer(vulkan_renderer_t *vk_renderer) {
 	
 	log_trace("\n");
 	log_trace("Cleaning up Vulkan renderer.\n");
-	
-	vulkan_renderer_t *vk_renderer = (vulkan_renderer_t *)(api_renderer);
 	
 	vkDestroyFence(vk_renderer->logical_device, vk_renderer->in_flight_fence, NULL);
 	log_trace("Destroyed in flight fence.\n");

@@ -28,6 +28,7 @@ API_NAME := vulkan_api.so
 
 SRCS = \
 	\
+	$(SRC_DIR)/vtable.c \
 	$(SRC_DIR)/vulkan_renderer.c \
 	\
 	$(SRC_DIR)/commands/command_buffer.c \
