@@ -57,6 +57,8 @@ bool has_graphics(VkQueueFamilyProperties *family, ...) {
 
 bool can_present(VkQueueFamilyProperties *family, ...) {
 	
+	UNUSED(family);
+	
 	VkBool32 present_support = VK_FALSE;
 	
 	va_list args;
