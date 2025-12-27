@@ -3,7 +3,7 @@
 #include <devices/extensions.h>
 #include <devices/physical.h>
 
-#include <queues/queue_family_indicies.h>
+#include <queues/queue_family_indices.h>
 #include <queues/required_queue_families.h>
 
 #include <swap_chain/swap_chain_support_details.h>
@@ -68,8 +68,8 @@ bool is_physical_device_suitable(vulkan_renderer_t *vk_renderer, VkPhysicalDevic
 	VkPhysicalDeviceFeatures device_features;
 	vkGetPhysicalDeviceFeatures(device, &device_features);
 	
-	queue_family_indicies_t family_indicies;
-	get_queue_families(vk_renderer, device, &family_indicies);
+	queue_family_indices_t family_indices;
+	get_queue_families(vk_renderer, device, &family_indices);
 	
 	if (device_properties.deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
 		
@@ -83,7 +83,7 @@ bool is_physical_device_suitable(vulkan_renderer_t *vk_renderer, VkPhysicalDevic
 		return false;
 	}
 	
-	if (!has_required_queue_families(&family_indicies)) {
+	if (!has_required_queue_families(&family_indices)) {
 		
 		log_error("Device does not have all required queue families.\n");
 		return false;
@@ -104,7 +104,7 @@ bool is_physical_device_suitable(vulkan_renderer_t *vk_renderer, VkPhysicalDevic
 		return false;
 	}
 	
-	vk_renderer->queue_family_indicies = family_indicies;
+	vk_renderer->queue_family_indices = family_indices;
 	
 	return true;
 }

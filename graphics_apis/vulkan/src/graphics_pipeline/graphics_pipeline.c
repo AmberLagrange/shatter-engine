@@ -15,14 +15,15 @@ shatter_status_t create_graphics_pipeline(vulkan_renderer_t *vk_renderer) {
 	log_trace("Creating graphics pipeline.\n");
 	shatter_status_t status = SHATTER_SUCCESS;
 	
-	const char *directory_filepath = vk_renderer->renderer_config.directory_filepath;
+	const char *directory_filepath = vk_renderer->renderer_config->directory_filepath;
 	size_t directory_filepath_len = strlen(directory_filepath);
 	
 	// ---------- Vertex Shader ---------- //
 	
 	char vertex_spv_filepath[MAX_FILEPATH_LEN + 1];
 	strncpy(vertex_spv_filepath, directory_filepath, MAX_FILEPATH_LEN);
-	strncat(vertex_spv_filepath, "/shaders/spv/vertex/basic_vertex.spv", MAX_FILEPATH_LEN - directory_filepath_len);
+	strncat(vertex_spv_filepath, "/shaders/spv/vertex/basic_vulkan_vertex_shader.spv",
+			MAX_FILEPATH_LEN - directory_filepath_len);
 	
 	size_t vertex_bytecode_len;
 	char *vertex_bytecode = get_shader_bytecode(vertex_spv_filepath, &vertex_bytecode_len);
@@ -55,7 +56,8 @@ shatter_status_t create_graphics_pipeline(vulkan_renderer_t *vk_renderer) {
 	
 	char fragment_spv_filepath[MAX_FILEPATH_LEN + 1];
 	strncpy(fragment_spv_filepath, directory_filepath, MAX_FILEPATH_LEN);
-	strncat(fragment_spv_filepath, "/shaders/spv/fragment/basic_fragment.spv", MAX_FILEPATH_LEN - directory_filepath_len);
+	strncat(fragment_spv_filepath, "/shaders/spv/fragment/basic_vulkan_fragment_shader.spv",
+			MAX_FILEPATH_LEN - directory_filepath_len);
 	
 	size_t fragment_bytecode_len;
 	char *fragment_bytecode = get_shader_bytecode(fragment_spv_filepath, &fragment_bytecode_len);

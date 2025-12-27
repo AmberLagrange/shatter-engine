@@ -1,6 +1,6 @@
 #include <common/core.h>
 
-#include <queues/queue_family_indicies.h>
+#include <queues/queue_family_indices.h>
 
 #include <swap_chain/present_mode.h>
 #include <swap_chain/surface_format.h>
@@ -62,7 +62,7 @@ shatter_status_t create_swap_chain(vulkan_renderer_t *vk_renderer) {
 		.oldSwapchain = VK_NULL_HANDLE
 	};
 	
-	if (is_exclusive_graphics(&(vk_renderer->queue_family_indicies))) {
+	if (is_exclusive_graphics(&(vk_renderer->queue_family_indices))) {
 		
 		log_trace("\tExclusive sharing mode.\n");
 		
@@ -73,14 +73,14 @@ shatter_status_t create_swap_chain(vulkan_renderer_t *vk_renderer) {
 		
 		log_trace("Concurrent sharing mode.\n");
 		
-		size_t num_indicies;
-		uint32_t *unwrapped_indicies = unwrap_indicies(&(vk_renderer->queue_family_indicies), &num_indicies);
+		size_t num_indices;
+		uint32_t *unwrapped_indices = unwrap_indices(&(vk_renderer->queue_family_indices), &num_indices);
 		
 		create_info.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-		create_info.queueFamilyIndexCount = num_indicies;
-		create_info.pQueueFamilyIndices = unwrapped_indicies;
+		create_info.queueFamilyIndexCount = num_indices;
+		create_info.pQueueFamilyIndices = unwrapped_indices;
 		
-		free(unwrapped_indicies);
+		free(unwrapped_indices);
 	}
 	
 	if (vkCreateSwapchainKHR(vk_renderer->logical_device, &create_info, NULL, &(vk_renderer->swap_chain)) != VK_SUCCESS) {

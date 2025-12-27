@@ -15,3 +15,7 @@ tmp/
 *.so
 *.spv
 
+# Ignore glad. User will have to provide their own
+KHR/
+glad/
+glad.c

@@ -19,7 +19,7 @@ typedef struct renderer_s {
 	
 	renderer_config_t *renderer_config;
 	
-	dynamic_loader_t api_loader;
+	dynamic_loader_t* api_loader;
 	void *api_renderer;
 	
 	bool is_running;

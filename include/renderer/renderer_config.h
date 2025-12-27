@@ -14,7 +14,6 @@ typedef struct renderer_config_s {
 	GLFWwindow *rendering_window;
 	
 	const char *directory_filepath;
-	const char *api_filepath;
 } renderer_config_t;
 
 #endif // RENDERER_RENDERER_CONFIG_H

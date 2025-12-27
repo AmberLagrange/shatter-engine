@@ -2,22 +2,28 @@
 
 #include <vulkan_renderer.h>
 
-#include <queues/queue_family_indicies.h>
+#include <queues/queue_family_indices.h>
 #include <queues/required_queue_families.h>
 
 #include <assert.h>
 #include <stdarg.h>
 #include <stdlib.h>
 
-void get_queue_families(vulkan_renderer_t *vk_renderer, VkPhysicalDevice device, queue_family_indicies_t *indicies) {
+void get_queue_families(vulkan_renderer_t *vk_renderer, VkPhysicalDevice device, queue_family_indices_t *indices) {
 	
-	for (size_t index = 0; index < MAX_INDICIES; ++index) {
+	for (size_t index = 0; index < MAX_INDICES; ++index) {
 		
-		indicies->index_list[index].has_value = false;
+		indices->index_list[index].has_value = false;
 	}
 	
 	uint32_t num_families = 0;
 	vkGetPhysicalDeviceQueueFamilyProperties(device, &num_families, NULL);
+	
+	if (num_families >= MAX_INDICES) {
+		
+		log_error("Not enough space for the family indices.\n");
+		return;
+	}
 	
 	VkQueueFamilyProperties *family_list = malloc(sizeof(VkQueueFamilyProperties) * num_families);
 	vkGetPhysicalDeviceQueueFamilyProperties(device, &num_families, family_list);
@@ -37,39 +43,39 @@ void get_queue_families(vulkan_renderer_t *vk_renderer, VkPhysicalDevice device,
 			VkQueueFamilyProperties family = family_list[family_index];
 			if (required_family.condition_lambda(&family, vk_renderer, device, family_index)) {
 				
-				indicies->index_list[required_family.family_index].has_value = true;
-				indicies->index_list[required_family.family_index].value = family_index;
+				indices->index_list[required_family.family_index].has_value = true;
+				indices->index_list[required_family.family_index].value = family_index;
 				++num_found_families;
 				break;
 			}
 		}
 	}
 	
-	indicies->num_indicies = num_found_families;
+	indices->num_indices = num_found_families;
 	free(family_list);
 }
 
-bool is_exclusive_graphics(queue_family_indicies_t *indicies) {
+bool is_exclusive_graphics(queue_family_indices_t *indices) {
 	
-	return (indicies->index_list[GRAPHICS_FAMILY_INDEX].value == indicies->index_list[PRESENT_FAMILY_INDEX].value);
+	return (indices->index_list[GRAPHICS_FAMILY_INDEX].value == indices->index_list[PRESENT_FAMILY_INDEX].value);
 }
 
-uint32_t *unwrap_indicies(queue_family_indicies_t *indicies, size_t *num_indicies) {
+uint32_t *unwrap_indices(queue_family_indices_t *indices, size_t *num_indices) {
 	
-	*num_indicies = indicies->num_indicies;
-	uint32_t *unwrapped_indicies = malloc(sizeof(uint32_t) * (*num_indicies));
+	*num_indices = indices->num_indices;
+	uint32_t *unwrapped_indices = malloc(sizeof(uint32_t) * (*num_indices));
 	
 	size_t found_index = 0;
-	for (size_t index = 0; index < *num_indicies; ++index) {
+	for (size_t index = 0; index < *num_indices; ++index) {
 		
-		if (indicies->index_list[index].has_value) {
+		if (indices->index_list[index].has_value) {
 			
-			unwrapped_indicies[found_index] = indicies->index_list[index].value;
+			unwrapped_indices[found_index] = indices->index_list[index].value;
 			++found_index;
 		}
 	}
 	
-	assert(*num_indicies == found_index);	
-	return unwrapped_indicies;
+	assert(*num_indices == found_index);	
+	return unwrapped_indices;
 }
 

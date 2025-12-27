@@ -12,7 +12,7 @@ VkExtent2D select_swap_extent(vulkan_renderer_t *vk_renderer, const VkSurfaceCap
 	}
 	
 	uint32_t width, height;
-	glfwGetFramebufferSize(vk_renderer->renderer_config.rendering_window, (int *)(&width), (int *)(&height));
+	glfwGetFramebufferSize(vk_renderer->renderer_config->rendering_window, (int *)(&width), (int *)(&height));
 	
 	uint32_t min_width = surface_capabilities->minImageExtent.width;
 	uint32_t max_width = surface_capabilities->maxImageExtent.width;

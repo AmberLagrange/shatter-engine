@@ -2,7 +2,7 @@
 
 #include <vulkan_renderer.h>
 
-#include <queues/queue_family_indicies.h>
+#include <queues/queue_family_indices.h>
 #include <queues/required_queue_families.h>
 
 #include <stdarg.h>
@@ -10,7 +10,7 @@
 
 // ---------- Static Const Values ---------- //
 
-const required_queue_family_t REQUIRED_FAMILY_LIST[MAX_INDICIES] = {
+const required_queue_family_t REQUIRED_FAMILY_LIST[MAX_INDICES] = {
 	
 	{ GRAPHICS_FAMILY_INDEX, has_graphics, "Graphics Family" },
 	{ PRESENT_FAMILY_INDEX, can_present, "Present Family" },
@@ -30,13 +30,13 @@ size_t get_num_required_families(void) {
 	return required_family_index;
 }
 
-bool has_required_queue_families(queue_family_indicies_t *indicies) {
+bool has_required_queue_families(queue_family_indices_t *indices) {
 	
 	size_t num_required_families = get_num_required_families();
 	
 	for (size_t required_index = 0; required_index < num_required_families; ++required_index) {
 		
-		if (!indicies->index_list[REQUIRED_FAMILY_LIST[required_index].family_index].has_value) {
+		if (!indices->index_list[REQUIRED_FAMILY_LIST[required_index].family_index].has_value) {
 			
 			log_error("Missing the required family %s.\n", REQUIRED_FAMILY_LIST[required_index].debug_string);
 			return false;

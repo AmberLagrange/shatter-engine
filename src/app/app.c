@@ -1,5 +1,7 @@
 #include <common/core.h>
 
+#include <dynamic_loader/dynamic_loader.h>
+
 #include <renderer/renderer.h>
 
 #include <libgen.h> // dirname
@@ -76,9 +78,23 @@ int main(int argc, char **argv) {
 	dirname(directory_filepath);
 	size_t directory_filepath_len = strlen(directory_filepath);
 	
-	char api_filepath[MAX_FILEPATH_LEN + 1];
-	strncpy(api_filepath, directory_filepath, MAX_FILEPATH_LEN);
-	strncat(api_filepath, "/api_libraries/vulkan_api.so", MAX_FILEPATH_LEN - directory_filepath_len);
+	char vulkan_api_filepath[MAX_FILEPATH_LEN + 1];
+	strncpy(vulkan_api_filepath, directory_filepath, MAX_FILEPATH_LEN);
+	strncat(vulkan_api_filepath, "/", 1);
+	strncat(vulkan_api_filepath, vulkan_api_library_filepath, MAX_FILEPATH_LEN - directory_filepath_len - 1);
+	
+	char opengl_api_filepath[MAX_FILEPATH_LEN + 1];
+	strncpy(opengl_api_filepath, directory_filepath, MAX_FILEPATH_LEN);
+	strncat(opengl_api_filepath, "/", 1);
+	strncat(opengl_api_filepath, opengl_api_library_filepath, MAX_FILEPATH_LEN - directory_filepath_len - 1);
+	
+	dynamic_loader_t api_loader = {
+		
+		.filepath_list[VULKAN_API_INDEX] = vulkan_api_filepath,
+		.filepath_list[OPENGL_API_INDEX] = opengl_api_filepath,
+		
+		.requested_api_index = OPENGL_API_INDEX,
+	};
 	
 	renderer_config_t renderer_config = {
 		
@@ -87,12 +103,12 @@ int main(int argc, char **argv) {
 		.title   = "Vulkan Renderer",
 		
 		.directory_filepath = directory_filepath,
-		.api_filepath = api_filepath,
 	};
 	
 	renderer_t renderer = {
 		
 		.renderer_config = &renderer_config,
+		.api_loader = &api_loader,
 	};
 	
 	int status = renderer_run(&renderer);

@@ -14,7 +14,7 @@ shatter_status_t create_command_pool(vulkan_renderer_t *vk_renderer) {
 		.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
 		.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
 		
-		.queueFamilyIndex = vk_renderer->queue_family_indicies.index_list[GRAPHICS_FAMILY_INDEX].value,
+		.queueFamilyIndex = vk_renderer->queue_family_indices.index_list[GRAPHICS_FAMILY_INDEX].value,
 	};
 	
 	if (vkCreateCommandPool(vk_renderer->logical_device, &command_pool_info,

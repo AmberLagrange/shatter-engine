@@ -3,7 +3,7 @@
 #include <devices/extensions.h>
 #include <devices/logical.h>
 #include <devices/logical_helper.h>
-#include <queues/queue_family_indicies.h>
+#include <queues/queue_family_indices.h>
 
 #include <stdbool.h>
 #include <stdlib.h>
@@ -15,13 +15,13 @@ shatter_status_t create_logical_device(vulkan_renderer_t *vk_renderer) {
 	log_trace("\n");
 	log_trace("Creating logical device.\n");
 	
-	queue_family_indicies_t families = vk_renderer->queue_family_indicies;
+	queue_family_indices_t families = vk_renderer->queue_family_indices;
 	
-	VkDeviceQueueCreateInfo *queue_create_info_list = malloc(sizeof(VkDeviceQueueCreateInfo) * families.num_indicies);
+	VkDeviceQueueCreateInfo *queue_create_info_list = malloc(sizeof(VkDeviceQueueCreateInfo) * families.num_indices);
 	size_t num_unique_families = 0;
 	
 	float queue_priority = 1.0f;
-	for (size_t family_index = 0; family_index < families.num_indicies; ++family_index) {
+	for (size_t family_index = 0; family_index < families.num_indices; ++family_index) {
 		
 		VkDeviceQueueCreateInfo queue_create_info = {
 			

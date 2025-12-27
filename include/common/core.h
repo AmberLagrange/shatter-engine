@@ -12,6 +12,7 @@ typedef enum {
 	
 	SHATTER_SUCCESS = 0,
 	
+	SHATTER_DYNAMIC_LIBRARY_INVALID_API_INDEX,
 	SHATTER_DYNAMIC_LIBRARY_LOAD_FAILURE,
 	SHATTER_DYNAMIC_LIBRARY_LOAD_VTABLE_FAILURE,
 	SHATTER_DYNAMIC_LIBRARY_UNLOAD_FAILURE,
@@ -50,7 +51,13 @@ typedef enum {
 	SHATTER_VULKAN_FENCE_INIT_FAILURE,
 	SHATTER_VULKAN_DRAW_FRAME_FAILURE,
 	
+	SHATTER_OPENGL_GLAD_INIT_FAILURE,
+	SHATTER_OPENGL_RENDERER_INIT_FAILURE,
+	
 } shatter_status_t;
+
+static const char *vulkan_api_library_filepath = "api_libraries/vulkan_api.so";
+static const char *opengl_api_library_filepath = "api_libraries/opengl_api.so";
 
 #endif // COMMON_CORE_H
 

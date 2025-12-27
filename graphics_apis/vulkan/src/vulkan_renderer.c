@@ -38,7 +38,21 @@ shatter_status_t init_vulkan_renderer(vulkan_renderer_t **vk_renderer_ptr,
 	vulkan_renderer_t *vk_renderer = malloc(sizeof(vulkan_renderer_t));
 	*vk_renderer_ptr = vk_renderer;
 	
-	memcpy(&(vk_renderer->renderer_config), renderer_config, sizeof(renderer_config_t));
+	vk_renderer->renderer_config = renderer_config;
+	
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+	vk_renderer->renderer_config->rendering_window = glfwCreateWindow(
+			vk_renderer->renderer_config->width,
+			vk_renderer->renderer_config->height,
+			vk_renderer->renderer_config->title,
+			NULL, NULL);
+	
+	if (!vk_renderer->renderer_config->rendering_window) {
+		
+		log_error("Failed to create GLFW window.\n");
+		return SHATTER_GLFW_WINDOW_FAILURE;
+	}
 	
 	vk_renderer->num_validation_layers = 0;
 	init_validation_layers(vk_renderer);
@@ -185,6 +199,9 @@ shatter_status_t cleanup_vulkan_renderer(vulkan_renderer_t *vk_renderer) {
 	
 	vkDestroyInstance(vk_renderer->vulkan_instance, NULL);
 	log_trace("Destroyed Vulkan instance.\n");
+	
+	glfwDestroyWindow(vk_renderer->renderer_config->rendering_window);
+	log_trace("Desroyed GLFW window.\n");
 	
 	free(vk_renderer);
 	log_trace("Renderer Cleanup Complete.\n");

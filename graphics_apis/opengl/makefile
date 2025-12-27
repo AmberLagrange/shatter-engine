@@ -17,9 +17,8 @@ DEP_DIR := $(CURDIR)/deps
 TMP_DIR := $(CURDIR)/tmp
 
 API_LIB_DIR ?= $(CURDIR)/../../bin/api_libraries
-
-ENGINE_INC ?= $(CURDIR)/../../include
-LOGGER_INC ?= $(CURDIR)/../../logger/include
+ENGINE_INC  ?= $(CURDIR)/../../include
+LOGGER_INC  ?= $(CURDIR)/../../logger/include
 
 # -------- API Name -------- #
 
@@ -27,7 +26,9 @@ API_NAME := opengl_api.so
 
 # -------- Input Files -------- #
 
-SRCS = $(SRC_DIR)/opengl_renderer.c
+SRCS = $(SRC_DIR)/glad.c \
+	   $(SRC_DIR)/opengl_renderer.c \
+	   $(SRC_DIR)/vtable.c
 
 # -------- File Structs -------- #
 
@@ -45,8 +46,8 @@ DEPS += $(DEP_DIR)/$(API_NAME).d
 
 # -------- Compiler and Linker flags -------- #
 
-CFLAGS  += -I$(INC_DIR) -I$(ENGINE_INC) -I$(LOGGER_INC)
-LDLIBS  += 
+CFLAGS += -I$(INC_DIR) -I$(ENGINE_INC) -I$(LOGGER_INC)
+LDLIBS += -lGL
 
 # -------- Util Targets -------- #
 

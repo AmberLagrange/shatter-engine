@@ -62,7 +62,7 @@ SRCS = \
 	\
 	$(SRC_DIR)/sync/sync_objects.c \
 	\
-	$(SRC_DIR)/queues/queue_family_indicies.c \
+	$(SRC_DIR)/queues/queue_family_indices.c \
 	$(SRC_DIR)/queues/required_queue_families.c \
 	\
 	$(SRC_DIR)/surfaces/surface.c \

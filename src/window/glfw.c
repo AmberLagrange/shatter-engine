@@ -13,8 +13,6 @@ shatter_status_t init_glfw(void) {
 	if (!s_glfw_initialized) {
 		
 		glfwInit();
-		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 		s_glfw_initialized = true;
 		
 		log_trace("Initialized GLFW.\n");

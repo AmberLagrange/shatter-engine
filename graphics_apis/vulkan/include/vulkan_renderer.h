@@ -5,7 +5,7 @@
 
 #include <renderer/renderer_config.h>
 
-#include <queues/queue_family_indicies.h>
+#include <queues/queue_family_indices.h>
 
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
@@ -15,14 +15,14 @@
 
 typedef struct vulkan_renderer_s {
 	
-	renderer_config_t renderer_config;
+	renderer_config_t *renderer_config;
 	
 	VkInstance vulkan_instance;
 	VkDebugUtilsMessengerEXT debug_messenger;
 	
 	VkSurfaceKHR rendering_surface;
 	
-	queue_family_indicies_t queue_family_indicies;
+	queue_family_indices_t queue_family_indices;
 	
 	VkPhysicalDevice physical_device;
 	VkDevice logical_device;
@@ -58,9 +58,7 @@ typedef struct vulkan_renderer_s {
 	bool validation_layers_enabled;
 } vulkan_renderer_t;
 
-shatter_status_t init_vulkan_renderer(vulkan_renderer_t **vk_renderer_ptr,
-									  renderer_config_t *renderer_config);
-
+shatter_status_t init_vulkan_renderer(vulkan_renderer_t **vk_renderer_ptr, renderer_config_t *renderer_config);
 shatter_status_t loop_vulkan_renderer(vulkan_renderer_t *vk_renderer);
 shatter_status_t cleanup_vulkan_renderer(vulkan_renderer_t *vk_renderer);
 

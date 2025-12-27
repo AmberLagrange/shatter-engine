@@ -5,7 +5,13 @@
 #include <window/glfw.h>
 #include <window/input.h>
 
+#include <signal.h>
+#include <stdbool.h>
 #include <stdlib.h>
+
+// ---------- Global Check for SIGINT ---------- //
+
+static volatile bool s_is_running = true;
 
 // ---------- Static Function Prototypes ---------- //
 
@@ -14,6 +20,12 @@ static shatter_status_t loop_renderer(renderer_t *renderer);
 static shatter_status_t cleanup_renderer(renderer_t *renderer);
 static shatter_status_t reload_renderer(renderer_t *renderer);
 
+static void sigint_handler(int _) {
+	
+	UNUSED(_);
+	s_is_running = false;
+}
+
 // ---------- Static Function Definitions ---------- //
 
 static shatter_status_t init_renderer(renderer_t *renderer) {
@@ -21,7 +33,7 @@ static shatter_status_t init_renderer(renderer_t *renderer) {
 	renderer->is_running = true;
 	renderer->needs_reload = false;
 	
-	if (renderer->api_loader.api_vtable.init_api_renderer(&(renderer->api_renderer), renderer->renderer_config)) {
+	if (renderer->api_loader->api_vtable.init_api_renderer(&(renderer->api_renderer), renderer->renderer_config)) {
 		
 		log_error("Failed to initialize the renderer.\n");
 		return SHATTER_RENDERER_INIT_FAILURE;
@@ -39,7 +51,7 @@ static shatter_status_t reload_renderer(renderer_t *renderer) {
 		return SHATTER_RENDERER_RELOAD_FAILURE;
 	}
 	
-	if (reload_library(&(renderer->api_loader))) {
+	if (load_library(renderer->api_loader)) {
 		
 		return SHATTER_RENDERER_RELOAD_FAILURE;
 	}
@@ -49,13 +61,13 @@ static shatter_status_t reload_renderer(renderer_t *renderer) {
 		return SHATTER_RENDERER_RELOAD_FAILURE;
 	}
 	
-	log_info("Reloaded %s.\n", renderer->renderer_config->api_filepath);
 	return SHATTER_SUCCESS;
 }
 
 static shatter_status_t loop_renderer(renderer_t *renderer) {	
 	
-	while (!glfwWindowShouldClose(renderer->renderer_config->rendering_window) && renderer->is_running) {
+	while (!glfwWindowShouldClose(renderer->renderer_config->rendering_window)
+			&& renderer->is_running && s_is_running) {
 		
 		glfwPollEvents();
 		if (renderer->needs_reload) {
@@ -66,7 +78,7 @@ static shatter_status_t loop_renderer(renderer_t *renderer) {
 			}
 		}
 		
-		shatter_status_t status = renderer->api_loader.api_vtable.loop_api_renderer(renderer->api_renderer);
+		shatter_status_t status = renderer->api_loader->api_vtable.loop_api_renderer(renderer->api_renderer);
 		if (status) {
 			
 			return status;
@@ -79,9 +91,10 @@ static shatter_status_t loop_renderer(renderer_t *renderer) {
 
 shatter_status_t cleanup_renderer(renderer_t *renderer) {
 	
-	shatter_status_t status = renderer->api_loader.api_vtable.cleanup_api_renderer(renderer->api_renderer);
+	glfwSetKeyCallback(renderer->renderer_config->rendering_window, NULL);
+	shatter_status_t status = renderer->api_loader->api_vtable.cleanup_api_renderer(renderer->api_renderer);
 	
-	if (unload_library(&(renderer->api_loader))) {
+	if (unload_library(renderer->api_loader)) {
 		
 		return SHATTER_RENDERER_CLEANUP_FAILURE;
 	}
@@ -102,30 +115,20 @@ shatter_status_t renderer_run(renderer_t *renderer) {
 		goto exit;
 	}
 	
-	renderer->api_loader.filepath = renderer->renderer_config->api_filepath;
-	if (load_library(&(renderer->api_loader))) {
+	if (load_library(renderer->api_loader)) {
 		
 		status = SHATTER_RENDERER_RUN_FAILURE;
-		goto cleanup_glfw;
-	}
-	
-	renderer->renderer_config->rendering_window = glfwCreateWindow(renderer->renderer_config->width,
-																	renderer->renderer_config->height,
-																	renderer->renderer_config->title,
-																	NULL, NULL);
-	
-	if (!renderer->renderer_config->rendering_window) {
-		
-		log_error("Failed to create GLFW window.\n");
-		goto cleanup_glfw;
+		goto cleanup_glfw_loader;
 	}
 	
 	if (init_renderer(renderer)) {
 		
 		log_error("Failed to initialize Renderer.\n");
 		status = SHATTER_RENDERER_RUN_FAILURE;
-		goto cleanup_window;
+		goto cleanup_renderer;
 	}
+	
+	signal(SIGINT, &sigint_handler);
 	
 	if (loop_renderer(renderer)) {
 		
@@ -142,10 +145,7 @@ cleanup_renderer:
 		goto exit;
 	}
 	
-cleanup_window:
-	glfwDestroyWindow(renderer->renderer_config->rendering_window);
-	
-cleanup_glfw:
+cleanup_glfw_loader:
 	if (terminate_glfw()) {
 		
 		return SHATTER_RENDERER_RUN_FAILURE;
