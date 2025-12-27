@@ -26,9 +26,13 @@ API_NAME := opengl_api.so
 
 # -------- Input Files -------- #
 
-SRCS = $(SRC_DIR)/glad.c \
-	   $(SRC_DIR)/opengl_renderer.c \
-	   $(SRC_DIR)/vtable.c
+SRCS = $(SRC_DIR)/opengl_renderer.c $(SRC_DIR)/vtable.c
+
+# -------- GLAD -------- #
+
+GLAD_DIR := $(CURDIR)/glad
+GLAD_INC := $(GLAD_DIR)/include
+GLAD_SRC := $(GLAD_DIR)/glad.c
 
 # -------- File Structs -------- #
 
@@ -39,6 +43,8 @@ DEP_FILE_STRUCT = $(dir $(SRCS:$(SRC_DIR)/%=$(DEP_DIR)/%))
 
 OBJS = $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 
+GLAD_OBJS = $(GLAD_SRC:$(GLAD_DIR)/%.c=$(OBJ_DIR)/%.o)
+
 # -------- Dependency Files -------- #
 
 DEPS  = $(SRCS:$(SRC_DIR)/%.c=$(DEP_DIR)/%.d)
@@ -46,8 +52,7 @@ DEPS += $(DEP_DIR)/$(API_NAME).d
 
 # -------- Compiler and Linker flags -------- #
 
-CFLAGS += -I$(INC_DIR) -I$(ENGINE_INC) -I$(LOGGER_INC)
-LDLIBS += -lGL
+CFLAGS += -I$(INC_DIR) -I$(ENGINE_INC) -I$(LOGGER_INC) -I$(GLAD_INC)
 
 # -------- Util Targets -------- #
 
@@ -94,13 +99,23 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	$(RM) $(TMP_DIR)/$(*F).$$$$
 	@printf '$(*F).o created.\n' $(OUTPUT_REDIRECT)
 
-$(API_LIB_DIR)/$(API_NAME): $(OBJS)
+$(API_LIB_DIR)/$(API_NAME): $(OBJS) $(GLAD_OBJS)
 	set -e; \
 	$(RM) $(DEP_DIR)/$(API_NAME).d; \
 	$(CC) $(CFLAGS) $(LDFLAGS) $(LDLIBS) -shared -MD -MP -MT $@ -MF - $^ -o $@ > $(TMP_DIR)/$(*F).$$$$; \
 	sed 's#$@:#$@ $(DEP_DIR)/$(NAME).d:#' < $(TMP_DIR)/$(*F).$$$$ > $(DEP_DIR)/$(BIN_NAME).d; \
 	$(RM) $(TMP_DIR)/$(*F).$$$$
 	@printf '$@ created.\n' $(OUTPUT_REDIRECT)
+
+# -------- GLAD Targets -------- #
+
+$(OBJ_DIR)/%.o: $(GLAD_DIR)/%.c
+	set -e; \
+	$(RM) $(DEP_DIR)/$(*F).d; \
+	$(CC) $(CFLAGS) -fPIC -MD -MP -MT $@ -MF - $(PCH_FLAGS) -c $< -o $@ > $(TMP_DIR)/$(*F).$$$$; \
+	sed -e 's#$@:#$@ $(DEP_DIR)/$(*F).d:#' < $(TMP_DIR)/$(*F).$$$$ > $(@:$(OBJ_DIR)/%.o=$(DEP_DIR)/%.d); \
+	$(RM) $(TMP_DIR)/$(*F).$$$$
+	@printf '$(*F).o created.\n' $(OUTPUT_REDIRECT)
 
 -include $(DEPS)
 
