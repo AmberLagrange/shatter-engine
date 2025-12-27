@@ -31,8 +31,7 @@
 #include <string.h>
 
 shatter_status_t init_vulkan_renderer(vulkan_renderer_t **vk_renderer_ptr,
-									  renderer_config_t *renderer_config,
-									  GLFWwindow **rendering_window_ptr) {
+									  renderer_config_t *renderer_config) {
 	
 	log_trace("Initializing Vulkan Renderer.\n");
 	
@@ -40,18 +39,6 @@ shatter_status_t init_vulkan_renderer(vulkan_renderer_t **vk_renderer_ptr,
 	*vk_renderer_ptr = vk_renderer;
 	
 	memcpy(&(vk_renderer->renderer_config), renderer_config, sizeof(renderer_config_t));
-	
-	vk_renderer->rendering_window =
-		glfwCreateWindow(vk_renderer->renderer_config.width, vk_renderer->renderer_config.height,
-						 vk_renderer->renderer_config.title, NULL, NULL);
-	
-	if (!vk_renderer->rendering_window) {
-		
-		log_error("Failed to create GLFW Window.\n");
-		return SHATTER_GLFW_WINDOW_FAILURE;
-	}
-	
-	*rendering_window_ptr = vk_renderer->rendering_window;
 	
 	vk_renderer->num_validation_layers = 0;
 	init_validation_layers(vk_renderer);
@@ -133,8 +120,8 @@ shatter_status_t init_vulkan_renderer(vulkan_renderer_t **vk_renderer_ptr,
 		return SHATTER_VULKAN_SYNC_OBJECT_INIT_FAILURE;
 	}
 	
-	log_info("\n");
-	log_info("Renderer Initialization Complete.\n");
+	log_trace("\n");
+	log_trace("Renderer Initialization Complete.\n");
 	return SHATTER_SUCCESS;
 }
 
@@ -199,11 +186,8 @@ shatter_status_t cleanup_vulkan_renderer(vulkan_renderer_t *vk_renderer) {
 	vkDestroyInstance(vk_renderer->vulkan_instance, NULL);
 	log_trace("Destroyed Vulkan instance.\n");
 	
-	glfwDestroyWindow(vk_renderer->rendering_window);
-	log_trace("Destroyed GLFW window.\n");
-	
 	free(vk_renderer);
-	log_info("Renderer Cleanup Complete.\n");
+	log_trace("Renderer Cleanup Complete.\n");
 	return SHATTER_SUCCESS;
 }
 

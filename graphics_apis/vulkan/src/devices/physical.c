@@ -51,8 +51,8 @@ shatter_status_t choose_physical_device(vulkan_renderer_t *vk_renderer) {
 		goto cleanup;
 	}
 	
-	log_info("Physical device selected:\n");
-	log_info("\t%s\n", device_properties.deviceName);
+	log_trace("Physical device selected:\n");
+	log_trace("\t%s\n", device_properties.deviceName);
 	
 cleanup:
 	free(device_list);

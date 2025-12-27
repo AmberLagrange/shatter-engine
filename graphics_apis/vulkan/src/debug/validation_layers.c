@@ -108,7 +108,8 @@ bool check_validation_layer_support(vulkan_renderer_t *vk_renderer) {
 		}
 	}
 	
-	log_info("All validation layers found.\n");
+	log_trace("\n");
+	log_trace("All validation layers found.\n");
 	free(available_layers);
 	return true; // All layers are available
 }

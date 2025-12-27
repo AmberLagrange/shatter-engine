@@ -24,7 +24,7 @@ shatter_status_t create_command_buffer(vulkan_renderer_t *vk_renderer) {
 		return SHATTER_VULKAN_COMMAND_BUFFER_INIT_FAILURE;
 	}
 	
-	log_info("Created command buffer.\n");
+	log_trace("Created command buffer.\n");
 	return SHATTER_SUCCESS;
 }
 

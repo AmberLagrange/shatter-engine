@@ -11,8 +11,9 @@ typedef struct renderer_config_s {
 	
 	char title[MAX_TITLE_LENGTH + 1];
 	
-	const char *directory_filepath;
+	GLFWwindow *rendering_window;
 	
+	const char *directory_filepath;
 	const char *api_filepath;
 } renderer_config_t;
 

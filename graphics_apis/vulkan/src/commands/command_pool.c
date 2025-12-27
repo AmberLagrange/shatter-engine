@@ -24,7 +24,7 @@ shatter_status_t create_command_pool(vulkan_renderer_t *vk_renderer) {
 		return SHATTER_VULKAN_COMMAND_POOL_INIT_FAILURE;
 	}
 	
-	log_info("Created command pool.\n");
+	log_trace("Created command pool.\n");
 	return SHATTER_SUCCESS;
 }
 

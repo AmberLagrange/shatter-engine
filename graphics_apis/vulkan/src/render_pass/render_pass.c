@@ -77,7 +77,7 @@ shatter_status_t create_render_pass(vulkan_renderer_t *vk_renderer) {
 		return SHATTER_VULKAN_RENDER_PASS_INIT_FAILURE;
 	}
 	
-	log_info("Created render pass.\n");
+	log_trace("Created render pass.\n");
 	return SHATTER_SUCCESS;
 }
 

@@ -43,7 +43,7 @@ bool has_required_queue_families(queue_family_indicies_t *indicies) {
 		}
 	}
 	
-	log_info("Has all the required families.\n");
+	log_trace("Has all the required families.\n");
 	
 	return true;
 }

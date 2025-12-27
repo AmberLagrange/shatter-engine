@@ -65,7 +65,7 @@ bool check_device_extension_support(VkPhysicalDevice device) {
 	
 	if (has_all_extensions) {
 		
-		log_info("Has all the required extensions.\n");
+		log_trace("Has all the required extensions.\n");
 	}
 	return has_all_extensions;
 }

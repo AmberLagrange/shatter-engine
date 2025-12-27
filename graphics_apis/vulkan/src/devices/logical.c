@@ -72,7 +72,7 @@ shatter_status_t create_logical_device(vulkan_renderer_t *vk_renderer) {
 	vkGetDeviceQueue(vk_renderer->logical_device, families.index_list[PRESENT_FAMILY_INDEX].value,
 					 0, &(vk_renderer->present_queue));
 	
-	log_info("Created logical device.\n");
+	log_trace("Created logical device.\n");
 	free(queue_create_info_list);
 	return SHATTER_SUCCESS;
 }

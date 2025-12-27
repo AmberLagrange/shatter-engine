@@ -9,23 +9,24 @@
 
 #include <GLFW/glfw3.h>
 
-typedef shatter_status_t (*init_api_t)(void *, renderer_config_t *, GLFWwindow **);
+#include <stdbool.h>
+
+typedef shatter_status_t (*init_api_t)(void *, renderer_config_t *);
 typedef shatter_status_t (*loop_api_t)(void *);
 typedef shatter_status_t (*cleanup_api_t)(void *);
 
 typedef struct renderer_s {
 	
+	renderer_config_t *renderer_config;
+	
 	dynamic_loader_t api_loader;
 	void *api_renderer;
 	
-	GLFWwindow *rendering_window;
+	bool is_running;
+	bool needs_reload;
 } renderer_t;
 
-shatter_status_t init_renderer(renderer_t *renderer, renderer_config_t *renderer_config);
-shatter_status_t loop_renderer(renderer_t *renderer);
-shatter_status_t cleanup_renderer(renderer_t *renderer);
-
-shatter_status_t renderer_run(renderer_t *renderer, renderer_config_t *renderer_config);
+shatter_status_t renderer_run(renderer_t *renderer);
 
 #endif // RENDERER_RENDERER_H
 

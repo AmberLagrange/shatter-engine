@@ -42,7 +42,7 @@ shatter_status_t create_frame_buffers(vulkan_renderer_t *vk_renderer) {
 		}
 	}
 	
-	log_info("Created frame buffers.\n");
+	log_trace("Created frame buffers.\n");
 	return SHATTER_SUCCESS;;
 }
 

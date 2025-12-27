@@ -72,7 +72,7 @@ shatter_status_t create_vulkan_instance(vulkan_renderer_t *vk_renderer) {
 		goto cleanup;
 	}
 	
-	log_info("Vulkan Instance Created.\n");	
+	log_trace("Vulkan Instance Created.\n");	
 cleanup:
 	
 	free(extension_properties_list);

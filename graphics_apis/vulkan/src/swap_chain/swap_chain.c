@@ -101,8 +101,8 @@ shatter_status_t create_swap_chain(vulkan_renderer_t *vk_renderer) {
 	
 	vk_renderer->swap_chain_image_format = surface_format.format;
 	vk_renderer->swap_chain_extent = extent;
-	log_info("Created swap chain.\n");
-	
+
+	log_trace("Created swap chain.\n");
 cleanup:
 	cleanup_swap_chain_support_details(&swap_support);
 	return status;

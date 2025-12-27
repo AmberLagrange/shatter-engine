@@ -42,7 +42,7 @@ shatter_status_t create_image_views(vulkan_renderer_t *vk_renderer) {
 		}
 	}
 	
-	log_info("Created image views.\n");
+	log_trace("Created image views.\n");
 	return SHATTER_SUCCESS;
 }
 

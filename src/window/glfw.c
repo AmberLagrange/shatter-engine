@@ -17,7 +17,7 @@ shatter_status_t init_glfw(void) {
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 		s_glfw_initialized = true;
 		
-		log_info("Initialized GLFW.\n");
+		log_trace("Initialized GLFW.\n");
 	}
 	++s_glfw_instances;
 	
@@ -31,7 +31,8 @@ shatter_status_t terminate_glfw(void) {
 		
 		glfwTerminate();
 		s_glfw_initialized = false;
-		log_info("Terminated GLFW.\n");
+		log_trace("\n");
+		log_trace("Terminated GLFW.\n");
 	}
 	
 	return SHATTER_SUCCESS;

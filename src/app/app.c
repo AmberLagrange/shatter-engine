@@ -80,7 +80,6 @@ int main(int argc, char **argv) {
 	strncpy(api_filepath, directory_filepath, MAX_FILEPATH_LEN);
 	strncat(api_filepath, "/api_libraries/vulkan_api.so", MAX_FILEPATH_LEN - directory_filepath_len);
 	
-	renderer_t renderer;
 	renderer_config_t renderer_config = {
 		
 		.width  = 800,
@@ -91,7 +90,12 @@ int main(int argc, char **argv) {
 		.api_filepath = api_filepath,
 	};
 	
-	int status = renderer_run(&renderer, &renderer_config);
+	renderer_t renderer = {
+		
+		.renderer_config = &renderer_config,
+	};
+	
+	int status = renderer_run(&renderer);
 	
 	return status;
 }

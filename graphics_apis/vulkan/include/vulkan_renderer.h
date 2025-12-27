@@ -17,8 +17,6 @@ typedef struct vulkan_renderer_s {
 	
 	renderer_config_t renderer_config;
 	
-	GLFWwindow *rendering_window;
-	
 	VkInstance vulkan_instance;
 	VkDebugUtilsMessengerEXT debug_messenger;
 	
@@ -61,8 +59,7 @@ typedef struct vulkan_renderer_s {
 } vulkan_renderer_t;
 
 shatter_status_t init_vulkan_renderer(vulkan_renderer_t **vk_renderer_ptr,
-									  renderer_config_t *renderer_config,
-									  GLFWwindow **rendering_window_ptr);
+									  renderer_config_t *renderer_config);
 
 shatter_status_t loop_vulkan_renderer(vulkan_renderer_t *vk_renderer);
 shatter_status_t cleanup_vulkan_renderer(vulkan_renderer_t *vk_renderer);

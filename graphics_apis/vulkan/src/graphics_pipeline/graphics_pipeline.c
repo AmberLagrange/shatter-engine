@@ -296,7 +296,7 @@ shatter_status_t create_graphics_pipeline(vulkan_renderer_t *vk_renderer) {
 	
 	// ---------- Success ---------- //
 	
-	log_info("Created graphics pipeline.\n");
+	log_trace("Created graphics pipeline.\n");
 	
 	// ---------- Cleanup ---------- //
 	
