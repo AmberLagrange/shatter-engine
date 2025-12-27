@@ -7,15 +7,15 @@
 
 typedef enum graphics_api_index_s {
 	
-	VULKAN_API_INDEX = 0,
-	OPENGL_API_INDEX,
+	OPENGL_API_INDEX = 0,
+	VULKAN_API_INDEX,
 	
-	NUM_API_INDICIES
+	NUM_API_INDICES
 } graphics_api_index_t;
 
 typedef struct dynamic_loader_s {
 	
-	const char *filepath_list[NUM_API_INDICIES];
+	const char *filepath_list[NUM_API_INDICES];
 	graphics_api_index_t curr_api_index;
 	graphics_api_index_t requested_api_index;
 	

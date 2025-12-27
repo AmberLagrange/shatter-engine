@@ -24,6 +24,7 @@ typedef struct renderer_s {
 	
 	bool is_running;
 	bool needs_reload;
+	bool reload_error;
 } renderer_t;
 
 shatter_status_t renderer_run(renderer_t *renderer);

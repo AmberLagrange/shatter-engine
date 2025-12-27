@@ -4,6 +4,8 @@
 
 #include <renderer/renderer.h>
 
+#include <window/glfw.h>
+
 #include <libgen.h> // dirname
 
 #include <stdlib.h> // EXIT_SUCCESS
@@ -93,7 +95,7 @@ int main(int argc, char **argv) {
 		.filepath_list[VULKAN_API_INDEX] = vulkan_api_filepath,
 		.filepath_list[OPENGL_API_INDEX] = opengl_api_filepath,
 		
-		.requested_api_index = OPENGL_API_INDEX,
+		.requested_api_index = VULKAN_API_INDEX,
 	};
 	
 	renderer_config_t renderer_config = {
@@ -111,7 +113,11 @@ int main(int argc, char **argv) {
 		.api_loader = &api_loader,
 	};
 	
-	int status = renderer_run(&renderer);
+	init_glfw();
+	
+	shatter_status_t status = renderer_run(&renderer);
+	
+	terminate_glfw();
 	
 	return status;
 }

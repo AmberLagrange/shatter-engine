@@ -1,5 +1,7 @@
 #include <common/core.h>
 
+#include <dynamic_loader/dynamic_loader.h>
+
 #include <renderer/renderer.h>
 
 #include <window/glfw.h>
@@ -32,6 +34,7 @@ static shatter_status_t init_renderer(renderer_t *renderer) {
 	
 	renderer->is_running = true;
 	renderer->needs_reload = false;
+	renderer->reload_error = false;
 	
 	if (renderer->api_loader->api_vtable.init_api_renderer(&(renderer->api_renderer), renderer->renderer_config)) {
 		
@@ -51,8 +54,13 @@ static shatter_status_t reload_renderer(renderer_t *renderer) {
 		return SHATTER_RENDERER_RELOAD_FAILURE;
 	}
 	
-	if (load_library(renderer->api_loader)) {
+	shatter_status_t reload_status = reload_library(renderer->api_loader);	
+	if (reload_status == SHATTER_DYNAMIC_LIBRARY_RELOAD_RECOVERED) {
 		
+		renderer->reload_error = true;
+	} else if (reload_status == SHATTER_DYNAMIC_LIBRARY_RELOAD_FAILURE) {
+		
+		renderer->reload_error = true;
 		return SHATTER_RENDERER_RELOAD_FAILURE;
 	}
 	
@@ -74,6 +82,7 @@ static shatter_status_t loop_renderer(renderer_t *renderer) {
 			
 			if (reload_renderer(renderer)) {
 				
+				renderer->is_running = false;
 				return SHATTER_RENDERER_RELOAD_FAILURE;
 			}
 		}
@@ -90,6 +99,11 @@ static shatter_status_t loop_renderer(renderer_t *renderer) {
 }
 
 shatter_status_t cleanup_renderer(renderer_t *renderer) {
+	
+	if (renderer->reload_error) {
+		
+		return SHATTER_RENDERER_CLEANUP_NONE;
+	}
 	
 	glfwSetKeyCallback(renderer->renderer_config->rendering_window, NULL);
 	shatter_status_t status = renderer->api_loader->api_vtable.cleanup_api_renderer(renderer->api_renderer);
@@ -108,24 +122,17 @@ shatter_status_t renderer_run(renderer_t *renderer) {
 	
 	int status = SHATTER_SUCCESS;
 	
-	if (init_glfw()) {
-		
-		log_error("Failed to initialize GLFW.\n");
-		status = SHATTER_RENDERER_RUN_FAILURE;
-		goto exit;
-	}
-	
 	if (load_library(renderer->api_loader)) {
 		
 		status = SHATTER_RENDERER_RUN_FAILURE;
-		goto cleanup_glfw_loader;
+		goto exit;
 	}
 	
 	if (init_renderer(renderer)) {
 		
 		log_error("Failed to initialize Renderer.\n");
 		status = SHATTER_RENDERER_RUN_FAILURE;
-		goto cleanup_renderer;
+		goto cleanup;
 	}
 	
 	signal(SIGINT, &sigint_handler);
@@ -134,21 +141,14 @@ shatter_status_t renderer_run(renderer_t *renderer) {
 		
 		log_error("Error occurred in the rendering loop.\n");
 		status = SHATTER_RENDERER_RUN_FAILURE;
-		goto cleanup_renderer;
 	}
 
-cleanup_renderer:
+cleanup:
 	if (cleanup_renderer(renderer)) {
 		
 		log_error("Failed to cleanup Renderer.\n");
 		status = SHATTER_RENDERER_RUN_FAILURE;
 		goto exit;
-	}
-	
-cleanup_glfw_loader:
-	if (terminate_glfw()) {
-		
-		return SHATTER_RENDERER_RUN_FAILURE;
 	}
 	
 exit:
