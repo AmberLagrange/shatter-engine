@@ -16,6 +16,7 @@ shatter_status_t cleanup_acquire_semaphores(vulkan_renderer_t *vk_renderer);
 shatter_status_t cleanup_submit_semaphores(vulkan_renderer_t *vk_renderer);
 
 shatter_status_t wait_for_in_flight_fence(vulkan_renderer_t *vk_renderer);
+shatter_status_t reset_in_flight_fence(vulkan_renderer_t *vk_renderer);
 
 #endif // SWAP_CHAIN_SYNC_OBJECTS_H
 

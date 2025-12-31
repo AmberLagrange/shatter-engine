@@ -144,14 +144,20 @@ shatter_status_t cleanup_submit_semaphores(vulkan_renderer_t *vk_renderer) {
 	return SHATTER_SUCCESS;
 }
 
-// ---------- Fence Waiting ---------- //
+// ---------- Fence Functions ---------- //
 
 shatter_status_t wait_for_in_flight_fence(vulkan_renderer_t *vk_renderer) {
 	
 	VkFence *in_flight_fence = &(vk_renderer->in_flight_fence_list[vk_renderer->current_frame]);
 	vkWaitForFences(vk_renderer->logical_device, 1, in_flight_fence, VK_TRUE, UINT64_MAX);
-	vkResetFences(vk_renderer->logical_device, 1, in_flight_fence);
 	
+	return SHATTER_SUCCESS;
+}
+
+shatter_status_t reset_in_flight_fence(vulkan_renderer_t *vk_renderer) {
+	
+	VkFence *in_flight_fence = &(vk_renderer->in_flight_fence_list[vk_renderer->current_frame]);
+	vkResetFences(vk_renderer->logical_device, 1, in_flight_fence);
 	return SHATTER_SUCCESS;
 }
 

@@ -48,6 +48,7 @@ SRCS = $(SRC_DIR)/app/app.c \
 	   \
 	   $(SRC_DIR)/window/glfw.c \
 	   $(SRC_DIR)/window/input.c \
+	   $(SRC_DIR)/window/window.c \
 
 # -------- Binary File Structs -------- #
 

@@ -42,11 +42,13 @@ typedef struct vulkan_renderer_s {
 	VkFramebuffer *swap_chain_frame_buffer_list;
 	VkImageView *swap_chain_image_view_list;
 	
+	bool frame_buffer_resized;
+	
 	VkRenderPass render_pass;
 	VkPipelineLayout pipeline_layout;
 	VkPipeline graphics_pipeline;
 	
-	VkCommandPool command_pool;	
+	VkCommandPool command_pool;
 	VkCommandBuffer *command_buffer_list;
 	
 	VkSemaphore *acquire_image_semaphore_list;
@@ -66,6 +68,10 @@ shatter_status_t loop_vulkan_renderer(vulkan_renderer_t *vk_renderer);
 shatter_status_t cleanup_vulkan_renderer(vulkan_renderer_t *vk_renderer);
 
 shatter_status_t draw_frame(vulkan_renderer_t *vk_renderer);
+
+// ---------- Callbacks ---------- //
+
+shatter_status_t vulkan_frame_buffer_resize_callback(vulkan_renderer_t *vk_renderer);
 
 #endif // RENDERER_H
 

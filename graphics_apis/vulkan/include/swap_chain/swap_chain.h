@@ -9,6 +9,7 @@
 
 shatter_status_t create_swap_chain(vulkan_renderer_t *vk_renderer);
 shatter_status_t cleanup_swap_chain(vulkan_renderer_t *vk_renderer);
+shatter_status_t recreate_swap_chain(vulkan_renderer_t *vk_renderer);
 
 shatter_status_t get_next_swap_chain_image(vulkan_renderer_t *vk_renderer, uint32_t *image_index);
 

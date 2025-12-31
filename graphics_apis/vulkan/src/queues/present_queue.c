@@ -2,6 +2,8 @@
 
 #include <queues/present_queue.h>
 
+#include <swap_chain/swap_chain.h>
+
 #include <vulkan/vulkan.h>
 
 shatter_status_t submit_present_queue(vulkan_renderer_t *vk_renderer, uint32_t image_index) {
@@ -23,7 +25,15 @@ shatter_status_t submit_present_queue(vulkan_renderer_t *vk_renderer, uint32_t i
 		.pResults = NULL,
 	};
 	
-	vkQueuePresentKHR(vk_renderer->present_queue, &present_info);
+	VkResult result = vkQueuePresentKHR(vk_renderer->present_queue, &present_info);
+	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || vk_renderer->frame_buffer_resized) {
+		
+		recreate_swap_chain(vk_renderer);
+		return SHATTER_VULKAN_SWAP_CHAIN_RECREATION;
+	} else if (result != VK_SUCCESS) {
+		
+		return SHATTER_VULKAN_PRESENT_QUEUE_SUBMITION_FAILURE;
+	}
 	
 	return SHATTER_SUCCESS;
 }

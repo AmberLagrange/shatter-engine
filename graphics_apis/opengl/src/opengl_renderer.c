@@ -164,3 +164,11 @@ shatter_status_t cleanup_opengl_renderer(opengl_renderer_t *opengl_renderer) {
 	return SHATTER_SUCCESS;
 }
 
+// ---------- Callbacks ---------- //
+
+shatter_status_t opengl_frame_buffer_resize_callback(opengl_renderer_t *opengl_renderer) {
+	
+	UNUSED(opengl_renderer);
+	return SHATTER_SUCCESS;
+}
+

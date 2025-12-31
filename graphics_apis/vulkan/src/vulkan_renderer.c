@@ -39,7 +39,7 @@ shatter_status_t init_vulkan_renderer(vulkan_renderer_t **vk_renderer_ptr,
 	vk_renderer->renderer_config = renderer_config;
 	
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+	//glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 	vk_renderer->renderer_config->rendering_window = glfwCreateWindow(
 			vk_renderer->renderer_config->width,
 			vk_renderer->renderer_config->height,
@@ -118,7 +118,8 @@ shatter_status_t init_vulkan_renderer(vulkan_renderer_t **vk_renderer_ptr,
 
 shatter_status_t loop_vulkan_renderer(vulkan_renderer_t *vk_renderer) {
 	
-	if (draw_frame(vk_renderer)) {
+	shatter_status_t status = draw_frame(vk_renderer);
+	if (status != SHATTER_SUCCESS && status != SHATTER_VULKAN_SWAP_CHAIN_RECREATION) {
 		
 		log_critical("Failed to draw frame.\n");
 		return SHATTER_VULKAN_DRAW_FRAME_FAILURE;
@@ -175,13 +176,27 @@ shatter_status_t draw_frame(vulkan_renderer_t *vk_renderer) {
 	uint32_t image_index;
 	
 	wait_for_in_flight_fence(vk_renderer);
-	get_next_swap_chain_image(vk_renderer, &image_index);
+	
+	if (get_next_swap_chain_image(vk_renderer, &image_index)) {
+		
+		return SHATTER_VULKAN_SWAP_CHAIN_RECREATION;
+	}
+	
+	reset_in_flight_fence(vk_renderer);
 	record_command_buffer(vk_renderer, vk_renderer->command_buffer_list[current_frame], image_index);
 	submit_graphics_queue(vk_renderer, image_index);
 	submit_present_queue(vk_renderer, image_index);
 	
 	vk_renderer->current_frame = (current_frame + 1) % vk_renderer->num_in_flight_frames;
 	
+	return SHATTER_SUCCESS;
+}
+
+// ---------- Callbacks ---------- //
+
+shatter_status_t vulkan_frame_buffer_resize_callback(vulkan_renderer_t *vk_renderer) {
+	
+	vk_renderer->frame_buffer_resized = true;
 	return SHATTER_SUCCESS;
 }
 

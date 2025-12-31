@@ -145,6 +145,7 @@ shatter_status_t create_swap_chain(vulkan_renderer_t *vk_renderer) {
 	
 	// ---------- Finish --------- //
 	
+	vk_renderer->frame_buffer_resized = false;
 	log_trace("Created swap chain.\n");
 cleanup:
 	cleanup_swap_chain_support_details(&swap_support);
@@ -180,6 +181,7 @@ shatter_status_t cleanup_swap_chain(vulkan_renderer_t *vk_renderer) {
 
 shatter_status_t recreate_swap_chain(vulkan_renderer_t *vk_renderer) {
 	
+	log_trace("Recreate swap chain.\n");
 	vkDeviceWaitIdle(vk_renderer->logical_device);
 	
 	cleanup_swap_chain(vk_renderer);
@@ -195,8 +197,18 @@ shatter_status_t recreate_swap_chain(vulkan_renderer_t *vk_renderer) {
 
 shatter_status_t get_next_swap_chain_image(vulkan_renderer_t *vk_renderer, uint32_t *image_index) {
 	
-	vkAcquireNextImageKHR(vk_renderer->logical_device, vk_renderer->swap_chain, UINT64_MAX,
-						  vk_renderer->acquire_image_semaphore_list[vk_renderer->current_frame], VK_NULL_HANDLE, image_index);
+	VkResult result = vkAcquireNextImageKHR(vk_renderer->logical_device, vk_renderer->swap_chain,
+											UINT64_MAX, vk_renderer->acquire_image_semaphore_list[vk_renderer->current_frame],
+											VK_NULL_HANDLE, image_index);
+	
+	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || vk_renderer->frame_buffer_resized) {
+		
+		recreate_swap_chain(vk_renderer);
+		return SHATTER_VULKAN_SWAP_CHAIN_RECREATION;
+	} else if (result != VK_SUCCESS) {
+		
+		return SHATTER_VULKAN_SWAP_CHAIN_ACQUISITION_FAILURE;
+	}
 	
 	return SHATTER_SUCCESS;
 }

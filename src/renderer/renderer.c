@@ -6,6 +6,7 @@
 
 #include <window/glfw.h>
 #include <window/input.h>
+#include <window/window.h>
 
 #include <signal.h>
 #include <stdbool.h>
@@ -36,7 +37,9 @@ static shatter_status_t init_renderer(renderer_t *renderer) {
 	renderer->needs_reload = false;
 	renderer->reload_error = false;
 	
-	if (renderer->api_loader->api_vtable.init_api_renderer(&(renderer->api_renderer), renderer->renderer_config)) {
+	init_api_renderer_t init_api_renderer = renderer->api_loader->api_vtable.init_api_renderer;
+	
+	if (init_api_renderer(&(renderer->api_renderer), renderer->renderer_config)) {
 		
 		log_error("Failed to initialize the renderer.\n");
 		return SHATTER_RENDERER_INIT_FAILURE;
@@ -44,6 +47,7 @@ static shatter_status_t init_renderer(renderer_t *renderer) {
 	
 	glfwSetWindowUserPointer(renderer->renderer_config->rendering_window, renderer);
 	glfwSetKeyCallback(renderer->renderer_config->rendering_window, renderer_key_callback);
+	glfwSetFramebufferSizeCallback(renderer->renderer_config->rendering_window, frame_buffer_resize_callback);
 	return SHATTER_SUCCESS;
 }
 
@@ -54,7 +58,7 @@ static shatter_status_t reload_renderer(renderer_t *renderer) {
 		return SHATTER_RENDERER_RELOAD_FAILURE;
 	}
 	
-	shatter_status_t reload_status = reload_library(renderer->api_loader);	
+	shatter_status_t reload_status = reload_library(renderer->api_loader);
 	if (reload_status == SHATTER_DYNAMIC_LIBRARY_RELOAD_RECOVERED) {
 		
 		renderer->reload_error = true;
@@ -72,10 +76,13 @@ static shatter_status_t reload_renderer(renderer_t *renderer) {
 	return SHATTER_SUCCESS;
 }
 
-static shatter_status_t loop_renderer(renderer_t *renderer) {	
+static shatter_status_t loop_renderer(renderer_t *renderer) {
 	
-	while (!glfwWindowShouldClose(renderer->renderer_config->rendering_window)
-			&& renderer->is_running && s_is_running) {
+	GLFWwindow *rendering_window = renderer->renderer_config->rendering_window;
+	
+	loop_api_renderer_t loop_api_renderer = renderer->api_loader->api_vtable.loop_api_renderer;
+	
+	while (!glfwWindowShouldClose(rendering_window) && renderer->is_running && s_is_running) {
 		
 		glfwPollEvents();
 		if (renderer->needs_reload) {
@@ -85,9 +92,12 @@ static shatter_status_t loop_renderer(renderer_t *renderer) {
 				renderer->is_running = false;
 				return SHATTER_RENDERER_RELOAD_FAILURE;
 			}
+			
+			// Update the loop function to be the new API
+			loop_api_renderer = renderer->api_loader->api_vtable.loop_api_renderer;
 		}
 		
-		shatter_status_t status = renderer->api_loader->api_vtable.loop_api_renderer(renderer->api_renderer);
+		shatter_status_t status = loop_api_renderer(renderer->api_renderer);
 		if (status) {
 			
 			return status;
@@ -106,7 +116,9 @@ shatter_status_t cleanup_renderer(renderer_t *renderer) {
 	}
 	
 	glfwSetKeyCallback(renderer->renderer_config->rendering_window, NULL);
-	shatter_status_t status = renderer->api_loader->api_vtable.cleanup_api_renderer(renderer->api_renderer);
+	cleanup_api_renderer_t cleanup_api_renderer = renderer->api_loader->api_vtable.cleanup_api_renderer;
+	
+	shatter_status_t status = cleanup_api_renderer(renderer->api_renderer);
 	
 	if (unload_library(renderer->api_loader)) {
 		
