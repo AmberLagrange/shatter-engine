@@ -9,10 +9,9 @@ shatter_status_t create_image_views(vulkan_renderer_t *vk_renderer) {
 	log_trace("\n");
 	log_trace("Creating image views.\n");
 	
-	vk_renderer->num_swap_chain_image_views = vk_renderer->num_swap_chain_images;
-	vk_renderer->swap_chain_image_view_list = malloc(sizeof(VkImageView) * vk_renderer->num_swap_chain_image_views);
+	vk_renderer->swap_chain_image_view_list = malloc(sizeof(VkImageView) * vk_renderer->num_swap_chain_images);
 	
-	for (size_t image_view_index = 0; image_view_index < vk_renderer->num_swap_chain_image_views; ++image_view_index) {
+	for (size_t image_view_index = 0; image_view_index < vk_renderer->num_swap_chain_images; ++image_view_index) {
 		
 		VkImageViewCreateInfo create_info = {
 			
@@ -48,7 +47,7 @@ shatter_status_t create_image_views(vulkan_renderer_t *vk_renderer) {
 
 shatter_status_t cleanup_image_views(vulkan_renderer_t *vk_renderer) {
 	
-	for (size_t image_view_index = 0; image_view_index < vk_renderer->num_swap_chain_image_views; ++image_view_index) {
+	for (size_t image_view_index = 0; image_view_index < vk_renderer->num_swap_chain_images; ++image_view_index) {
 		
 		vkDestroyImageView(vk_renderer->logical_device, vk_renderer->swap_chain_image_view_list[image_view_index], NULL);
 	}

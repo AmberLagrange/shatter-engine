@@ -11,10 +11,9 @@ shatter_status_t create_frame_buffers(vulkan_renderer_t *vk_renderer) {
 	log_trace("\n");
 	log_trace("Creating frame buffers.\n");
 	
-	vk_renderer->num_swap_chain_frame_buffers = vk_renderer->num_swap_chain_image_views;
-	vk_renderer->swap_chain_frame_buffer_list = malloc(sizeof(VkFramebuffer) * vk_renderer->num_swap_chain_frame_buffers);
+	vk_renderer->swap_chain_frame_buffer_list = malloc(sizeof(VkFramebuffer) * vk_renderer->num_swap_chain_images);
 	
-	for (size_t frame_buffer_index = 0; frame_buffer_index < vk_renderer->num_swap_chain_frame_buffers; ++frame_buffer_index) {
+	for (size_t frame_buffer_index = 0; frame_buffer_index < vk_renderer->num_swap_chain_images; ++frame_buffer_index) {
 		
 		VkImageView attachment_list[1] = { vk_renderer->swap_chain_image_view_list[frame_buffer_index] };
 		
@@ -48,7 +47,7 @@ shatter_status_t create_frame_buffers(vulkan_renderer_t *vk_renderer) {
 
 shatter_status_t cleanup_frame_buffers(vulkan_renderer_t *vk_renderer) {
 	
-	for (size_t frame_buffer_index = 0; frame_buffer_index < vk_renderer->num_swap_chain_frame_buffers; ++frame_buffer_index) {
+	for (size_t frame_buffer_index = 0; frame_buffer_index < vk_renderer->num_swap_chain_images; ++frame_buffer_index) {
 		
 		vkDestroyFramebuffer(vk_renderer->logical_device, vk_renderer->swap_chain_frame_buffer_list[frame_buffer_index], NULL);
 	}

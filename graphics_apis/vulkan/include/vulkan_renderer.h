@@ -39,18 +39,14 @@ typedef struct vulkan_renderer_s {
 	VkFormat swap_chain_image_format;
 	VkExtent2D swap_chain_extent;
 	
+	VkFramebuffer *swap_chain_frame_buffer_list;
 	VkImageView *swap_chain_image_view_list;
-	size_t num_swap_chain_image_views;
 	
 	VkRenderPass render_pass;
 	VkPipelineLayout pipeline_layout;
 	VkPipeline graphics_pipeline;
 	
-	VkFramebuffer *swap_chain_frame_buffer_list;
-	size_t num_swap_chain_frame_buffers;
-	
-	VkCommandPool command_pool;
-	
+	VkCommandPool command_pool;	
 	VkCommandBuffer *command_buffer_list;
 	
 	VkSemaphore *acquire_image_semaphore_list;
@@ -58,6 +54,7 @@ typedef struct vulkan_renderer_s {
 	VkSemaphore *submit_image_semaphore_list;
 	
 	uint32_t current_frame;
+	uint32_t num_in_flight_frames;
 	
 	char **validation_layers;
 	size_t num_validation_layers;

@@ -12,7 +12,7 @@ shatter_status_t create_command_buffers(vulkan_renderer_t *vk_renderer) {
 	
 	log_trace("Creating command buffers.\n");
 	
-	vk_renderer->command_buffer_list = malloc(sizeof(VkCommandBuffer) * MAX_IN_FLIGHT_FRAMES);
+	vk_renderer->command_buffer_list = malloc(sizeof(VkCommandBuffer) * vk_renderer->num_in_flight_frames);
 	
 	VkCommandBufferAllocateInfo command_buffer_allocate_info = {
 		
@@ -20,7 +20,7 @@ shatter_status_t create_command_buffers(vulkan_renderer_t *vk_renderer) {
 		
 		.commandPool = vk_renderer->command_pool,
 		.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-		.commandBufferCount = MAX_IN_FLIGHT_FRAMES,
+		.commandBufferCount = vk_renderer->num_in_flight_frames,
 	};
 	
 	if (vkAllocateCommandBuffers(vk_renderer->logical_device, &command_buffer_allocate_info,
@@ -41,6 +41,8 @@ shatter_status_t cleanup_command_buffers(vulkan_renderer_t *vk_renderer) {
 }
 
 shatter_status_t record_command_buffer(vulkan_renderer_t *vk_renderer, VkCommandBuffer command_buffer, uint32_t image_index) {
+	
+	vkResetCommandBuffer(command_buffer, 0);
 	
 	VkCommandBufferBeginInfo command_buffer_begin_info = {
 		

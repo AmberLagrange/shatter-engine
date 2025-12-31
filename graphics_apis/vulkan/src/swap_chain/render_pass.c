@@ -1,6 +1,6 @@
 #include <common/core.h>
 
-#include <render_pass/render_pass.h>
+#include <swap_chain/render_pass.h>
 
 #include <vulkan/vulkan.h>
 
@@ -78,6 +78,12 @@ shatter_status_t create_render_pass(vulkan_renderer_t *vk_renderer) {
 	}
 	
 	log_trace("Created render pass.\n");
+	return SHATTER_SUCCESS;
+}
+
+shatter_status_t cleanup_render_pass(vulkan_renderer_t *vk_renderer) {
+	
+	vkDestroyRenderPass(vk_renderer->logical_device, vk_renderer->render_pass, NULL);
 	return SHATTER_SUCCESS;
 }
 

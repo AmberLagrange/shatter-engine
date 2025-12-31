@@ -47,21 +47,21 @@ SRCS = \
 	$(SRC_DIR)/instance/extensions.c \
 	$(SRC_DIR)/instance/instance.c \
 	\
-	$(SRC_DIR)/render_pass/render_pass.c \
-	\
 	$(SRC_DIR)/shaders/load_shader.c \
 	$(SRC_DIR)/shaders/shader_module.c \
 	\
 	$(SRC_DIR)/swap_chain/frame_buffer.c \
 	$(SRC_DIR)/swap_chain/image_view.c \
 	$(SRC_DIR)/swap_chain/present_mode.c \
+	$(SRC_DIR)/swap_chain/render_pass.c \
 	$(SRC_DIR)/swap_chain/surface_format.c \
 	$(SRC_DIR)/swap_chain/swap_chain.c \
 	$(SRC_DIR)/swap_chain/swap_chain_support_details.c \
 	$(SRC_DIR)/swap_chain/swap_extent.c \
+	$(SRC_DIR)/swap_chain/sync_objects.c \
 	\
-	$(SRC_DIR)/sync/sync_objects.c \
-	\
+	$(SRC_DIR)/queues/graphics_queue.c \
+	$(SRC_DIR)/queues/present_queue.c \
 	$(SRC_DIR)/queues/queue_family_indices.c \
 	$(SRC_DIR)/queues/required_queue_families.c \
 	\
