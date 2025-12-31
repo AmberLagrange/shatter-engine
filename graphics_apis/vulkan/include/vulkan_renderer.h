@@ -12,6 +12,9 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
+
+#define MAX_IN_FLIGHT_FRAMES 2
 
 typedef struct vulkan_renderer_s {
 	
@@ -47,11 +50,14 @@ typedef struct vulkan_renderer_s {
 	size_t num_swap_chain_frame_buffers;
 	
 	VkCommandPool command_pool;
-	VkCommandBuffer command_buffer;
 	
-	VkSemaphore image_available_semaphore;
-	VkSemaphore render_finished_semaphore;
-	VkFence in_flight_fence;
+	VkCommandBuffer *command_buffer_list;
+	
+	VkSemaphore *acquire_image_semaphore_list;
+	VkFence *in_flight_fence_list;
+	VkSemaphore *submit_image_semaphore_list;
+	
+	uint32_t current_frame;
 	
 	char **validation_layers;
 	size_t num_validation_layers;

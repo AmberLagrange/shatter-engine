@@ -1,12 +1,18 @@
 #include <common/core.h>
 
+#include <vulkan_renderer.h>
+
 #include <commands/command_buffer.h>
 
 #include <vulkan/vulkan.h>
 
-shatter_status_t create_command_buffer(vulkan_renderer_t *vk_renderer) {
+#include <stdlib.h>
+
+shatter_status_t create_command_buffers(vulkan_renderer_t *vk_renderer) {
 	
-	log_trace("Creating command buffer.\n");
+	log_trace("Creating command buffers.\n");
+	
+	vk_renderer->command_buffer_list = malloc(sizeof(VkCommandBuffer) * MAX_IN_FLIGHT_FRAMES);
 	
 	VkCommandBufferAllocateInfo command_buffer_allocate_info = {
 		
@@ -14,17 +20,23 @@ shatter_status_t create_command_buffer(vulkan_renderer_t *vk_renderer) {
 		
 		.commandPool = vk_renderer->command_pool,
 		.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-		.commandBufferCount = 1,
+		.commandBufferCount = MAX_IN_FLIGHT_FRAMES,
 	};
 	
 	if (vkAllocateCommandBuffers(vk_renderer->logical_device, &command_buffer_allocate_info,
-								 &(vk_renderer->command_buffer)) != VK_SUCCESS) {
+								 vk_renderer->command_buffer_list) != VK_SUCCESS) {
 		
 		log_error("Failed to allocate command buffers.\n");
 		return SHATTER_VULKAN_COMMAND_BUFFER_INIT_FAILURE;
 	}
 	
-	log_trace("Created command buffer.\n");
+	log_trace("Created command buffers.\n");
+	return SHATTER_SUCCESS;
+}
+
+shatter_status_t cleanup_command_buffers(vulkan_renderer_t *vk_renderer) {
+	
+	free(vk_renderer->command_buffer_list);
 	return SHATTER_SUCCESS;
 }
 

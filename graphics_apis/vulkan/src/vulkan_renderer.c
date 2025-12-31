@@ -122,7 +122,7 @@ shatter_status_t init_vulkan_renderer(vulkan_renderer_t **vk_renderer_ptr,
 		return SHATTER_VULKAN_COMMAND_POOL_INIT_FAILURE;
 	}
 	
-	if (create_command_buffer(vk_renderer)) {
+	if (create_command_buffers(vk_renderer)) {
 		
 		log_error("Failed to create command buffer.\n");
 		return SHATTER_VULKAN_COMMAND_BUFFER_INIT_FAILURE;
@@ -133,6 +133,8 @@ shatter_status_t init_vulkan_renderer(vulkan_renderer_t **vk_renderer_ptr,
 		log_error("Failed to create sync objects.\n");
 		return SHATTER_VULKAN_SYNC_OBJECT_INIT_FAILURE;
 	}
+	
+	vk_renderer->current_frame = 0;
 	
 	log_trace("\n");
 	log_trace("Renderer Initialization Complete.\n");
@@ -147,7 +149,6 @@ shatter_status_t loop_vulkan_renderer(vulkan_renderer_t *vk_renderer) {
 		return SHATTER_VULKAN_DRAW_FRAME_FAILURE;
 	}
 	
-	vkDeviceWaitIdle(vk_renderer->logical_device);
 	return SHATTER_SUCCESS;
 }
 
@@ -156,17 +157,16 @@ shatter_status_t cleanup_vulkan_renderer(vulkan_renderer_t *vk_renderer) {
 	log_trace("\n");
 	log_trace("Cleaning up Vulkan renderer.\n");
 	
-	vkDestroyFence(vk_renderer->logical_device, vk_renderer->in_flight_fence, NULL);
-	log_trace("Destroyed in flight fence.\n");
+	vkDeviceWaitIdle(vk_renderer->logical_device);
 	
-	vkDestroySemaphore(vk_renderer->logical_device, vk_renderer->render_finished_semaphore, NULL);
-	log_trace("Destroyed render finished semaphore.\n");
-	
-	vkDestroySemaphore(vk_renderer->logical_device, vk_renderer->image_available_semaphore, NULL);
-	log_trace("Destroyed image available semaphore.\n");
+	cleanup_sync_objects(vk_renderer);
+	log_trace("Destroyed sync objects.\n");
 	
 	vkDestroyCommandPool(vk_renderer->logical_device, vk_renderer->command_pool, NULL);
-	log_trace("Destroyed command pool.\n");
+	log_trace("Destroyed command pools.\n");
+	
+	cleanup_command_buffers(vk_renderer);
+	log_trace("Destroyed command buffers.\n");
 	
 	cleanup_frame_buffers(vk_renderer);
 	log_trace("Destroyed frame buffers.\n");
@@ -210,37 +210,42 @@ shatter_status_t cleanup_vulkan_renderer(vulkan_renderer_t *vk_renderer) {
 
 shatter_status_t draw_frame(vulkan_renderer_t *vk_renderer) {
 	
-	vkWaitForFences(vk_renderer->logical_device, 1, &(vk_renderer->in_flight_fence), VK_TRUE, UINT64_MAX);
-	vkResetFences(vk_renderer->logical_device, 1, &(vk_renderer->in_flight_fence));
+	uint32_t current_frame = vk_renderer->current_frame;
+	VkFence *current_fence_ptr = &(vk_renderer->in_flight_fence_list[current_frame]);
+	
+	vkWaitForFences(vk_renderer->logical_device, 1, current_fence_ptr, VK_TRUE, UINT64_MAX);
+	vkResetFences(vk_renderer->logical_device, 1, current_fence_ptr);
+	
+	VkSemaphore *acquire_semaphore_ptr = &(vk_renderer->acquire_image_semaphore_list[current_frame]);
 	
 	uint32_t image_index;
 	vkAcquireNextImageKHR(vk_renderer->logical_device, vk_renderer->swap_chain, UINT64_MAX,
-						  vk_renderer->image_available_semaphore, VK_NULL_HANDLE, &image_index);
+						  *acquire_semaphore_ptr, VK_NULL_HANDLE, &image_index);
 	
-	vkResetCommandBuffer(vk_renderer->command_buffer, 0);
-	record_command_buffer(vk_renderer, vk_renderer->command_buffer, image_index);
+	VkCommandBuffer *command_buffer_ptr = &(vk_renderer->command_buffer_list[current_frame]);
 	
-	VkSemaphore wait_semaphore_list[1] = { vk_renderer->image_available_semaphore };
-	VkPipelineStageFlags wait_stage_list[1] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+	vkResetCommandBuffer(*command_buffer_ptr, 0);
+	record_command_buffer(vk_renderer, *command_buffer_ptr, image_index);
 	
-	VkSemaphore signal_semaphore_list[1] = { vk_renderer->render_finished_semaphore };
+	VkSemaphore *submit_semaphore_ptr = &(vk_renderer->submit_image_semaphore_list[image_index]);
 	
+	VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 	VkSubmitInfo submit_info = {
 		
 		.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
 		
 		.waitSemaphoreCount = 1,
-		.pWaitSemaphores = wait_semaphore_list,
-		.pWaitDstStageMask = wait_stage_list,
+		.pWaitSemaphores = acquire_semaphore_ptr,
+		.pWaitDstStageMask = &wait_stage,
 		
 		.commandBufferCount = 1,
-		.pCommandBuffers = &(vk_renderer->command_buffer),
+		.pCommandBuffers = command_buffer_ptr,
 		
 		.signalSemaphoreCount = 1,
-		.pSignalSemaphores = signal_semaphore_list,
+		.pSignalSemaphores = submit_semaphore_ptr,
 	};
 	
-	if (vkQueueSubmit(vk_renderer->graphics_queue, 1, &submit_info, vk_renderer->in_flight_fence) != VK_SUCCESS) {
+	if (vkQueueSubmit(vk_renderer->graphics_queue, 1, &submit_info, *current_fence_ptr) != VK_SUCCESS) {
 		
 		log_error("Failed to submit draw command buffer.\n");
 		return SHATTER_VULKAN_DRAW_FRAME_FAILURE;
@@ -252,7 +257,7 @@ shatter_status_t draw_frame(vulkan_renderer_t *vk_renderer) {
 		.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
 		
 		.waitSemaphoreCount = 1,
-		.pWaitSemaphores = signal_semaphore_list,
+		.pWaitSemaphores = submit_semaphore_ptr,
 		
 		.swapchainCount = 1,
 		.pSwapchains = swap_chain_list,
@@ -262,6 +267,7 @@ shatter_status_t draw_frame(vulkan_renderer_t *vk_renderer) {
 	};
 	
 	vkQueuePresentKHR(vk_renderer->present_queue, &present_info);
+	vk_renderer->current_frame = (current_frame + 1) % MAX_IN_FLIGHT_FRAMES;
 	
 	return SHATTER_SUCCESS;
 }
