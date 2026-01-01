@@ -8,13 +8,13 @@
 
 #define ALIGNMENT sizeof(uint32_t)
 
-char *get_shader_bytecode(const char *file_path, size_t *code_size) {
+char *get_shader_bytecode(const char *filepath, size_t *code_size) {
 	
-	FILE *file_ptr = fopen(file_path, "rb");
+	FILE *file_ptr = fopen(filepath, "rb");
 	
 	if (!file_ptr) {
 		
-		log_error("Could not open %s.\n", file_path);
+		log_error("Could not open %s.\n", filepath);
 		return NULL;
 	}
 	

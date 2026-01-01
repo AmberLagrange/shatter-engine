@@ -28,25 +28,25 @@ FRAG_SPV_DIR   := $(SHADER_SPV_DIR)/fragment
 
 # -------- Shader Input Files -------- #
 
-VULKAN_VERT_SRCS = $(VERT_IN_DIR)/basic_vulkan_vertex_shader.vert
-VULKAN_FRAG_SRCS = $(FRAG_IN_DIR)/basic_vulkan_fragment_shader.frag
+VULKAN_VERT_SRCS = $(VERT_IN_DIR)/basic_shader.vert
+VULKAN_FRAG_SRCS = $(FRAG_IN_DIR)/basic_shader.frag
 
-#OPENGL_VERT_SRCS = $(VERT_IN_DIR)/basic_opengl_vertex_shader.vert
-#OPENGL_FRAG_SRCS = $(FRAG_IN_DIR)/basic_opengl_fragment_shader.frag
+OPENGL_VERT_SRCS = $(VERT_IN_DIR)/basic_shader.vert
+OPENGL_FRAG_SRCS = $(FRAG_IN_DIR)/basic_shader.frag
 
 # -------- Shader File Structs -------- #
 
-#VERT_FILE_STRUCT = $(dir $(OPENGL_VERT_SRCS:$(VERT_IN_DIR)/%=$(VERT_OUT_DIR)/%))
-#FRAG_FILE_STRUCT = $(dir $(OPENGL_FRAG_SRCS:$(FRAG_IN_DIR)/%=$(FRAG_OUT_DIR)/%))
+VERT_FILE_STRUCT = $(dir $(OPENGL_VERT_SRCS:$(VERT_IN_DIR)/%=$(VERT_OUT_DIR)/%))
+FRAG_FILE_STRUCT = $(dir $(OPENGL_FRAG_SRCS:$(FRAG_IN_DIR)/%=$(FRAG_OUT_DIR)/%))
 
 VERT_SPV_FILE_STRUCT = $(dir $(VULKAN_VERT_SRCS:$(VERT_IN_DIR)/%=$(VERT_SPV_DIR)/%))
 FRAG_SPV_FILE_STRUCT = $(dir $(VULKAN_FRAG_SRCS:$(FRAG_IN_DIR)/%=$(FRAG_SPV_DIR)/%))
 
 # -------- Shader Output Files -------- #
 
-#COPY_VERT_FILES   = $(OPENGL_VERT_SRCS:$(VERT_IN_DIR)/%.vert=$(VERT_OUT_DIR)/%.vert)
-#COPY_FRAG_FILES   = $(OPENGL_FRAG_SRCS:$(FRAG_IN_DIR)/%.frag=$(FRAG_OUT_DIR)/%.frag)
-#COPY_SHADER_FILES = $(COPY_VERT_FILES) $(COPY_FRAG_FILES)
+COPY_VERT_FILES   = $(OPENGL_VERT_SRCS:$(VERT_IN_DIR)/%.vert=$(VERT_OUT_DIR)/%.vert)
+COPY_FRAG_FILES   = $(OPENGL_FRAG_SRCS:$(FRAG_IN_DIR)/%.frag=$(FRAG_OUT_DIR)/%.frag)
+COPY_SHADER_FILES = $(COPY_VERT_FILES) $(COPY_FRAG_FILES)
 
 VERT_SPVS   = $(VULKAN_VERT_SRCS:$(VERT_IN_DIR)/%.vert=$(VERT_SPV_DIR)/%.spv)
 FRAG_SPVS   = $(VULKAN_FRAG_SRCS:$(FRAG_IN_DIR)/%.frag=$(FRAG_SPV_DIR)/%.spv)
@@ -59,8 +59,8 @@ all:
 dirs:
 	mkdir -p $(SHADER_OUT_DIR)
 
-	#mkdir -p $(VERT_FILE_STRUCT)
-	#mkdir -p $(FRAG_FILE_STRUCT)
+	mkdir -p $(VERT_FILE_STRUCT)
+	mkdir -p $(FRAG_FILE_STRUCT)
 
 	mkdir -p $(SHADER_SPV_DIR)
 	mkdir -p $(VERT_SPV_FILE_STRUCT)
@@ -99,5 +99,5 @@ $(FRAG_SPV_DIR)/%.spv: $(FRAG_IN_DIR)/%.frag
 	glslc $^ -o $@
 	@printf '$(*F).spv created.\n' $(OUTPUT_REDIRECT)
 
-shaders: $(SHADER_SPVS) #$(COPY_SHADER_FILES)
+shaders: $(SHADER_SPVS) $(COPY_SHADER_FILES)
 

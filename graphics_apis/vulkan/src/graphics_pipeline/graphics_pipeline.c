@@ -24,7 +24,7 @@ shatter_status_t create_graphics_pipeline(vulkan_renderer_t *vk_renderer) {
 	
 	char vertex_spv_filepath[MAX_FILEPATH_LEN + 1];
 	strncpy(vertex_spv_filepath, directory_filepath, MAX_FILEPATH_LEN);
-	strncat(vertex_spv_filepath, "/shaders/spv/vertex/basic_vulkan_vertex_shader.spv",
+	strncat(vertex_spv_filepath, "/shaders/spv/vertex/basic_shader.spv",
 			MAX_FILEPATH_LEN - directory_filepath_len);
 	
 	size_t vertex_bytecode_len;
@@ -58,7 +58,7 @@ shatter_status_t create_graphics_pipeline(vulkan_renderer_t *vk_renderer) {
 	
 	char fragment_spv_filepath[MAX_FILEPATH_LEN + 1];
 	strncpy(fragment_spv_filepath, directory_filepath, MAX_FILEPATH_LEN);
-	strncat(fragment_spv_filepath, "/shaders/spv/fragment/basic_vulkan_fragment_shader.spv",
+	strncat(fragment_spv_filepath, "/shaders/spv/fragment/basic_shader.spv",
 			MAX_FILEPATH_LEN - directory_filepath_len);
 	
 	size_t fragment_bytecode_len;

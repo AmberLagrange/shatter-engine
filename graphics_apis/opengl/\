@@ -2,10 +2,8 @@
 
 #include <opengl_renderer.h>
 
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -43,26 +41,21 @@ shatter_status_t init_opengl_renderer(opengl_renderer_t **opengl_renderer_ptr, r
 		return SHATTER_OPENGL_RENDERER_INIT_FAILURE;
 	}
 	
-	size_t directory_filepath_len = strlen(renderer_config->directory_filepath);
-	assert(directory_filepath_len < MAX_FILEPATH_LEN);
-	
-	char vertex_filepath[MAX_FILEPATH_LEN + 1];
-	strncpy(vertex_filepath, renderer_config->directory_filepath, MAX_FILEPATH_LEN);
-	strncat(vertex_filepath, "/shaders/vertex/basic_shader.vert", MAX_FILEPATH_LEN - directory_filepath_len);
-	FILE *file_ptr = fopen((const char *)(vertex_filepath), "r");
+	FILE *file_ptr = fopen("bin/shaders/vertex/basic_shader.vert", "rb");
 	
 	fseek(file_ptr, 0L, SEEK_END);
 	size_t file_size = ftell(file_ptr);
 	fseek(file_ptr, 0L, SEEK_SET);
 	
-	char *vertex_shader_code = malloc(file_size + 1);
+	char *vertex_shader_code = malloc(file_size);
 	fread(vertex_shader_code, sizeof(char), file_size, file_ptr);
-	vertex_shader_code[file_size] = '\0';
+	
 	fclose(file_ptr);
 	
 	unsigned int vertex_shader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertex_shader, 1, (const char **)(&vertex_shader_code), NULL);
 	glCompileShader(vertex_shader);
+	free(vertex_shader_code);
 	
 	int success;
 	glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
@@ -72,26 +65,23 @@ shatter_status_t init_opengl_renderer(opengl_renderer_t **opengl_renderer_ptr, r
 		glGetShaderInfoLog(vertex_shader, MAX_INFO_LOG_LEN, NULL, info_log);
 		log_error("Vertex shader failed to compile.\n");
 		log_error("%s", info_log);
-		return SHATTER_OPENGL_RENDERER_INIT_FAILURE;
 	}
 	
-	char fragment_filepath[MAX_FILEPATH_LEN + 1];
-	strncpy(fragment_filepath, renderer_config->directory_filepath, MAX_FILEPATH_LEN);
-	strncat(fragment_filepath, "/shaders/fragment/basic_shader.frag", MAX_FILEPATH_LEN - directory_filepath_len);
-	file_ptr = fopen((const char *)(fragment_filepath), "r");
+	file_ptr = fopen("bin/shaders/fragment/basic_shader.frag", "rb");
 	
 	fseek(file_ptr, 0L, SEEK_END);
 	file_size = ftell(file_ptr);
 	fseek(file_ptr, 0L, SEEK_SET);
 	
-	char *fragment_shader_code = malloc(file_size + 1);
+	char *fragment_shader_code = malloc(file_size);
 	fread(fragment_shader_code, sizeof(char), file_size, file_ptr);
-	fragment_shader_code[file_size] = '\0';
+	
 	fclose(file_ptr);
 	
 	unsigned int fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragment_shader, 1, (const char **)(&fragment_shader_code), NULL);
 	glCompileShader(fragment_shader);
+	free(fragment_shader_code);
 	
 	glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
 	if (!success) {
@@ -100,7 +90,6 @@ shatter_status_t init_opengl_renderer(opengl_renderer_t **opengl_renderer_ptr, r
 		glGetShaderInfoLog(fragment_shader, MAX_INFO_LOG_LEN, NULL, info_log);
 		log_error("Fragment shader failed to compile.\n");
 		log_error("%s", info_log);
-		return SHATTER_OPENGL_RENDERER_INIT_FAILURE;
 	}
 	
 	opengl_renderer->shader_program = glCreateProgram();
@@ -115,13 +104,10 @@ shatter_status_t init_opengl_renderer(opengl_renderer_t **opengl_renderer_ptr, r
 		glGetProgramInfoLog(opengl_renderer->shader_program, MAX_INFO_LOG_LEN, NULL, info_log);
 		log_error("Shader failed to link.\n");
 		log_error("%s", info_log);
-		return SHATTER_OPENGL_RENDERER_INIT_FAILURE;
 	}
 	
 	glDeleteShader(fragment_shader);
-	free(fragment_shader_code);
 	glDeleteShader(vertex_shader);
-	free(vertex_shader_code);
 	
 	float vertices[3 * 5] = {
 		

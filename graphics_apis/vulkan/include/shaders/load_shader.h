@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 
-char *get_shader_bytecode(const char *file_path, size_t *code_size);
+char *get_shader_bytecode(const char *filepath, size_t *code_size);
 
 #endif // SHADERS_LOAD_SHADER_H
 
