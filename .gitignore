@@ -17,3 +17,6 @@ tmp/
 
 # Ignore glad. User will have to provide their own
 glad/
+
+# Ignore cglm. User will have to provide their own
+cglm/

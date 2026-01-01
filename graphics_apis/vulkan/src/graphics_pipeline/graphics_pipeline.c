@@ -1,5 +1,7 @@
 #include <common/core.h>
 
+#include <graphics_buffers/vertex_buffer.h>
+
 #include <graphics_pipeline/graphics_pipeline.h>
 
 #include <shaders/load_shader.h>
@@ -112,15 +114,21 @@ shatter_status_t create_graphics_pipeline(vulkan_renderer_t *vk_renderer) {
 	
 	// ---------- Vertex Input ---------- //
 	
+	VkVertexInputBindingDescription binding_description;
+	get_vertex_binding_description(&binding_description);
+	
+	VkVertexInputAttributeDescription attribute_description_list[NUM_VERTEX_ATTRIBUTES];
+	get_vertex_attribute_descriptions(attribute_description_list);
+	
 	VkPipelineVertexInputStateCreateInfo vertex_input_info = {
 		
 		.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
 		
-		.vertexBindingDescriptionCount = 0,
-		.pVertexBindingDescriptions = NULL,
+		.pVertexBindingDescriptions = &binding_description,
+		.vertexBindingDescriptionCount = 1,
 		
-		.vertexAttributeDescriptionCount = 0,
-		.pVertexAttributeDescriptions = NULL,
+		.pVertexAttributeDescriptions = attribute_description_list,
+		.vertexAttributeDescriptionCount = NUM_VERTEX_ATTRIBUTES,
 	};
 	
 	// ---------- Input Assembly ---------- //

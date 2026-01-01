@@ -19,6 +19,7 @@ TMP_DIR := $(CURDIR)/tmp
 API_LIB_DIR ?= $(CURDIR)/../../bin/api_libraries
 ENGINE_INC  ?= $(CURDIR)/../../include
 LOGGER_INC  ?= $(CURDIR)/../../logger/include
+CGLM_INC    ?= $(CURDIR)/../../cglm/include
 
 # -------- API Name -------- #
 
@@ -41,6 +42,8 @@ SRCS = \
 	$(SRC_DIR)/devices/extensions.c \
 	$(SRC_DIR)/devices/logical.c \
 	$(SRC_DIR)/devices/physical.c \
+	\
+	$(SRC_DIR)/graphics_buffers/vertex_buffer.c \
 	\
 	$(SRC_DIR)/graphics_pipeline/graphics_pipeline.c \
 	\
@@ -83,7 +86,7 @@ DEPS += $(DEP_DIR)/$(API_NAME).d
 
 # -------- Compiler and Linker flags -------- #
 
-CFLAGS  += -I$(INC_DIR) -I$(ENGINE_INC) -I$(LOGGER_INC)
+CFLAGS  += -I$(INC_DIR) -I$(ENGINE_INC) -I$(LOGGER_INC) -I$(CGLM_INC)
 LDLIBS  += -lvulkan
 
 # -------- Util Targets -------- #

@@ -11,6 +11,8 @@
 #include <devices/logical.h>
 #include <devices/physical.h>
 
+#include <graphics_buffers/vertex_buffer.h>
+
 #include <graphics_pipeline/graphics_pipeline.h>
 
 #include <instance/instance.h>
@@ -103,6 +105,12 @@ shatter_status_t init_vulkan_renderer(vulkan_renderer_t **vk_renderer_ptr,
 		return SHATTER_VULKAN_COMMAND_POOL_INIT_FAILURE;
 	}
 	
+	if (create_vertex_buffers(vk_renderer)) {
+		
+		log_error("Failed to create vertex buffers.\n");
+		return SHATTER_VULKAN_VERTEX_BUFFER_INIT_FAILURE;
+	}
+	
 	if (create_command_buffers(vk_renderer)) {
 		
 		log_error("Failed to create command buffer.\n");
@@ -137,6 +145,9 @@ shatter_status_t cleanup_vulkan_renderer(vulkan_renderer_t *vk_renderer) {
 	
 	vkDestroyCommandPool(vk_renderer->logical_device, vk_renderer->command_pool, NULL);
 	log_trace("Destroyed command pools.\n");
+	
+	cleanup_vertex_buffers(vk_renderer);
+	log_trace("Destroyed vertex buffer.\n");
 	
 	cleanup_command_buffers(vk_renderer);
 	log_trace("Destroyed command buffers.\n");

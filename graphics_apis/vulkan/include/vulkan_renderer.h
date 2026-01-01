@@ -48,6 +48,9 @@ typedef struct vulkan_renderer_s {
 	VkPipelineLayout pipeline_layout;
 	VkPipeline graphics_pipeline;
 	
+	VkBuffer vertex_buffer;
+	VkDeviceMemory vertex_buffer_memory;
+	
 	VkCommandPool command_pool;
 	VkCommandBuffer *command_buffer_list;
 	

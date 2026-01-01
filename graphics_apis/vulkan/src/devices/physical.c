@@ -109,3 +109,22 @@ bool is_physical_device_suitable(vulkan_renderer_t *vk_renderer, VkPhysicalDevic
 	return true;
 }
 
+shatter_status_t get_physical_device_memory_type(vulkan_renderer_t *vk_renderer, uint32_t memory_type_filter,
+												 VkMemoryPropertyFlags properties, uint32_t *memory_type) {
+	
+	VkPhysicalDeviceMemoryProperties memory_properties;
+	vkGetPhysicalDeviceMemoryProperties(vk_renderer->physical_device, &memory_properties);
+	
+	for (*memory_type = 0; *memory_type < memory_properties.memoryTypeCount; ++(*memory_type)) {
+		
+		if ((memory_type_filter & (1 << *memory_type)) &&
+			((memory_properties.memoryTypes[*memory_type].propertyFlags & properties) == properties)) {
+			
+			return SHATTER_SUCCESS;
+		}
+	}
+	
+	*memory_type = UINT32_MAX;
+	return SHATTER_VULKAN_PHYSICAL_DEVICE_GET_MEMORY_TYPE_FAILURE;
+}
+

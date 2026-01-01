@@ -95,6 +95,10 @@ shatter_status_t record_command_buffer(vulkan_renderer_t *vk_renderer, VkCommand
 	};
 	vkCmdSetScissor(command_buffer, 0, 1, &scissor);
 	
+	VkBuffer     vertex_buffers[1] = { vk_renderer->vertex_buffer };
+	VkDeviceSize offsets[1]        = { 0 };
+	vkCmdBindVertexBuffers(command_buffer, 0, 1, vertex_buffers, offsets);
+	
 	vkCmdDraw(command_buffer, 3, 1, 0, 0);
 	vkCmdEndRenderPass(command_buffer);
 	
