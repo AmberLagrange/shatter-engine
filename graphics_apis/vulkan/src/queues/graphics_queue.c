@@ -15,7 +15,7 @@ shatter_status_t submit_graphics_queue(vulkan_renderer_t *vk_renderer, uint32_t 
 	VkSemaphore wait_semaphore_list[1] = { vk_renderer->acquire_image_semaphore_list[current_frame] };
 	VkPipelineStageFlags wait_stage_masks[1] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 	
-	VkCommandBuffer command_buffer_list[1] = { vk_renderer->command_buffer_list[current_frame] };
+	VkCommandBuffer command_buffer_list[1] = { vk_renderer->image_commands.command_buffer_list[current_frame] };
 	
 	VkSemaphore signal_semaphore_list[1] = { vk_renderer->submit_image_semaphore_list[image_index] };
 	

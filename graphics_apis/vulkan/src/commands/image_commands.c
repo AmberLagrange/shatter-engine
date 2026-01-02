@@ -2,45 +2,51 @@
 
 #include <vulkan_renderer.h>
 
-#include <commands/command_buffer.h>
-
-#include <vulkan/vulkan.h>
+#include <commands/image_commands.h>
 
 #include <stdlib.h>
 
-shatter_status_t create_command_buffers(vulkan_renderer_t *vk_renderer) {
+shatter_status_t create_image_commands(vulkan_renderer_t *vk_renderer, image_commands_t *image_commands,
+									   VkCommandPool *command_pool, size_t num_command_buffers) {
 	
-	log_trace("Creating command buffers.\n");
-	
-	vk_renderer->command_buffer_list = malloc(sizeof(VkCommandBuffer) * vk_renderer->num_in_flight_frames);
-	
+	log_trace("Creating image command buffers.\n");
+		
+	image_commands->command_buffer_list = malloc(sizeof(VkCommandBuffer) * num_command_buffers);
+	image_commands->command_pool = command_pool;
+	image_commands->num_command_buffers = num_command_buffers;
+
 	VkCommandBufferAllocateInfo command_buffer_allocate_info = {
 		
 		.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
 		
-		.commandPool = vk_renderer->command_pool,
+		.commandPool = *command_pool,
 		.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-		.commandBufferCount = vk_renderer->num_in_flight_frames,
+		.commandBufferCount = num_command_buffers,
 	};
 	
 	if (vkAllocateCommandBuffers(vk_renderer->logical_device, &command_buffer_allocate_info,
-								 vk_renderer->command_buffer_list) != VK_SUCCESS) {
+								 image_commands->command_buffer_list) != VK_SUCCESS) {
 		
-		log_error("Failed to allocate command buffers.\n");
+		log_error("Failed to allocate image command buffers.\n");
+		free(image_commands->command_buffer_list);
 		return SHATTER_VULKAN_COMMAND_BUFFER_INIT_FAILURE;
 	}
 	
-	log_trace("Created command buffers.\n");
+	log_trace("Created image command buffers.\n");
 	return SHATTER_SUCCESS;
 }
 
-shatter_status_t cleanup_command_buffers(vulkan_renderer_t *vk_renderer) {
+shatter_status_t cleanup_image_commands(vulkan_renderer_t *vk_renderer, image_commands_t *image_commands) {
 	
-	free(vk_renderer->command_buffer_list);
+	UNUSED(vk_renderer);
+	free(image_commands->command_buffer_list);
 	return SHATTER_SUCCESS;
 }
 
-shatter_status_t record_command_buffer(vulkan_renderer_t *vk_renderer, VkCommandBuffer command_buffer, uint32_t image_index) {
+shatter_status_t record_image_command(vulkan_renderer_t *vk_renderer, image_commands_t *image_commands,
+									  uint32_t command_index, uint32_t image_index) {
+	
+	VkCommandBuffer command_buffer = image_commands->command_buffer_list[command_index];
 	
 	vkResetCommandBuffer(command_buffer, 0);
 	
@@ -57,7 +63,7 @@ shatter_status_t record_command_buffer(vulkan_renderer_t *vk_renderer, VkCommand
 		return SHATTER_VULKAN_COMMAND_BUFFER_RECORD_FAILURE;
 	}
 	
-	VkClearValue clear_color = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
+	VkClearValue clear_color = {{{ 0.0f, 0.0f, 0.0f, 1.0f }}};
 	VkRenderPassBeginInfo render_pass_info = {
 		
 		.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
@@ -95,7 +101,7 @@ shatter_status_t record_command_buffer(vulkan_renderer_t *vk_renderer, VkCommand
 	};
 	vkCmdSetScissor(command_buffer, 0, 1, &scissor);
 	
-	VkBuffer     vertex_buffers[1] = { vk_renderer->vertex_buffer };
+	VkBuffer     vertex_buffers[1] = { vk_renderer->vertex_buffer.vulkan_buffer };
 	VkDeviceSize offsets[1]        = { 0 };
 	vkCmdBindVertexBuffers(command_buffer, 0, 1, vertex_buffers, offsets);
 	

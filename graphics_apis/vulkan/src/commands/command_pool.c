@@ -4,7 +4,10 @@
 
 #include <vulkan/vulkan.h>
 
-shatter_status_t create_command_pool(vulkan_renderer_t *vk_renderer) {
+#include <stdlib.h>
+
+shatter_status_t create_command_pool(vulkan_renderer_t *vk_renderer, VkCommandPool *command_pool,
+									 queue_family_index_t queue_family_index) {
 	
 	log_trace("\n");
 	log_trace("Creating command pool.\n");
@@ -14,17 +17,24 @@ shatter_status_t create_command_pool(vulkan_renderer_t *vk_renderer) {
 		.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
 		.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
 		
-		.queueFamilyIndex = vk_renderer->queue_family_indices.index_list[GRAPHICS_FAMILY_INDEX].value,
+		.queueFamilyIndex = vk_renderer->queue_family_indices.index_list[queue_family_index].value,
 	};
 	
 	if (vkCreateCommandPool(vk_renderer->logical_device, &command_pool_info,
-							NULL, &(vk_renderer->command_pool)) != VK_SUCCESS) {
+							NULL, command_pool) != VK_SUCCESS) {
 		
 		log_error("Could not create command pool.\n");
 		return SHATTER_VULKAN_COMMAND_POOL_INIT_FAILURE;
 	}
 	
 	log_trace("Created command pool.\n");
+	return SHATTER_SUCCESS;
+}
+
+shatter_status_t cleanup_command_pool(vulkan_renderer_t *vk_renderer, VkCommandPool *command_pool) {
+	
+	vkDestroyCommandPool(vk_renderer->logical_device, *command_pool, NULL);
+	
 	return SHATTER_SUCCESS;
 }
 

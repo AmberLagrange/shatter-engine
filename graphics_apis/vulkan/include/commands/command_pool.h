@@ -5,7 +5,17 @@
 
 #include <vulkan_renderer.h>
 
-shatter_status_t create_command_pool(vulkan_renderer_t *vk_renderer);
+#include <queues/queue_family_indices.h>
+
+#include <vulkan/vulkan.h>
+
+#include <stddef.h>
+#include <stdint.h>
+
+shatter_status_t create_command_pool(vulkan_renderer_t *vk_renderer, VkCommandPool *command_pool,
+									 queue_family_index_t queue_family_index);
+
+shatter_status_t cleanup_command_pool(vulkan_renderer_t *vk_renderer, VkCommandPool *command_pool);
 
 #endif // COMMANDS_COMMAND_POOL_H
 

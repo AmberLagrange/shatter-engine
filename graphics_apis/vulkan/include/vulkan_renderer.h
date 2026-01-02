@@ -3,6 +3,10 @@
 
 #include <common/core.h>
 
+#include <buffers/buffer.h>
+
+#include <commands/image_commands.h>
+
 #include <renderer/renderer_config.h>
 
 #include <queues/queue_family_indices.h>
@@ -48,11 +52,10 @@ typedef struct vulkan_renderer_s {
 	VkPipelineLayout pipeline_layout;
 	VkPipeline graphics_pipeline;
 	
-	VkBuffer vertex_buffer;
-	VkDeviceMemory vertex_buffer_memory;
+	buffer_t vertex_buffer;
 	
 	VkCommandPool command_pool;
-	VkCommandBuffer *command_buffer_list;
+	image_commands_t image_commands;
 	
 	VkSemaphore *acquire_image_semaphore_list;
 	VkFence *in_flight_fence_list;

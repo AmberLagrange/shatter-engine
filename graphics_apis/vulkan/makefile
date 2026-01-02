@@ -32,8 +32,12 @@ SRCS = \
 	$(SRC_DIR)/vtable.c \
 	$(SRC_DIR)/vulkan_renderer.c \
 	\
-	$(SRC_DIR)/commands/command_buffer.c \
+	$(SRC_DIR)/buffers/buffer.c \
+	$(SRC_DIR)/buffers/vertex_buffer.c \
+	\
 	$(SRC_DIR)/commands/command_pool.c \
+	$(SRC_DIR)/commands/copy_command.c \
+	$(SRC_DIR)/commands/image_commands.c \
 	\
 	$(SRC_DIR)/debug/callbacks.c \
 	$(SRC_DIR)/debug/debug_utils.c \
@@ -42,8 +46,6 @@ SRCS = \
 	$(SRC_DIR)/devices/extensions.c \
 	$(SRC_DIR)/devices/logical.c \
 	$(SRC_DIR)/devices/physical.c \
-	\
-	$(SRC_DIR)/graphics_buffers/vertex_buffer.c \
 	\
 	$(SRC_DIR)/graphics_pipeline/graphics_pipeline.c \
 	\

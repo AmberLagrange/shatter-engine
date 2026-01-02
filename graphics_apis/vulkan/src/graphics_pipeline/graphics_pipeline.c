@@ -1,6 +1,7 @@
 #include <common/core.h>
 
-#include <graphics_buffers/vertex_buffer.h>
+#include <buffers/buffer.h>
+#include <buffers/vertex_buffer.h>
 
 #include <graphics_pipeline/graphics_pipeline.h>
 

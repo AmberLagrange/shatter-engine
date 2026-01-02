@@ -8,11 +8,13 @@
 
 #define MAX_INDICES 8
 
-enum {
+typedef enum queue_family_index_e {
 	
 	GRAPHICS_FAMILY_INDEX = 0,
 	PRESENT_FAMILY_INDEX,
-};
+	
+	NUM_FAMILY_INDICES
+} queue_family_index_t;
 
 typedef struct opetional_uint32_s {
 	

@@ -2,16 +2,17 @@
 
 #include <vulkan_renderer.h>
 
-#include <commands/command_buffer.h>
+#include <buffers/buffer.h>
+#include <buffers/vertex_buffer.h>
+
 #include <commands/command_pool.h>
+#include <commands/image_commands.h>
 
 #include <debug/debug_utils.h>
 #include <debug/validation_layers.h>
 
 #include <devices/logical.h>
 #include <devices/physical.h>
-
-#include <graphics_buffers/vertex_buffer.h>
 
 #include <graphics_pipeline/graphics_pipeline.h>
 
@@ -99,19 +100,20 @@ shatter_status_t init_vulkan_renderer(vulkan_renderer_t **vk_renderer_ptr,
 		return SHATTER_VULKAN_GRAPHICS_PIPELINE_INIT_FAILURE;
 	}
 	
-	if (create_command_pool(vk_renderer)) {
+	if (create_command_pool(vk_renderer, &(vk_renderer->command_pool), GRAPHICS_FAMILY_INDEX)) {
 		
 		log_error("Failed to create command pool.\n");
 		return SHATTER_VULKAN_COMMAND_POOL_INIT_FAILURE;
 	}
 	
-	if (create_vertex_buffers(vk_renderer)) {
+	if (create_vertex_buffer(vk_renderer)) {
 		
 		log_error("Failed to create vertex buffers.\n");
 		return SHATTER_VULKAN_VERTEX_BUFFER_INIT_FAILURE;
 	}
 	
-	if (create_command_buffers(vk_renderer)) {
+	if (create_image_commands(vk_renderer, &(vk_renderer->image_commands),
+							  &(vk_renderer->command_pool), vk_renderer->num_in_flight_frames)) {
 		
 		log_error("Failed to create command buffer.\n");
 		return SHATTER_VULKAN_COMMAND_BUFFER_INIT_FAILURE;
@@ -143,14 +145,11 @@ shatter_status_t cleanup_vulkan_renderer(vulkan_renderer_t *vk_renderer) {
 	
 	vkDeviceWaitIdle(vk_renderer->logical_device);
 	
-	vkDestroyCommandPool(vk_renderer->logical_device, vk_renderer->command_pool, NULL);
+	cleanup_command_pool(vk_renderer, &(vk_renderer->command_pool));
 	log_trace("Destroyed command pools.\n");
 	
-	cleanup_vertex_buffers(vk_renderer);
+	cleanup_vertex_buffer(vk_renderer);
 	log_trace("Destroyed vertex buffer.\n");
-	
-	cleanup_command_buffers(vk_renderer);
-	log_trace("Destroyed command buffers.\n");
 	
 	vkDestroyPipeline(vk_renderer->logical_device, vk_renderer->graphics_pipeline, NULL);
 	log_trace("Destroyed graphics pipeline.\n");
@@ -194,7 +193,7 @@ shatter_status_t draw_frame(vulkan_renderer_t *vk_renderer) {
 	}
 	
 	reset_in_flight_fence(vk_renderer);
-	record_command_buffer(vk_renderer, vk_renderer->command_buffer_list[current_frame], image_index);
+	record_image_command(vk_renderer, &(vk_renderer->image_commands), current_frame, image_index);
 	submit_graphics_queue(vk_renderer, image_index);
 	submit_present_queue(vk_renderer, image_index);
 	
