@@ -3,7 +3,7 @@
 
 #include <common/core.h>
 
-#include <buffers/buffer.h>
+#include <buffers/vulkan_buffer.h>
 
 #include <vulkan/vulkan.h>
 
@@ -21,7 +21,7 @@ shatter_status_t create_copy_command(vulkan_renderer_t *vk_renderer, copy_comman
 shatter_status_t cleanup_copy_command(vulkan_renderer_t *vk_renderer, copy_command_t *copy_command);
 
 shatter_status_t record_copy_command(vulkan_renderer_t *vk_renderer, copy_command_t *copy_command,
-									 buffer_t *dst_buffer, buffer_t *src_buffer);
+									 vulkan_buffer_t *dst_buffer, vulkan_buffer_t *src_buffer);
 
 #endif // COMMANDS_COPY_COMMAND_H
 

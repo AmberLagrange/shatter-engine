@@ -29,8 +29,6 @@ typedef struct queue_family_indices_s {
 
 } queue_family_indices_t;
 
-// Found in <renderers/vulkan/vulkan_renderer.h>
-struct vulkan_renderer_s;
 typedef struct vulkan_renderer_s vulkan_renderer_t;
 
 void get_queue_families(vulkan_renderer_t *vk_renderer, VkPhysicalDevice device, queue_family_indices_t *indices);

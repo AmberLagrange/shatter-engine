@@ -32,10 +32,10 @@ SRCS = \
 	$(SRC_DIR)/vtable.c \
 	$(SRC_DIR)/vulkan_renderer.c \
 	\
-	$(SRC_DIR)/buffers/buffer.c \
-	$(SRC_DIR)/buffers/index_buffer.c \
-	$(SRC_DIR)/buffers/staging_buffer.c \
-	$(SRC_DIR)/buffers/vertex_buffer.c \
+	$(SRC_DIR)/buffers/vulkan_buffer.c \
+	$(SRC_DIR)/buffers/vulkan_staging_buffer.c \
+	$(SRC_DIR)/buffers/vulkan_index_buffer.c \
+	$(SRC_DIR)/buffers/vulkan_vertex_buffer.c \
 	\
 	$(SRC_DIR)/commands/command_pool.c \
 	$(SRC_DIR)/commands/copy_command.c \

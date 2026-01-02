@@ -43,7 +43,7 @@ SRCS = $(SRC_DIR)/app/app.c \
 	   \
 	   $(SRC_DIR)/dynamic_loader/dynamic_loader.c \
 	   \
-	   $(SRC_DIR)/renderer/renderer.c \
+	   $(SRC_DIR)/renderer/abstract_renderer.c \
 	   \
 	   $(SRC_DIR)/window/glfw.c \
 	   $(SRC_DIR)/window/input.c \
@@ -71,14 +71,16 @@ APIS    = $(API_DIR)/vulkan $(API_DIR)/opengl
 
 API_LIB_DIR = $(BIN_DIR)/api_libraries
 
-# -------- Logger Info -------- #
+# -------- Library Info -------- #
 
 LOGGER_DIR := $(CURDIR)/logger
 LOGGER_LIB := $(LOGGER_DIR)/lib/logger.so
 
+CGLM_DIR := $(CURDIR)/cglm
+
 # -------- Compiler and Linker flags -------- #
 
-CFLAGS  += -I$(INC_DIR) -I$(LOGGER_DIR)/include
+CFLAGS  += -I$(INC_DIR) -I$(LOGGER_DIR)/include -I$(CGLM_DIR)/include
 LDLIBS  += -lglfw
 
 # -------- Util Targets -------- #

@@ -2,7 +2,7 @@
 
 #include <dynamic_loader/dynamic_loader.h>
 
-#include <renderer/renderer.h>
+#include <renderer/abstract_renderer.h>
 
 #include <window/input.h>
 
@@ -11,8 +11,7 @@ void renderer_key_callback(GLFWwindow *rendering_window, int key, int scancode, 
 	UNUSED(scancode);
 	UNUSED(mods);
 	
-	
-	renderer_t *renderer = glfwGetWindowUserPointer(rendering_window);
+	abstract_renderer_t *renderer = glfwGetWindowUserPointer(rendering_window);
 	
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
 		

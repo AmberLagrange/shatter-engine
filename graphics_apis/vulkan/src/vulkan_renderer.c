@@ -2,9 +2,9 @@
 
 #include <vulkan_renderer.h>
 
-#include <buffers/buffer.h>
-#include <buffers/index_buffer.h>
-#include <buffers/vertex_buffer.h>
+#include <buffers/vulkan_buffer.h>
+#include <buffers/vulkan_index_buffer.h>
+#include <buffers/vulkan_vertex_buffer.h>
 
 #include <commands/command_pool.h>
 #include <commands/image_commands.h>
@@ -22,8 +22,6 @@
 #include <queues/graphics_queue.h>
 #include <queues/present_queue.h>
 
-#include <renderer/renderer_config.h>
-
 #include <surfaces/surface.h>
 
 #include <swap_chain/swap_chain.h>
@@ -32,25 +30,24 @@
 #include <stdlib.h>
 #include <string.h>
 
-shatter_status_t init_vulkan_renderer(vulkan_renderer_t **vk_renderer_ptr,
-									  renderer_config_t *renderer_config) {
+shatter_status_t init_vulkan_renderer(vulkan_renderer_t **vk_renderer_ptr, renderer_properties_t *properties) {
 	
 	log_trace("Initializing Vulkan Renderer.\n");
 	
 	vulkan_renderer_t *vk_renderer = malloc(sizeof(vulkan_renderer_t));
 	*vk_renderer_ptr = vk_renderer;
 	
-	vk_renderer->renderer_config = renderer_config;
+	vk_renderer->properties = properties;
 	
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	//glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-	vk_renderer->renderer_config->rendering_window = glfwCreateWindow(
-			vk_renderer->renderer_config->width,
-			vk_renderer->renderer_config->height,
-			vk_renderer->renderer_config->title,
+	vk_renderer->properties->rendering_window = glfwCreateWindow(
+			vk_renderer->properties->width,
+			vk_renderer->properties->height,
+			vk_renderer->properties->title,
 			NULL, NULL);
 	
-	if (!vk_renderer->renderer_config->rendering_window) {
+	if (!vk_renderer->properties->rendering_window) {
 		
 		log_error("Failed to create GLFW window.\n");
 		return SHATTER_GLFW_WINDOW_FAILURE;
@@ -107,13 +104,13 @@ shatter_status_t init_vulkan_renderer(vulkan_renderer_t **vk_renderer_ptr,
 		return SHATTER_VULKAN_COMMAND_POOL_INIT_FAILURE;
 	}
 	
-	if (create_vertex_buffer(vk_renderer, &(vk_renderer->vertex_buffer))) {
+	if (create_vulkan_vertex_buffer(vk_renderer)) {
 		
 		log_error("Failed to create vertex buffer.\n");
 		return SHATTER_VULKAN_VERTEX_BUFFER_INIT_FAILURE;
 	}
 	
-	if (create_index_buffer(vk_renderer, &(vk_renderer->index_buffer))) {
+	if (create_vulkan_index_buffer(vk_renderer)) {
 		
 		log_error("Failed to create index buffer.\n");
 		return SHATTER_VULKAN_INDEX_BUFFER_INIT_FAILURE;
@@ -155,10 +152,10 @@ shatter_status_t cleanup_vulkan_renderer(vulkan_renderer_t *vk_renderer) {
 	cleanup_command_pool(vk_renderer, &(vk_renderer->command_pool));
 	log_trace("Destroyed command pools.\n");
 	
-	cleanup_index_buffer(vk_renderer, &(vk_renderer->index_buffer));
+	cleanup_vulkan_index_buffer(vk_renderer);
 	log_trace("Destroyed index buffer.\n");
 	
-	cleanup_vertex_buffer(vk_renderer, &(vk_renderer->vertex_buffer));
+	cleanup_vulkan_vertex_buffer(vk_renderer);
 	log_trace("Destroyed vertex buffer.\n");
 	
 	vkDestroyPipeline(vk_renderer->logical_device, vk_renderer->graphics_pipeline, NULL);
@@ -182,7 +179,7 @@ shatter_status_t cleanup_vulkan_renderer(vulkan_renderer_t *vk_renderer) {
 	vkDestroyInstance(vk_renderer->vulkan_instance, NULL);
 	log_trace("Destroyed Vulkan instance.\n");
 	
-	glfwDestroyWindow(vk_renderer->renderer_config->rendering_window);
+	glfwDestroyWindow(vk_renderer->properties->rendering_window);
 	log_trace("Desroyed GLFW window.\n");
 	
 	free(vk_renderer);

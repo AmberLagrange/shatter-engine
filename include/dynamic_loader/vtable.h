@@ -3,11 +3,11 @@
 
 #include <common/core.h>
 
-#include <renderer/renderer_config.h>
+#include <renderer/renderer_properties.h>
 
 typedef struct GLFWwindow GLFWwindow;
 
-typedef shatter_status_t (*init_api_renderer_t)(void *, renderer_config_t *);
+typedef shatter_status_t (*init_api_renderer_t)(void *, renderer_properties_t *);
 typedef shatter_status_t (*loop_api_renderer_t)(void *);
 typedef shatter_status_t (*cleanup_api_renderer_t)(void *);
 

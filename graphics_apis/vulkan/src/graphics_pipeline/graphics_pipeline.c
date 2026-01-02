@@ -1,7 +1,7 @@
 #include <common/core.h>
 
-#include <buffers/buffer.h>
-#include <buffers/vertex_buffer.h>
+#include <buffers/vulkan_buffer.h>
+#include <buffers/vulkan_vertex_buffer.h>
 
 #include <graphics_pipeline/graphics_pipeline.h>
 
@@ -18,7 +18,7 @@ shatter_status_t create_graphics_pipeline(vulkan_renderer_t *vk_renderer) {
 	log_trace("Creating graphics pipeline.\n");
 	shatter_status_t status = SHATTER_SUCCESS;
 	
-	const char *directory_filepath = vk_renderer->renderer_config->directory_filepath;
+	const char *directory_filepath = vk_renderer->properties->directory_filepath;
 	size_t directory_filepath_len = strlen(directory_filepath);
 	
 	// ---------- Vertex Shader ---------- //

@@ -1,15 +1,32 @@
 #include <common/core.h>
 
+#include <buffers/buffer_info.h>
+#include <buffers/vertex_buffer_info.h>
+
 #include <dynamic_loader/dynamic_loader.h>
 
-#include <renderer/renderer.h>
+#include <renderer/abstract_renderer.h>
 
 #include <window/glfw.h>
 
 #include <libgen.h> // dirname
 
+#include <signal.h>
+#include <stdint.h>
 #include <stdlib.h> // EXIT_SUCCESS
 #include <string.h>
+
+// ---------- SIGINT Handling ---------- //
+
+volatile bool sigint_signaled = false;
+
+static void sigint_handler(int _) {
+	
+	UNUSED(_);
+	sigint_signaled = true;
+}
+
+// ---------- Parsing Args ---------- //
 
 void parse_args(int argc, char **argv) {
 	
@@ -68,6 +85,22 @@ void parse_args(int argc, char **argv) {
 	}
 }
 
+// ---------- Application ---------- //
+
+const vertex_t vertices[4] = {
+	
+	{ { -0.5f, -0.5f }, { 1.0f, 0.0f, 0.0f } },
+	{ {  0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f } },
+	{ {  0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f } },
+	{ { -0.5f,  0.5f }, { 1.0f, 1.0f, 1.0f } },
+};
+
+const uint32_t indices[6] = {
+	
+	0, 1, 2,
+	2, 3, 0,
+};
+
 int main(int argc, char **argv) {
 	
 	parse_args(argc, argv);
@@ -97,26 +130,72 @@ int main(int argc, char **argv) {
 		
 		.requested_api_index = VULKAN_API_INDEX,
 	};
+	buffer_info_t vertex_buffer_info = {
+		
+		.data = (void *)(vertices),
+		.size = sizeof(vertices),
+		.num_elements = sizeof(vertices) / sizeof(vertices[0]),
+	};
 	
-	renderer_config_t renderer_config = {
+	buffer_info_t index_buffer_info = {
+		
+		.data = (void *)(indices),
+		.size = sizeof(indices),
+		.num_elements = sizeof(indices) / sizeof(indices[0]),
+	};
+	
+	renderer_properties_t renderer_properties = {
 		
 		.width  = 800,
 		.height = 600,
 		.title   = "Vulkan Renderer",
 		
 		.directory_filepath = directory_filepath,
+		
+		.vertex_buffer_info = &vertex_buffer_info,
+		.index_buffer_info  = &index_buffer_info,
 	};
 	
-	renderer_t renderer = {
+	abstract_renderer_t renderer = {
 		
-		.renderer_config = &renderer_config,
+		.properties = &renderer_properties,
 		.api_loader = &api_loader,
 	};
 	
 	init_glfw();
 	
-	shatter_status_t status = renderer_run(&renderer);
+	int status = SHATTER_SUCCESS;
 	
+	if (load_library(renderer.api_loader)) {
+		
+		status = SHATTER_RENDERER_RUN_FAILURE;
+		goto exit;
+	}
+	
+	if (init_abstract_renderer(&renderer)) {
+		
+		log_error("Failed to initialize Renderer.\n");
+		status = SHATTER_RENDERER_RUN_FAILURE;
+		goto cleanup;
+	}
+	
+	signal(SIGINT, &sigint_handler);	
+	
+	if (loop_abstract_renderer(&renderer)) {
+		
+		log_error("Error occurred in the rendering loop.\n");
+		status = SHATTER_RENDERER_RUN_FAILURE;
+	}
+	
+cleanup:
+	if (cleanup_abstract_renderer(&renderer)) {
+		
+		log_error("Failed to cleanup Renderer.\n");
+		status = SHATTER_RENDERER_RUN_FAILURE;
+		goto exit;
+	}
+	
+exit:
 	terminate_glfw();
 	
 	return status;

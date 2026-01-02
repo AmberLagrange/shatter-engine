@@ -40,7 +40,7 @@ shatter_status_t cleanup_copy_command(vulkan_renderer_t *vk_renderer, copy_comma
 }
 
 shatter_status_t record_copy_command(vulkan_renderer_t *vk_renderer, copy_command_t *copy_command,
-									 buffer_t *dst_buffer, buffer_t *src_buffer) {
+									 vulkan_buffer_t *dst_buffer, vulkan_buffer_t *src_buffer) {
 	
 	VkCommandBuffer command_buffer = copy_command->command_buffer;
 	
