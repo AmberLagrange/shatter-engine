@@ -104,8 +104,9 @@ shatter_status_t record_image_command(vulkan_renderer_t *vk_renderer, image_comm
 	VkBuffer     vertex_buffers[1] = { vk_renderer->vertex_buffer.vulkan_buffer };
 	VkDeviceSize offsets[1]        = { 0 };
 	vkCmdBindVertexBuffers(command_buffer, 0, 1, vertex_buffers, offsets);
+	vkCmdBindIndexBuffer(command_buffer, vk_renderer->index_buffer.vulkan_buffer, 0, VK_INDEX_TYPE_UINT32);
 	
-	vkCmdDraw(command_buffer, 3, 1, 0, 0);
+	vkCmdDrawIndexed(command_buffer, vk_renderer->index_buffer.num_elements, 1, 0, 0, 0);
 	vkCmdEndRenderPass(command_buffer);
 	
 	if (vkEndCommandBuffer(command_buffer) != VK_SUCCESS) {

@@ -3,6 +3,8 @@
 
 #include <vulkan/vulkan.h>
 
+#include <stdint.h>
+
 typedef struct buffer_s {
 	
 	VkBuffer vulkan_buffer;
@@ -12,6 +14,9 @@ typedef struct buffer_s {
 	VkDeviceSize size;
 	VkBufferUsageFlags usage;
 	VkMemoryPropertyFlags properties;
+	
+	void *data;
+	size_t num_elements;
 } buffer_t;
 
 typedef struct vulkan_renderer_s vulkan_renderer_t;

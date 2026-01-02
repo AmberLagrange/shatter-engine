@@ -1,13 +1,14 @@
 #include <common/core.h>
 
+#include <buffers/staging_buffer.h>
 #include <buffers/vertex_buffer.h>
 
-#include <commands/copy_command.h>
-
-const vertex_t vertices[3] = {
-	{ {  0.0f, -0.5f }, { 1.0f, 0.0f, 0.0f } },
-	{ {  0.5f,  0.5f }, { 0.0f, 1.0f, 0.0f } },
-	{ { -0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f } },
+const vertex_t vertices[4] = {
+	
+	{ { -0.5f, -0.5f }, { 1.0f, 0.0f, 0.0f } },
+	{ {  0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f } },
+	{ {  0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f } },
+	{ { -0.5f,  0.5f }, { 1.0f, 1.0f, 1.0f } },
 };
 
 shatter_status_t get_vertex_binding_description(VkVertexInputBindingDescription *binding_description) {
@@ -34,68 +35,27 @@ shatter_status_t get_vertex_attribute_descriptions(VkVertexInputAttributeDescrip
 	return SHATTER_SUCCESS;
 }
 
-shatter_status_t create_vertex_buffer(vulkan_renderer_t *vk_renderer) {
+shatter_status_t create_vertex_buffer(vulkan_renderer_t *vk_renderer, buffer_t *vertex_buffer) {
 	
-	VkDeviceSize buffer_size = sizeof(vertices);
+	vertex_buffer->size = sizeof(vertices);
+	vertex_buffer->usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+	vertex_buffer->properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 	
-	// ---------- Staging Buffer ---------- //
+	vertex_buffer->data = (void *)(vertices);
+	vertex_buffer->num_elements = sizeof(vertices) / sizeof(vertices[0]);
 	
-	buffer_t staging_buffer = {
-		
-		.size = buffer_size,
-		.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-		.properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-	};
-	
-	if (create_buffer(vk_renderer, &staging_buffer)) {
-		
-		log_error("Failed to create the vertex staging buffer.\n");
-		return SHATTER_VULKAN_STAGING_BUFFER_INIT_FAILURE;
-	}
-	
-	if (allocate_buffer_memory(vk_renderer, &staging_buffer)) {
-		
-		log_error("Failed to allocate memory for the staging buffer.\n");
-		return SHATTER_VULKAN_STAGING_BUFFER_ALLOCATE_FAILURE;
-	}
-	
-	if (memcpy_buffer_to_device(vk_renderer, &staging_buffer, (void *)(vertices))) {
-		
-		log_error("Failed to copy vertex data to the staging buffer.\n");
-		return SHATTER_VULKAN_STAGING_BUFFER_COPY_FAILURE;
-	}
-	
-	// ---------- Vertex Buffer ---------- //
-	
-	vk_renderer->vertex_buffer.size = buffer_size;
-	vk_renderer->vertex_buffer.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-	vk_renderer->vertex_buffer.properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-	
-	if (create_buffer(vk_renderer, &(vk_renderer->vertex_buffer))) {
+	if (create_buffer_with_staging(vk_renderer, vertex_buffer)) {
 		
 		log_error("Failed to create vertex buffer.\n");
 		return SHATTER_VULKAN_VERTEX_BUFFER_INIT_FAILURE;
 	}
 	
-	if (allocate_buffer_memory(vk_renderer, &(vk_renderer->vertex_buffer))) {
-		
-		log_error("Failed to allocate memory for the vertex buffer.\n");
-		return SHATTER_VULKAN_VERTEX_BUFFER_ALLOCATE_FAILURE;
-	}
-	
-	copy_command_t copy_command;
-		
-	create_copy_command(vk_renderer, &copy_command, &(vk_renderer->command_pool));
-	record_copy_command(vk_renderer, &copy_command, &(vk_renderer->vertex_buffer), &staging_buffer);
-	cleanup_copy_command(vk_renderer, &copy_command);
-	cleanup_buffer(vk_renderer, &staging_buffer);
-	
 	return SHATTER_SUCCESS;
 }
 
-shatter_status_t cleanup_vertex_buffer(vulkan_renderer_t *vk_renderer) {
+shatter_status_t cleanup_vertex_buffer(vulkan_renderer_t *vk_renderer, buffer_t *vertex_buffer) {
 	
-	cleanup_buffer(vk_renderer, &(vk_renderer->vertex_buffer));
+	cleanup_buffer(vk_renderer, vertex_buffer);
 	return SHATTER_SUCCESS;
 }
 

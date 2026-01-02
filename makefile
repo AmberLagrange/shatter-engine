@@ -22,7 +22,6 @@ endif
 
 SRC_DIR := $(CURDIR)/src
 INC_DIR := $(CURDIR)/include
-PCH_DIR := $(CURDIR)/pch
 OBJ_DIR := $(CURDIR)/objs
 DEP_DIR := $(CURDIR)/deps
 TMP_DIR := $(CURDIR)/tmp
@@ -52,13 +51,12 @@ SRCS = $(SRC_DIR)/app/app.c \
 
 # -------- Binary File Structs -------- #
 
-PCH_FILE_STRUCT = $(dir $(INCS:$(INC_DIR)/%=$(PCH_DIR)/%))
 OBJ_FILE_STRUCT = $(dir $(SRCS:$(SRC_DIR)/%=$(OBJ_DIR)/%))
 DEP_FILE_STRUCT = $(dir $(SRCS:$(SRC_DIR)/%=$(DEP_DIR)/%))
 
 # -------- Binary Output Files --------- #
 
-PCHS = $(INCS:$(INC_DIR)/%=$(PCH_DIR)/%$(PCH_EXT))
+PCHS = $(INCS:$(INC_DIR)/%=$(INC_DIR)/%$(PCH_EXT))
 OBJS = $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 
 # -------- Binary Dependency Files -------- #
@@ -97,9 +95,6 @@ all:
 	$(MAKE) shaders
 
 dirs:
-	mkdir -p $(PCH_DIR)
-	mkdir -p $(PCH_FILE_STRUCT)
-	
 	mkdir -p $(OBJ_DIR)
 	mkdir -p $(OBJ_FILE_STRUCT)
 	
@@ -128,11 +123,11 @@ clean:
 	$(MAKE) -C $(SHADER_DIR) clean
 
 clean_all:
-	$(RM) -r $(PCH_DIR)
 	$(RM) -r $(OBJ_DIR)
 	$(RM) -r $(DEP_DIR)
 	$(RM) -r $(TMP_DIR)
 	$(RM) -r $(BIN_DIR)
+	$(RM)    $(PCHS)
 	
 	$(MAKE) -C $(LOGGER_DIR) clean_all
 	
@@ -156,7 +151,7 @@ bin: pchs $(BIN_DIR)/$(BIN_NAME)
 
 pchs: $(PCHS)
 
-$(PCH_DIR)/%$(PCH_EXT): $(INC_DIR)/%
+$(INC_DIR)/%$(PCH_EXT): $(INC_DIR)/%
 	set -e; \
 	$(RM) $(DEP_DIR)/$(*F).d; \
 	$(CC) $(CFLAGS) -x c-header -MD -MP -MT $@ -MF - -c $< -o $@ > $(TMP_DIR)/$(*F).$$$$; \

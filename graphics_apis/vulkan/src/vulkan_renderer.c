@@ -3,6 +3,7 @@
 #include <vulkan_renderer.h>
 
 #include <buffers/buffer.h>
+#include <buffers/index_buffer.h>
 #include <buffers/vertex_buffer.h>
 
 #include <commands/command_pool.h>
@@ -106,10 +107,16 @@ shatter_status_t init_vulkan_renderer(vulkan_renderer_t **vk_renderer_ptr,
 		return SHATTER_VULKAN_COMMAND_POOL_INIT_FAILURE;
 	}
 	
-	if (create_vertex_buffer(vk_renderer)) {
+	if (create_vertex_buffer(vk_renderer, &(vk_renderer->vertex_buffer))) {
 		
-		log_error("Failed to create vertex buffers.\n");
+		log_error("Failed to create vertex buffer.\n");
 		return SHATTER_VULKAN_VERTEX_BUFFER_INIT_FAILURE;
+	}
+	
+	if (create_index_buffer(vk_renderer, &(vk_renderer->index_buffer))) {
+		
+		log_error("Failed to create index buffer.\n");
+		return SHATTER_VULKAN_INDEX_BUFFER_INIT_FAILURE;
 	}
 	
 	if (create_image_commands(vk_renderer, &(vk_renderer->image_commands),
@@ -148,7 +155,10 @@ shatter_status_t cleanup_vulkan_renderer(vulkan_renderer_t *vk_renderer) {
 	cleanup_command_pool(vk_renderer, &(vk_renderer->command_pool));
 	log_trace("Destroyed command pools.\n");
 	
-	cleanup_vertex_buffer(vk_renderer);
+	cleanup_index_buffer(vk_renderer, &(vk_renderer->index_buffer));
+	log_trace("Destroyed index buffer.\n");
+	
+	cleanup_vertex_buffer(vk_renderer, &(vk_renderer->vertex_buffer));
 	log_trace("Destroyed vertex buffer.\n");
 	
 	vkDestroyPipeline(vk_renderer->logical_device, vk_renderer->graphics_pipeline, NULL);

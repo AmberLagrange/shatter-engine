@@ -23,15 +23,15 @@ typedef struct vertex_s {
 	vec3 color;
 } vertex_t;
 
-extern const vertex_t vertices[3];
+extern const vertex_t vertices[4];
 
 shatter_status_t get_vertex_binding_description(VkVertexInputBindingDescription *binding_description);
 
 // The number of attributes should be the same, so we don't need to know the size of the array
 shatter_status_t get_vertex_attribute_descriptions(VkVertexInputAttributeDescription *attribute_description_list);
 
-shatter_status_t create_vertex_buffer(vulkan_renderer_t *vk_renderer);
-shatter_status_t cleanup_vertex_buffer(vulkan_renderer_t *vk_renderer);
+shatter_status_t create_vertex_buffer(vulkan_renderer_t *vk_renderer, buffer_t *vertex_buffer);
+shatter_status_t cleanup_vertex_buffer(vulkan_renderer_t *vk_renderer, buffer_t *vertex_buffer);
 
 #endif // GRAPHICS_BUFFERS_VERTEX_BUFFER_H
 

@@ -33,6 +33,8 @@ SRCS = \
 	$(SRC_DIR)/vulkan_renderer.c \
 	\
 	$(SRC_DIR)/buffers/buffer.c \
+	$(SRC_DIR)/buffers/index_buffer.c \
+	$(SRC_DIR)/buffers/staging_buffer.c \
 	$(SRC_DIR)/buffers/vertex_buffer.c \
 	\
 	$(SRC_DIR)/commands/command_pool.c \
@@ -88,7 +90,7 @@ DEPS += $(DEP_DIR)/$(API_NAME).d
 
 # -------- Compiler and Linker flags -------- #
 
-CFLAGS  += -I$(INC_DIR) -I$(ENGINE_INC) -I$(LOGGER_INC) -I$(CGLM_INC)
+CFLAGS  += -I $(INC_DIR) -I$(ENGINE_INC) -I$(LOGGER_INC) -I$(CGLM_INC)
 LDLIBS  += -lvulkan
 
 # -------- Util Targets -------- #

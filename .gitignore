@@ -1,13 +1,12 @@
-# Ignore build artaefact directories
+# Ignore build artefact directories
 api_libraries/
 bin/
 deps/
 objs/
-pch/
 spv/
 tmp/
 
-# Ignore any build artaefacts that might slip through
+# Ignore any build artefacts that might slip through
 *.pch
 *.gch
 *.o
