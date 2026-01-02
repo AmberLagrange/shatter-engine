@@ -16,13 +16,14 @@ typedef struct opengl_renderer_s {
 	unsigned int shader_program;
 } opengl_renderer_t;
 
-shatter_status_t init_opengl_renderer(opengl_renderer_t **opengl_renderer_ptr, renderer_properties_t *properties);
-shatter_status_t loop_opengl_renderer(opengl_renderer_t *opengl_renderer);
-shatter_status_t cleanup_opengl_renderer(opengl_renderer_t *opengl_renderer);
+shatter_status_t create_opengl_renderer(opengl_renderer_t **gl_renderer_ptr);
+shatter_status_t init_opengl_renderer(opengl_renderer_t *gl_renderer, renderer_properties_t *properties);
+shatter_status_t loop_opengl_renderer(opengl_renderer_t *gl_renderer);
+shatter_status_t cleanup_opengl_renderer(opengl_renderer_t *gl_renderer);
 
 // ---------- Callbacks ---------- //
 
-shatter_status_t opengl_frame_buffer_resize_callback(opengl_renderer_t *opengl_renderer);
+shatter_status_t opengl_frame_buffer_resize_callback(opengl_renderer_t *gl_renderer);
 
 #endif // OPENGL_RENDERER_H
 

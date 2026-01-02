@@ -30,17 +30,19 @@
 #include <stdlib.h>
 #include <string.h>
 
-shatter_status_t init_vulkan_renderer(vulkan_renderer_t **vk_renderer_ptr, renderer_properties_t *properties) {
+shatter_status_t create_vulkan_renderer(vulkan_renderer_t **vk_renderer_ptr) {
+	
+	*vk_renderer_ptr = malloc(sizeof(vulkan_renderer_t));
+	return SHATTER_SUCCESS;
+}
+
+shatter_status_t init_vulkan_renderer(vulkan_renderer_t *vk_renderer, renderer_properties_t *properties) {
 	
 	log_trace("Initializing Vulkan Renderer.\n");
-	
-	vulkan_renderer_t *vk_renderer = malloc(sizeof(vulkan_renderer_t));
-	*vk_renderer_ptr = vk_renderer;
 	
 	vk_renderer->properties = properties;
 	
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	//glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 	vk_renderer->properties->rendering_window = glfwCreateWindow(
 			vk_renderer->properties->width,
 			vk_renderer->properties->height,

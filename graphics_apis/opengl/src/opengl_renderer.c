@@ -12,23 +12,23 @@
 
 #define MAX_INFO_LOG_LEN 512
 
-shatter_status_t init_window(opengl_renderer_t *opengl_renderer) {
+shatter_status_t init_window(opengl_renderer_t *gl_renderer) {
 	
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
-	opengl_renderer->properties->rendering_window =
-		glfwCreateWindow(opengl_renderer->properties->width, opengl_renderer->properties->height,
-						 opengl_renderer->properties->title, NULL, NULL);
+	gl_renderer->properties->rendering_window =
+		glfwCreateWindow(gl_renderer->properties->width, gl_renderer->properties->height,
+						 gl_renderer->properties->title, NULL, NULL);
 	
-	if (!opengl_renderer->properties->rendering_window) {
+	if (!gl_renderer->properties->rendering_window) {
 		
 		log_error("Failed to create GWLFW window.\n");
 		return SHATTER_GLFW_WINDOW_FAILURE;
 	}
 	
-	glfwMakeContextCurrent(opengl_renderer->properties->rendering_window);
+	glfwMakeContextCurrent(gl_renderer->properties->rendering_window);
 	return SHATTER_SUCCESS;
 }
 
@@ -43,12 +43,12 @@ shatter_status_t init_glad(void) {
 	return SHATTER_SUCCESS;
 }
 
-shatter_status_t get_absolute_filepath(opengl_renderer_t *opengl_renderer, const char *filepath, char *absolute_filepath) {
+shatter_status_t get_absolute_filepath(opengl_renderer_t *gl_renderer, const char *filepath, char *absolute_filepath) {
 	
-	size_t directory_filepath_len = strlen(opengl_renderer->properties->directory_filepath);
+	size_t directory_filepath_len = strlen(gl_renderer->properties->directory_filepath);
 	assert(directory_filepath_len < MAX_FILEPATH_LEN);
 	
-	strncpy(absolute_filepath, opengl_renderer->properties->directory_filepath, MAX_FILEPATH_LEN);
+	strncpy(absolute_filepath, gl_renderer->properties->directory_filepath, MAX_FILEPATH_LEN);
 	strncat(absolute_filepath, filepath, MAX_FILEPATH_LEN - directory_filepath_len);
 	return SHATTER_SUCCESS;
 }
@@ -90,20 +90,20 @@ shatter_status_t create_shader(unsigned int *shader, const char *shader_filepath
 	return SHATTER_SUCCESS;
 }
 
-shatter_status_t create_shader_program(opengl_renderer_t *opengl_renderer,
+shatter_status_t create_shader_program(opengl_renderer_t *gl_renderer,
 									   unsigned int vertex_shader, unsigned int fragment_shader) {
 	
-	opengl_renderer->shader_program = glCreateProgram();
-	glAttachShader(opengl_renderer->shader_program, vertex_shader);
-	glAttachShader(opengl_renderer->shader_program, fragment_shader);
-	glLinkProgram(opengl_renderer->shader_program);
+	gl_renderer->shader_program = glCreateProgram();
+	glAttachShader(gl_renderer->shader_program, vertex_shader);
+	glAttachShader(gl_renderer->shader_program, fragment_shader);
+	glLinkProgram(gl_renderer->shader_program);
 	
 	int success;
-	glGetProgramiv(opengl_renderer->shader_program, GL_LINK_STATUS, &success);
+	glGetProgramiv(gl_renderer->shader_program, GL_LINK_STATUS, &success);
 	if (!success) {
 		
 		char info_log[MAX_INFO_LOG_LEN];
-		glGetProgramInfoLog(opengl_renderer->shader_program, MAX_INFO_LOG_LEN, NULL, info_log);
+		glGetProgramInfoLog(gl_renderer->shader_program, MAX_INFO_LOG_LEN, NULL, info_log);
 		log_error("Shader failed to link.\n");
 		log_error("%s", info_log);
 		return SHATTER_OPENGL_SHADER_PROGRAM_INIT_FAILURE;
@@ -115,22 +115,22 @@ shatter_status_t create_shader_program(opengl_renderer_t *opengl_renderer,
 	return SHATTER_SUCCESS;
 }
 
-shatter_status_t init_vertex_arrays(opengl_renderer_t *opengl_renderer) {
+shatter_status_t init_vertex_arrays(opengl_renderer_t *gl_renderer) {
 	
-	glGenVertexArrays(1, &(opengl_renderer->vertex_array_object));
-	glBindVertexArray(opengl_renderer->vertex_array_object);
+	glGenVertexArrays(1, &(gl_renderer->vertex_array_object));
+	glBindVertexArray(gl_renderer->vertex_array_object);
 	
 	return SHATTER_SUCCESS;
 }
 
-shatter_status_t init_vertex_buffers(opengl_renderer_t *opengl_renderer) {
+shatter_status_t init_vertex_buffers(opengl_renderer_t *gl_renderer) {
 	
-	glBindVertexArray(opengl_renderer->vertex_array_object);
+	glBindVertexArray(gl_renderer->vertex_array_object);
 
-	glGenBuffers(1, &(opengl_renderer->vertex_buffer_object));
-	glBindBuffer(GL_ARRAY_BUFFER, opengl_renderer->vertex_buffer_object);
-	glBufferData(GL_ARRAY_BUFFER, opengl_renderer->properties->vertex_buffer_info->size,
-				 opengl_renderer->properties->vertex_buffer_info->data, GL_STATIC_DRAW);
+	glGenBuffers(1, &(gl_renderer->vertex_buffer_object));
+	glBindBuffer(GL_ARRAY_BUFFER, gl_renderer->vertex_buffer_object);
+	glBufferData(GL_ARRAY_BUFFER, gl_renderer->properties->vertex_buffer_info->size,
+				 gl_renderer->properties->vertex_buffer_info->data, GL_STATIC_DRAW);
 	
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), NULL);
@@ -141,27 +141,30 @@ shatter_status_t init_vertex_buffers(opengl_renderer_t *opengl_renderer) {
 	return SHATTER_SUCCESS;
 }
 
-shatter_status_t init_index_buffers(opengl_renderer_t *opengl_renderer) {
+shatter_status_t init_index_buffers(opengl_renderer_t *gl_renderer) {
 	
-	glGenBuffers(1, &(opengl_renderer->index_buffer_object));
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, opengl_renderer->index_buffer_object);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, opengl_renderer->properties->index_buffer_info->size,
-				 opengl_renderer->properties->index_buffer_info->data, GL_STATIC_DRAW);
+	glGenBuffers(1, &(gl_renderer->index_buffer_object));
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_renderer->index_buffer_object);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, gl_renderer->properties->index_buffer_info->size,
+				 gl_renderer->properties->index_buffer_info->data, GL_STATIC_DRAW);
 	
 	return SHATTER_SUCCESS;
 }
 
-shatter_status_t init_opengl_renderer(opengl_renderer_t **opengl_renderer_ptr, renderer_properties_t *properties) {
+shatter_status_t create_opengl_renderer(opengl_renderer_t **gl_renderer_ptr) {
+	
+	*gl_renderer_ptr = malloc(sizeof(opengl_renderer_t));
+	return SHATTER_SUCCESS;
+}
+
+shatter_status_t init_opengl_renderer(opengl_renderer_t *gl_renderer, renderer_properties_t *properties) {
 	
 	log_trace("\n");
 	log_trace("Initializing opengl renderer.\n");
 	
-	*opengl_renderer_ptr = malloc(sizeof(opengl_renderer_t));
-	opengl_renderer_t *opengl_renderer = *opengl_renderer_ptr;
+	gl_renderer->properties = properties;
 	
-	opengl_renderer->properties = properties;
-	
-	if (init_window(opengl_renderer)) {
+	if (init_window(gl_renderer)) {
 		
 		return SHATTER_OPENGL_RENDERER_INIT_FAILURE;
 	}
@@ -173,7 +176,7 @@ shatter_status_t init_opengl_renderer(opengl_renderer_t **opengl_renderer_ptr, r
 	
 	unsigned int vertex_shader;
 	char vertex_filepath[MAX_FILEPATH_LEN + 1];
-	get_absolute_filepath(opengl_renderer, "/shaders/vertex/basic_shader.vert", vertex_filepath);
+	get_absolute_filepath(gl_renderer, "/shaders/vertex/basic_shader.vert", vertex_filepath);
 	
 	if (create_shader(&vertex_shader, vertex_filepath, GL_VERTEX_SHADER)) {
 		
@@ -182,29 +185,29 @@ shatter_status_t init_opengl_renderer(opengl_renderer_t **opengl_renderer_ptr, r
 	
 	unsigned int fragment_shader;
 	char fragment_filepath[MAX_FILEPATH_LEN + 1];
-	get_absolute_filepath(opengl_renderer, "/shaders/fragment/basic_shader.frag", fragment_filepath);
+	get_absolute_filepath(gl_renderer, "/shaders/fragment/basic_shader.frag", fragment_filepath);
 	
 	if (create_shader(&fragment_shader, fragment_filepath, GL_FRAGMENT_SHADER)) {
 		
 		return SHATTER_OPENGL_RENDERER_INIT_FAILURE;
 	}
 	
-	if (create_shader_program(opengl_renderer, vertex_shader, fragment_shader)) {
+	if (create_shader_program(gl_renderer, vertex_shader, fragment_shader)) {
 		
 		return SHATTER_OPENGL_RENDERER_INIT_FAILURE;
 	}
 	
-	if (init_vertex_arrays(opengl_renderer)) {
+	if (init_vertex_arrays(gl_renderer)) {
 		
 		return SHATTER_OPENGL_RENDERER_INIT_FAILURE;
 	}
 	
-	if (init_vertex_buffers(opengl_renderer)) {
+	if (init_vertex_buffers(gl_renderer)) {
 		
 		return SHATTER_OPENGL_RENDERER_INIT_FAILURE;
 	}
 	
-	if (init_index_buffers(opengl_renderer)) {
+	if (init_index_buffers(gl_renderer)) {
 		
 		return SHATTER_OPENGL_RENDERER_INIT_FAILURE;
 	}
@@ -213,26 +216,26 @@ shatter_status_t init_opengl_renderer(opengl_renderer_t **opengl_renderer_ptr, r
 	return SHATTER_SUCCESS;
 }
 
-shatter_status_t loop_opengl_renderer(opengl_renderer_t *opengl_renderer) {
+shatter_status_t loop_opengl_renderer(opengl_renderer_t *gl_renderer) {
 	
-	glUseProgram(opengl_renderer->shader_program);
-	glBindVertexArray(opengl_renderer->vertex_array_object);
-	glDrawElements(GL_TRIANGLES, opengl_renderer->properties->index_buffer_info->num_elements, GL_UNSIGNED_INT, (void *)(0));
-	glfwSwapBuffers(opengl_renderer->properties->rendering_window);
+	glUseProgram(gl_renderer->shader_program);
+	glBindVertexArray(gl_renderer->vertex_array_object);
+	glDrawElements(GL_TRIANGLES, gl_renderer->properties->index_buffer_info->num_elements, GL_UNSIGNED_INT, (void *)(0));
+	glfwSwapBuffers(gl_renderer->properties->rendering_window);
 	return SHATTER_SUCCESS;
 }
 
-shatter_status_t cleanup_opengl_renderer(opengl_renderer_t *opengl_renderer) {
+shatter_status_t cleanup_opengl_renderer(opengl_renderer_t *gl_renderer) {
 	
 	log_trace("\n");
 	log_trace("Cleaning up opengl renderer.\n");
 	
-	glDeleteBuffers(1, &(opengl_renderer->vertex_buffer_object));
-	glDeleteVertexArrays(1, &(opengl_renderer->vertex_array_object));
-	glDeleteProgram(opengl_renderer->shader_program);
+	glDeleteBuffers(1, &(gl_renderer->vertex_buffer_object));
+	glDeleteVertexArrays(1, &(gl_renderer->vertex_array_object));
+	glDeleteProgram(gl_renderer->shader_program);
 	
-	glfwDestroyWindow(opengl_renderer->properties->rendering_window);
-	free(opengl_renderer);
+	glfwDestroyWindow(gl_renderer->properties->rendering_window);
+	free(gl_renderer);
 	
 	log_trace("Cleaned up opengl renderer.\n");
 	return SHATTER_SUCCESS;
@@ -240,9 +243,9 @@ shatter_status_t cleanup_opengl_renderer(opengl_renderer_t *opengl_renderer) {
 
 // ---------- Callbacks ---------- //
 
-shatter_status_t opengl_frame_buffer_resize_callback(opengl_renderer_t *opengl_renderer) {
+shatter_status_t opengl_frame_buffer_resize_callback(opengl_renderer_t *gl_renderer) {
 	
-	UNUSED(opengl_renderer);
+	UNUSED(gl_renderer);
 	return SHATTER_SUCCESS;
 }
 

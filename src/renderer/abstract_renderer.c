@@ -1,6 +1,7 @@
 #include <common/core.h>
 
 #include <dynamic_loader/dynamic_loader.h>
+#include <dynamic_loader/vtable.h>
 
 #include <renderer/abstract_renderer.h>
 
@@ -13,6 +14,12 @@
 
 extern volatile bool sigint_signaled;
 
+shatter_status_t create_abstract_renderer(abstract_renderer_t *renderer) {
+	
+	create_api_renderer_t create_api_renderer = renderer->api_loader->api_vtable.create_api_renderer;
+	return create_api_renderer(&(renderer->api_renderer));
+}
+
 shatter_status_t init_abstract_renderer(abstract_renderer_t *renderer) {
 	
 	renderer->is_running = true;
@@ -21,7 +28,7 @@ shatter_status_t init_abstract_renderer(abstract_renderer_t *renderer) {
 	
 	init_api_renderer_t init_api_renderer = renderer->api_loader->api_vtable.init_api_renderer;
 	
-	if (init_api_renderer(&(renderer->api_renderer), renderer->properties)) {
+	if (init_api_renderer(renderer->api_renderer, renderer->properties)) {
 		
 		log_error("Failed to initialize the renderer.\n");
 		return SHATTER_RENDERER_INIT_FAILURE;
@@ -49,6 +56,8 @@ shatter_status_t reload_abstract_renderer(abstract_renderer_t *renderer) {
 		renderer->reload_error = true;
 		return SHATTER_RENDERER_RELOAD_FAILURE;
 	}
+	
+	create_abstract_renderer(renderer);
 	
 	if (init_abstract_renderer(renderer)) {
 		

@@ -73,7 +73,8 @@ typedef struct vulkan_renderer_s {
 shatter_status_t submit_vulkan_vertex_info(vulkan_renderer_t *vk_renderer, buffer_info_t *buffer_info);
 shatter_status_t submit_vulkan_index_info(vulkan_renderer_t *vk_renderer, buffer_info_t *buffer_info);
 
-shatter_status_t init_vulkan_renderer(vulkan_renderer_t **vk_renderer_ptr, renderer_properties_t *properties);
+shatter_status_t create_vulkan_renderer(vulkan_renderer_t **vk_renderer_ptr);
+shatter_status_t init_vulkan_renderer(vulkan_renderer_t *vk_renderer, renderer_properties_t *properties);
 shatter_status_t loop_vulkan_renderer(vulkan_renderer_t *vk_renderer);
 shatter_status_t cleanup_vulkan_renderer(vulkan_renderer_t *vk_renderer);
 

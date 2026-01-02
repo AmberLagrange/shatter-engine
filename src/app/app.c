@@ -172,6 +172,8 @@ int main(int argc, char **argv) {
 		goto exit;
 	}
 	
+	create_abstract_renderer(&renderer);
+	
 	if (init_abstract_renderer(&renderer)) {
 		
 		log_error("Failed to initialize Renderer.\n");

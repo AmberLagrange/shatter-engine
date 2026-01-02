@@ -13,10 +13,6 @@
 
 #include <stdbool.h>
 
-typedef shatter_status_t (*init_api_t)(void *, renderer_properties_t *);
-typedef shatter_status_t (*loop_api_t)(void *);
-typedef shatter_status_t (*cleanup_api_t)(void *);
-
 typedef struct abstract_renderer_s {
 	
 	renderer_properties_t *properties;
@@ -29,6 +25,7 @@ typedef struct abstract_renderer_s {
 	bool reload_error;
 } abstract_renderer_t;
 
+shatter_status_t create_abstract_renderer(abstract_renderer_t *renderer);
 shatter_status_t init_abstract_renderer(abstract_renderer_t *renderer);
 shatter_status_t loop_abstract_renderer(abstract_renderer_t *renderer);
 shatter_status_t cleanup_abstract_renderer(abstract_renderer_t *renderer);
