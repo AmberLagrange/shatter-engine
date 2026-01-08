@@ -31,12 +31,12 @@ shatter_status_t get_vertex_attribute_descriptions(VkVertexInputAttributeDescrip
 
 shatter_status_t create_vulkan_vertex_buffer(vulkan_renderer_t *vk_renderer) {
 	
-	vk_renderer->vertex_buffer.size = vk_renderer->properties->vertex_buffer_info->size;
+	vk_renderer->vertex_buffer.size = vk_renderer->vertex_buffer_info->size;
 	vk_renderer->vertex_buffer.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 	vk_renderer->vertex_buffer.properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 	
 	if (create_vulkan_buffer_with_staging(vk_renderer, &(vk_renderer->vertex_buffer),
-										  vk_renderer->properties->vertex_buffer_info)) {
+										  vk_renderer->vertex_buffer_info)) {
 		
 		log_error("Failed to create vertex buffer.\n");
 		return SHATTER_VULKAN_VERTEX_BUFFER_INIT_FAILURE;

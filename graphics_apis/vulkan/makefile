@@ -35,6 +35,7 @@ SRCS = \
 	$(SRC_DIR)/buffers/vulkan_buffer.c \
 	$(SRC_DIR)/buffers/vulkan_staging_buffer.c \
 	$(SRC_DIR)/buffers/vulkan_index_buffer.c \
+	$(SRC_DIR)/buffers/vulkan_uniform_buffers.c \
 	$(SRC_DIR)/buffers/vulkan_vertex_buffer.c \
 	\
 	$(SRC_DIR)/commands/command_pool.c \
@@ -49,6 +50,9 @@ SRCS = \
 	$(SRC_DIR)/devices/logical.c \
 	$(SRC_DIR)/devices/physical.c \
 	\
+	$(SRC_DIR)/graphics_pipeline/descriptor_pool.c \
+	$(SRC_DIR)/graphics_pipeline/descriptor_sets.c \
+	$(SRC_DIR)/graphics_pipeline/descriptor_set_layout.c \
 	$(SRC_DIR)/graphics_pipeline/graphics_pipeline.c \
 	\
 	$(SRC_DIR)/instance/extensions.c \

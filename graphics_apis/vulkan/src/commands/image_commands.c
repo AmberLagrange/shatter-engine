@@ -106,7 +106,12 @@ shatter_status_t record_image_command(vulkan_renderer_t *vk_renderer, image_comm
 	vkCmdBindVertexBuffers(command_buffer, 0, 1, vertex_buffers, offsets);
 	vkCmdBindIndexBuffer(command_buffer, vk_renderer->index_buffer.vulkan_buffer, 0, VK_INDEX_TYPE_UINT32);
 	
-	vkCmdDrawIndexed(command_buffer, vk_renderer->properties->index_buffer_info->num_elements, 1, 0, 0, 0);
+	vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+							vk_renderer->pipeline_layout, 0, 1,
+							&(vk_renderer->descriptor_set_list[vk_renderer->current_frame]),
+							0, NULL);
+	
+	vkCmdDrawIndexed(command_buffer, vk_renderer->index_buffer_info->num_elements, 1, 0, 0, 0);
 	vkCmdEndRenderPass(command_buffer);
 	
 	if (vkEndCommandBuffer(command_buffer) != VK_SUCCESS) {

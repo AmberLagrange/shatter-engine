@@ -1,6 +1,7 @@
 #include <common/core.h>
 
 #include <buffers/buffer_info.h>
+#include <buffers/uniform_buffer_object.h>
 #include <buffers/vertex_buffer_info.h>
 
 #include <dynamic_loader/dynamic_loader.h>
@@ -101,27 +102,30 @@ const uint32_t indices[6] = {
 	2, 3, 0,
 };
 
+char *get_abs_path(const char *directory_filepath, const char *relative_filepath, char *string_buffer, size_t buffer_len) {
+	
+	size_t directory_len = strlen(directory_filepath);
+	
+	strncpy(string_buffer, directory_filepath, buffer_len);
+	strncat(string_buffer, "/", buffer_len - directory_len);
+	strncat(string_buffer, relative_filepath, buffer_len - directory_len - 1);
+	
+	return string_buffer;
+}
+
 int main(int argc, char **argv) {
 	
 	parse_args(argc, argv);
 	
-	char binary_filepath[MAX_FILEPATH_LEN + 1];
-	realpath(argv[0], binary_filepath);
-	
 	char directory_filepath[MAX_FILEPATH_LEN + 1];
-	strncpy(directory_filepath, binary_filepath, MAX_FILEPATH_LEN);
+	realpath(argv[0], directory_filepath);
 	dirname(directory_filepath);
-	size_t directory_filepath_len = strlen(directory_filepath);
 	
 	char vulkan_api_filepath[MAX_FILEPATH_LEN + 1];
-	strncpy(vulkan_api_filepath, directory_filepath, MAX_FILEPATH_LEN);
-	strncat(vulkan_api_filepath, "/", 1);
-	strncat(vulkan_api_filepath, vulkan_api_library_filepath, MAX_FILEPATH_LEN - directory_filepath_len - 1);
+	get_abs_path(directory_filepath, vulkan_api_library_filepath, vulkan_api_filepath, MAX_FILEPATH_LEN);
 	
 	char opengl_api_filepath[MAX_FILEPATH_LEN + 1];
-	strncpy(opengl_api_filepath, directory_filepath, MAX_FILEPATH_LEN);
-	strncat(opengl_api_filepath, "/", 1);
-	strncat(opengl_api_filepath, opengl_api_library_filepath, MAX_FILEPATH_LEN - directory_filepath_len - 1);
+	get_abs_path(directory_filepath, opengl_api_library_filepath, opengl_api_filepath, MAX_FILEPATH_LEN);
 	
 	dynamic_loader_t api_loader = {
 		
@@ -129,19 +133,6 @@ int main(int argc, char **argv) {
 		.filepath_list[OPENGL_API_INDEX] = opengl_api_filepath,
 		
 		.requested_api_index = VULKAN_API_INDEX,
-	};
-	buffer_info_t vertex_buffer_info = {
-		
-		.data = (void *)(vertices),
-		.size = sizeof(vertices),
-		.num_elements = sizeof(vertices) / sizeof(vertices[0]),
-	};
-	
-	buffer_info_t index_buffer_info = {
-		
-		.data = (void *)(indices),
-		.size = sizeof(indices),
-		.num_elements = sizeof(indices) / sizeof(indices[0]),
 	};
 	
 	renderer_properties_t renderer_properties = {
@@ -151,15 +142,52 @@ int main(int argc, char **argv) {
 		.title   = "Vulkan Renderer",
 		
 		.directory_filepath = directory_filepath,
+	};
+	
+	buffer_info_t vertex_info = {
 		
-		.vertex_buffer_info = &vertex_buffer_info,
-		.index_buffer_info  = &index_buffer_info,
+		.data = (void *)(vertices),
+		.size = sizeof(vertices),
+		.num_elements = sizeof(vertices) / sizeof(vertices[0]),
+	};
+	
+	buffer_info_t index_info = {
+		
+		.data = (void *)(indices),
+		.size = sizeof(indices),
+		.num_elements = sizeof(indices) / sizeof(indices[0]),
+	};
+	
+	uniform_buffer_object_t ubo;
+	
+	glm_mat4_identity(ubo.model);
+	
+	vec3 eye    = { 0.0f, 0.0f, 2.0f };
+	vec3 center = { 0.0f, 0.0f, 0.0f };
+	vec3 up     = { 0.0f, 1.0f, 0.0f };
+	
+	glm_mat4_identity(ubo.view);
+	glm_lookat(eye, center, up, ubo.view);
+	
+	glm_mat4_identity(ubo.projection);
+	glm_perspective(glm_rad(45.0f), (float)renderer_properties.width / (float)renderer_properties.height,
+					0.1f, 10.0f, ubo.projection);
+	
+	buffer_info_t uniform_buffer_info = {
+		
+		.data = (void *)(&ubo),
+		.size = sizeof(ubo),
+		.num_elements = 1,
 	};
 	
 	abstract_renderer_t renderer = {
 		
 		.properties = &renderer_properties,
 		.api_loader = &api_loader,
+		
+		.vertex_info = &vertex_info,
+		.index_info = &index_info,
+		.uniform_buffer_info = &uniform_buffer_info,
 	};
 	
 	init_glfw();
@@ -181,7 +209,7 @@ int main(int argc, char **argv) {
 		goto cleanup;
 	}
 	
-	signal(SIGINT, &sigint_handler);	
+	signal(SIGINT, &sigint_handler);
 	
 	if (loop_abstract_renderer(&renderer)) {
 		

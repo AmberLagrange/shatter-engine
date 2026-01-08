@@ -81,7 +81,7 @@ CGLM_DIR := $(CURDIR)/cglm
 # -------- Compiler and Linker flags -------- #
 
 CFLAGS  += -I$(INC_DIR) -I$(LOGGER_DIR)/include -I$(CGLM_DIR)/include
-LDLIBS  += -lglfw
+LDLIBS  += -lglfw -lm
 
 # -------- Util Targets -------- #
 

@@ -2,6 +2,8 @@
 
 #include <opengl_renderer.h>
 
+#include <buffers/uniform_buffer_object.h>
+
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -129,8 +131,8 @@ shatter_status_t init_vertex_buffers(opengl_renderer_t *gl_renderer) {
 
 	glGenBuffers(1, &(gl_renderer->vertex_buffer_object));
 	glBindBuffer(GL_ARRAY_BUFFER, gl_renderer->vertex_buffer_object);
-	glBufferData(GL_ARRAY_BUFFER, gl_renderer->properties->vertex_buffer_info->size,
-				 gl_renderer->properties->vertex_buffer_info->data, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, gl_renderer->vertex_buffer_info->size,
+				 gl_renderer->vertex_buffer_info->data, GL_STATIC_DRAW);
 	
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), NULL);
@@ -145,9 +147,21 @@ shatter_status_t init_index_buffers(opengl_renderer_t *gl_renderer) {
 	
 	glGenBuffers(1, &(gl_renderer->index_buffer_object));
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_renderer->index_buffer_object);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, gl_renderer->properties->index_buffer_info->size,
-				 gl_renderer->properties->index_buffer_info->data, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, gl_renderer->index_buffer_info->size,
+				 gl_renderer->index_buffer_info->data, GL_STATIC_DRAW);
 	
+	return SHATTER_SUCCESS;
+}
+
+shatter_status_t init_uniform_buffer_objects(opengl_renderer_t *gl_renderer) {
+	
+	glGenBuffers(1, &(gl_renderer->uniform_buffer_object));
+	glBindBuffer(GL_UNIFORM_BUFFER, gl_renderer->uniform_buffer_object);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(uniform_buffer_object_t), NULL, GL_DYNAMIC_DRAW);
+	
+	GLuint block_index = glGetUniformBlockIndex(gl_renderer->shader_program, "uniform_buffer_object");
+	glUniformBlockBinding(gl_renderer->shader_program, block_index, 0);
+	glBindBufferBase(GL_UNIFORM_BUFFER, 0, gl_renderer->uniform_buffer_object);
 	return SHATTER_SUCCESS;
 }
 
@@ -212,6 +226,11 @@ shatter_status_t init_opengl_renderer(opengl_renderer_t *gl_renderer, renderer_p
 		return SHATTER_OPENGL_RENDERER_INIT_FAILURE;
 	}
 	
+	if (init_uniform_buffer_objects(gl_renderer)) {
+		
+		return SHATTER_OPENGL_RENDERER_INIT_FAILURE;
+	}
+	
 	log_trace("Initialized opengl renderer.\n");
 	return SHATTER_SUCCESS;
 }
@@ -220,7 +239,13 @@ shatter_status_t loop_opengl_renderer(opengl_renderer_t *gl_renderer) {
 	
 	glUseProgram(gl_renderer->shader_program);
 	glBindVertexArray(gl_renderer->vertex_array_object);
-	glDrawElements(GL_TRIANGLES, gl_renderer->properties->index_buffer_info->num_elements, GL_UNSIGNED_INT, (void *)(0));
+	
+	glClear(GL_COLOR_BUFFER_BIT);
+	glDrawElements(GL_TRIANGLES, gl_renderer->index_buffer_info->num_elements, GL_UNSIGNED_INT, NULL);
+	
+	glBindBuffer(GL_UNIFORM_BUFFER, gl_renderer->uniform_buffer_object);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(uniform_buffer_object_t), gl_renderer->uniform_buffer_info->data);
+	
 	glfwSwapBuffers(gl_renderer->properties->rendering_window);
 	return SHATTER_SUCCESS;
 }
@@ -237,7 +262,27 @@ shatter_status_t cleanup_opengl_renderer(opengl_renderer_t *gl_renderer) {
 	glfwDestroyWindow(gl_renderer->properties->rendering_window);
 	free(gl_renderer);
 	
-	log_trace("Cleaned up opengl renderer.\n");
+	log_trace("Cleaned up opengl.\n");
+	return SHATTER_SUCCESS;
+}
+
+// ---------- Buffer Submition ---------- //
+
+shatter_status_t submit_opengl_vertex_info(opengl_renderer_t *gl_renderer, buffer_info_t *vertex_info) {
+	
+	gl_renderer->vertex_buffer_info = vertex_info;
+	return SHATTER_SUCCESS;
+}
+
+shatter_status_t submit_opengl_index_info(opengl_renderer_t *gl_renderer, buffer_info_t *index_info) {
+	
+	gl_renderer->index_buffer_info = index_info;
+	return SHATTER_SUCCESS;
+}
+
+shatter_status_t submit_opengl_uniform_buffer_info(opengl_renderer_t *gl_renderer, buffer_info_t *uniform_buffer_info) {
+	
+	gl_renderer->uniform_buffer_info = uniform_buffer_info;
 	return SHATTER_SUCCESS;
 }
 

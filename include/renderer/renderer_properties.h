@@ -15,9 +15,6 @@ typedef struct renderer_properties_s {
 	GLFWwindow *rendering_window;
 	
 	const char *directory_filepath;
-	
-	buffer_info_t *vertex_buffer_info;
-	buffer_info_t *index_buffer_info;
 } renderer_properties_t;
 
 #endif // RENDERER_RENDERER_PROPERTIES_H

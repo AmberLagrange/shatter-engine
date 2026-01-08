@@ -3,6 +3,7 @@
 
 #include <common/core.h>
 
+#include <buffers/uniform_buffer_object.h>
 #include <buffers/vulkan_buffer.h>
 
 #include <commands/image_commands.h>
@@ -24,7 +25,7 @@ typedef struct vulkan_renderer_s {
 	
 	renderer_properties_t *properties;
 	
-	VkInstance vulkan_instance;
+	VkInstance               vulkan_instance;
 	VkDebugUtilsMessengerEXT debug_messenger;
 	
 	VkSurfaceKHR rendering_surface;
@@ -32,51 +33,69 @@ typedef struct vulkan_renderer_s {
 	queue_family_indices_t queue_family_indices;
 	
 	VkPhysicalDevice physical_device;
-	VkDevice logical_device;
+	VkDevice         logical_device;
 	
 	VkQueue graphics_queue;
 	VkQueue present_queue;
 	
 	VkSwapchainKHR swap_chain;
-	VkImage *swap_chain_image_list;
-	size_t num_swap_chain_images;
-	VkFormat swap_chain_image_format;
-	VkExtent2D swap_chain_extent;
+	VkImage        *swap_chain_image_list;
+	size_t         num_swap_chain_images;
+	VkFormat       swap_chain_image_format;
+	VkExtent2D     swap_chain_extent;
 	
 	VkFramebuffer *swap_chain_frame_buffer_list;
-	VkImageView *swap_chain_image_view_list;
+	VkImageView   *swap_chain_image_view_list;
 	
 	bool frame_buffer_resized;
 	
-	VkRenderPass render_pass;
+	VkRenderPass     render_pass;
 	VkPipelineLayout pipeline_layout;
-	VkPipeline graphics_pipeline;
+	VkPipeline       graphics_pipeline;
+	
+	VkDescriptorPool      descriptor_pool;
+	VkDescriptorSetLayout descriptor_set_layout;
+	VkDescriptorSet       *descriptor_set_list;
+	size_t                num_descriptor_sets;
 	
 	vulkan_buffer_t vertex_buffer;
+	buffer_info_t   *vertex_buffer_info;
+	
 	vulkan_buffer_t index_buffer;
+	buffer_info_t   *index_buffer_info;
+	
+	vulkan_buffer_t         *uniform_buffer_list;
+	uniform_buffer_object_t **uniform_buffer_memory_map_list;
+	size_t                  num_uniform_buffers;
+	buffer_info_t           *uniform_buffer_info;
 	
 	VkCommandPool command_pool;
 	image_commands_t image_commands;
 	
 	VkSemaphore *acquire_image_semaphore_list;
-	VkFence *in_flight_fence_list;
+	VkFence     *in_flight_fence_list;
 	VkSemaphore *submit_image_semaphore_list;
 	
 	uint32_t current_frame;
 	uint32_t num_in_flight_frames;
 	
-	char **validation_layers;
+	char   **validation_layers;
 	size_t num_validation_layers;
-	bool validation_layers_enabled;
+	bool   validation_layers_enabled;
 } vulkan_renderer_t;
-
-shatter_status_t submit_vulkan_vertex_info(vulkan_renderer_t *vk_renderer, buffer_info_t *buffer_info);
-shatter_status_t submit_vulkan_index_info(vulkan_renderer_t *vk_renderer, buffer_info_t *buffer_info);
 
 shatter_status_t create_vulkan_renderer(vulkan_renderer_t **vk_renderer_ptr);
 shatter_status_t init_vulkan_renderer(vulkan_renderer_t *vk_renderer, renderer_properties_t *properties);
 shatter_status_t loop_vulkan_renderer(vulkan_renderer_t *vk_renderer);
 shatter_status_t cleanup_vulkan_renderer(vulkan_renderer_t *vk_renderer);
+
+// ---------- Buffer Submition ---------- //
+
+shatter_status_t submit_vulkan_vertex_info(vulkan_renderer_t *vk_renderer, buffer_info_t *vertex_info);
+shatter_status_t submit_vulkan_index_info(vulkan_renderer_t *vk_renderer, buffer_info_t *index_info);
+shatter_status_t submit_vulkan_uniform_buffer_info(vulkan_renderer_t *vk_renderer, buffer_info_t *uniform_buffer_info);
+
+// ---------- Drawing ---------- //
 
 shatter_status_t draw_frame(vulkan_renderer_t *vk_renderer);
 

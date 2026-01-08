@@ -2,8 +2,10 @@
 
 #include <vulkan_renderer.h>
 
+#include <buffers/uniform_buffer_object.h>
 #include <buffers/vulkan_buffer.h>
 #include <buffers/vulkan_index_buffer.h>
+#include <buffers/vulkan_uniform_buffers.h>
 #include <buffers/vulkan_vertex_buffer.h>
 
 #include <commands/command_pool.h>
@@ -15,6 +17,9 @@
 #include <devices/logical.h>
 #include <devices/physical.h>
 
+#include <graphics_pipeline/descriptor_pool.h>
+#include <graphics_pipeline/descriptor_sets.h>
+#include <graphics_pipeline/descriptor_set_layout.h>
 #include <graphics_pipeline/graphics_pipeline.h>
 
 #include <instance/instance.h>
@@ -26,6 +31,8 @@
 
 #include <swap_chain/swap_chain.h>
 #include <swap_chain/sync_objects.h>
+
+#include <cglm/cglm.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -94,6 +101,12 @@ shatter_status_t init_vulkan_renderer(vulkan_renderer_t *vk_renderer, renderer_p
 		return SHATTER_VULKAN_SWAP_CHAIN_INIT_FAILURE;
 	}
 	
+	if (create_descriptor_set_layout(vk_renderer)) {
+		
+		log_error("Failed to create the descriptor set layout.\n");
+		return SHATTER_VULKAN_DESCRIPTOR_SET_LAYOUT_INIT_FAILURE;
+	}
+	
 	if (create_graphics_pipeline(vk_renderer)) {
 		
 		log_error("Failed to create the graphics pipeline.\n");
@@ -116,6 +129,24 @@ shatter_status_t init_vulkan_renderer(vulkan_renderer_t *vk_renderer, renderer_p
 		
 		log_error("Failed to create index buffer.\n");
 		return SHATTER_VULKAN_INDEX_BUFFER_INIT_FAILURE;
+	}
+	
+	if (create_vulkan_uniform_buffers(vk_renderer)) {
+		
+		log_error("Failed to create uniform buffers.\n");
+		return SHATTER_VULKAN_UNIFORM_BUFFER_INIT_FAILURE;
+	}
+	
+	if (create_descriptor_pool(vk_renderer)) {
+		
+		log_error("Failed to create descriptor pool.\n");
+		return SHATTER_VULKAN_DESCRIPTOR_POOL_INIT_FAILURE;
+	}
+	
+	if (create_descriptor_sets(vk_renderer)) {
+		
+		log_error("Failed to create descriptor sets.\n");
+		return SHATTER_VULKAN_DESCRIPTOR_SET_INIT_FAILURE;
 	}
 	
 	if (create_image_commands(vk_renderer, &(vk_renderer->image_commands),
@@ -154,6 +185,12 @@ shatter_status_t cleanup_vulkan_renderer(vulkan_renderer_t *vk_renderer) {
 	cleanup_command_pool(vk_renderer, &(vk_renderer->command_pool));
 	log_trace("Destroyed command pools.\n");
 	
+	cleanup_descriptor_pool(vk_renderer);
+	log_trace("Destroyed descriptor pool.\n");
+	
+	cleanup_vulkan_uniform_buffers(vk_renderer);
+	log_trace("Destroyed uniform buffers.\n");
+	
 	cleanup_vulkan_index_buffer(vk_renderer);
 	log_trace("Destroyed index buffer.\n");
 	
@@ -161,10 +198,13 @@ shatter_status_t cleanup_vulkan_renderer(vulkan_renderer_t *vk_renderer) {
 	log_trace("Destroyed vertex buffer.\n");
 	
 	vkDestroyPipeline(vk_renderer->logical_device, vk_renderer->graphics_pipeline, NULL);
-	log_trace("Destroyed graphics pipeline.\n");
+	log_trace("Destroyed graphics pipeline.\n");	
 	
 	vkDestroyPipelineLayout(vk_renderer->logical_device, vk_renderer->pipeline_layout, NULL);
 	log_trace("Destroyed pipeline layout.\n");
+
+	cleanup_descriptor_set_layout(vk_renderer);
+	log_trace("Destroyed descriptor set layout.\n");
 	
 	cleanup_swap_chain(vk_renderer);
 	log_trace("Destroyed swapchain.\n");
@@ -189,10 +229,43 @@ shatter_status_t cleanup_vulkan_renderer(vulkan_renderer_t *vk_renderer) {
 	return SHATTER_SUCCESS;
 }
 
+// ---------- Buffer Submition ---------- //
+
+shatter_status_t submit_vulkan_vertex_info(vulkan_renderer_t *vk_renderer, buffer_info_t *vertex_info) {
+	
+	vk_renderer->vertex_buffer_info = vertex_info;
+	return SHATTER_SUCCESS;
+}
+
+shatter_status_t submit_vulkan_index_info(vulkan_renderer_t *vk_renderer, buffer_info_t *index_info) {
+	
+	vk_renderer->index_buffer_info = index_info;
+	return SHATTER_SUCCESS;
+}
+
+shatter_status_t submit_vulkan_uniform_buffer_info(vulkan_renderer_t *vk_renderer, buffer_info_t *uniform_buffer_info) {
+	
+	vk_renderer->uniform_buffer_info = uniform_buffer_info;
+	return SHATTER_SUCCESS;
+}
+
+// ---------- Drawing ---------- //
+
 shatter_status_t draw_frame(vulkan_renderer_t *vk_renderer) {
 	
 	uint32_t current_frame = vk_renderer->current_frame;
 	uint32_t image_index;
+	
+	uniform_buffer_object_t *ubo = vk_renderer->uniform_buffer_memory_map_list[current_frame];
+	memcpy(ubo, vk_renderer->uniform_buffer_info->data, vk_renderer->uniform_buffer_info->size);
+	
+	// Convert the aspect ratio based off the swap chain's extent's aspect ratio
+	float width =  (float)vk_renderer->swap_chain_extent.width;
+	float height = (float)vk_renderer->swap_chain_extent.height;
+	glm_perspective(glm_rad(45.0f), width / height, 0.1f, 10.0f, ubo->projection);
+	
+	// GLM (CGLM) assumes opengl's basis, so we must invert the Y-axis
+	ubo->projection[1][1] *= -1;
 	
 	wait_for_in_flight_fence(vk_renderer);
 	

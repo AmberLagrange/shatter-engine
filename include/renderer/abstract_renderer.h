@@ -20,6 +20,10 @@ typedef struct abstract_renderer_s {
 	dynamic_loader_t* api_loader;
 	void *api_renderer;
 	
+	buffer_info_t *vertex_info;
+	buffer_info_t *index_info;
+	buffer_info_t *uniform_buffer_info;
+	
 	bool is_running;
 	bool needs_reload;
 	bool reload_error;
@@ -29,6 +33,10 @@ shatter_status_t create_abstract_renderer(abstract_renderer_t *renderer);
 shatter_status_t init_abstract_renderer(abstract_renderer_t *renderer);
 shatter_status_t loop_abstract_renderer(abstract_renderer_t *renderer);
 shatter_status_t cleanup_abstract_renderer(abstract_renderer_t *renderer);
+
+shatter_status_t submit_abstract_vertex_info(abstract_renderer_t *renderer);
+shatter_status_t submit_abstract_index_info(abstract_renderer_t *renderer);
+shatter_status_t submit_abstract_uniform_buffer_info(abstract_renderer_t *renderer);
 
 #endif // RENDERER_ABSTRACT_RENDERER_H
 

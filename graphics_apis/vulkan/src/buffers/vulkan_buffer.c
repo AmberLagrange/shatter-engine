@@ -72,15 +72,28 @@ shatter_status_t allocate_buffer_memory(vulkan_renderer_t *vk_renderer, vulkan_b
 	return SHATTER_SUCCESS;
 }
 
+shatter_status_t map_buffer_memory(vulkan_renderer_t *vk_renderer, vulkan_buffer_t *buffer,
+								   VkDeviceSize size, void **memory_map) {
+	
+	vkMapMemory(vk_renderer->logical_device, buffer->memory, 0, size, 0, memory_map);
+	return SHATTER_SUCCESS;
+}
+
+shatter_status_t unmap_buffer_memory(vulkan_renderer_t *vk_renderer, vulkan_buffer_t *buffer) {
+	
+	vkUnmapMemory(vk_renderer->logical_device, buffer->memory);
+	return SHATTER_SUCCESS;
+}
+
 // ---------- Memory Copying ---------- //
 
 shatter_status_t memcpy_buffer_to_device(vulkan_renderer_t *vk_renderer, vulkan_buffer_t *buffer, buffer_info_t *buffer_info) {
 	
 	void *device_memory;
 	
-	vkMapMemory(vk_renderer->logical_device, buffer->memory, 0, buffer_info->size, 0, &device_memory);
+	map_buffer_memory(vk_renderer, buffer, buffer_info->size, &device_memory);
 	memcpy(device_memory, buffer_info->data, buffer_info->size);
-	vkUnmapMemory(vk_renderer->logical_device, buffer->memory);
+	unmap_buffer_memory(vk_renderer, buffer);
 	
 	return SHATTER_SUCCESS;
 }

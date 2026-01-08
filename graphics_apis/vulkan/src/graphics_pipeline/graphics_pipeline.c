@@ -187,7 +187,7 @@ shatter_status_t create_graphics_pipeline(vulkan_renderer_t *vk_renderer) {
 		.lineWidth = 1.0f,
 		
 		.cullMode = VK_CULL_MODE_BACK_BIT,
-		.frontFace = VK_FRONT_FACE_CLOCKWISE,
+		.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE,
 		
 		.depthBiasEnable = VK_FALSE,
 		.depthBiasConstantFactor = 0.0f,
@@ -255,11 +255,8 @@ shatter_status_t create_graphics_pipeline(vulkan_renderer_t *vk_renderer) {
 		
 		.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
 		
-		.setLayoutCount = 0,
-		.pSetLayouts = NULL,
-		
-		.pushConstantRangeCount = 0,
-		.pPushConstantRanges = NULL,
+		.setLayoutCount = 1,
+		.pSetLayouts = &(vk_renderer->descriptor_set_layout),
 	};
 	
 	if (vkCreatePipelineLayout(vk_renderer->logical_device, &pipeline_layout_info,
